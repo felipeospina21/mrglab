@@ -32,3 +32,13 @@ func Error(error error) {
 	defer f.Close()
 	log.Fatalf("%s\n", error)
 }
+
+func Log(prefix string, value any) {
+	f, err := tea.LogToFile("debug.log", prefix)
+	if err != nil {
+		fmt.Println("fatal:", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+	log.Println(value)
+}
