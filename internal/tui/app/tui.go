@@ -1,10 +1,12 @@
 package app
 
 import (
+	"strconv"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
-	mergerequests "github.com/felipeospina21/mrglab/internal/tui/components/merge_requests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
@@ -72,21 +74,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Projects.List.SetSize(msg.Width-h-th, msg.Height-v-tv)
 
 	case task.TaskFinishedMsg:
-		// TODO: Update Table with msg.Msg (table rows)
+		// TODO: Rethink this logic
+		if msg.SectionType == "mrs" {
+			ml := msg.Msg.(mergerequests.MergeRequestsFetchedMsg)
+			var rows []table.Row
+			for _, mr := range ml.Mrs {
+				r := table.Row{
+					mr.CreatedAt.String(),
+					strconv.FormatBool(mr.Draft),
+					mr.Title,
+					mr.Author.Name,
+					mr.DetailedMergeStatus,
+					strconv.FormatBool(mr.HasConflicts),
+					strconv.Itoa(mr.UserNotesCount),
+					mr.ChangesCount,
+					mr.WebURL,
+					mr.Description,
+					strconv.Itoa(mr.IID),
+				}
+
+				rows = append(rows, r)
+			}
+			m.MergeRequests.Table = table.InitModel(table.InitModelParams{
+				Rows:   rows,
+				Colums: mergerequests.GetMergeReqsColums(m.ctx.Window.Width - 10),
+				// StyleFunc: mergerequests.StyleIconsColumns(table.Styles(table.DefaultStyle()), table.MergeReqsIconCols),
+			})
+		}
 	}
 
 	m.Projects.List, cmd = m.Projects.List.Update(msg)
+	m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	t := table.TitleStyle.Render("Select Project")
 	if m.Projects.IsOpen {
+		t := table.TitleStyle.Render("Select Project")
 		p := projects.DocStyle.Render(m.Projects.List.View())
 
 		return lipgloss.JoinHorizontal(0, p, t)
 	}
 
-	return t
+	return table.DocStyle.Render(m.MergeRequests.Table.View())
 }

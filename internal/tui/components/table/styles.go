@@ -25,4 +25,9 @@ var (
 			Margin(2, 0, 1, 2).
 			Foreground(lipgloss.Color(style.Violet[300])).
 			Bold(true)
+
+	DocStyle = lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color("240")) // TODO: update color with tokens
+
 )

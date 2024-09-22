@@ -20,7 +20,7 @@ func (m *Model) GetMRListCmd() tea.Cmd {
 		return task.TaskFinishedMsg{
 			TaskID:      "",
 			SectionID:   0,
-			SectionType: "",
+			SectionType: "mrs",
 			Err:         err,
 			Msg: MergeRequestsFetchedMsg{
 				Mrs:    mrs,
