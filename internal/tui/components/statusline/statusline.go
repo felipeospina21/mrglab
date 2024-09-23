@@ -7,18 +7,21 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
-type modes struct {
+type Modes struct {
 	Normal  string
 	Insert  string
 	Loading string
+	Error   string
 }
 
-var Modes = modes{
+var ModesEnum = Modes{
 	Normal:  "NORMAL",
 	Insert:  "INSERT",
 	Loading: "LOADING",
+	Error:   "ERROR",
 }
 
 type Model struct {
@@ -27,18 +30,16 @@ type Model struct {
 	Width   int
 	ctx     *context.AppContext
 	Spinner spinner.Model
-	// Height  int
 }
 
 func New(ctx *context.AppContext) Model {
 	return Model{
-		Status: Modes.Normal,
+		Status: ModesEnum.Normal,
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Dot),
 			spinner.WithStyle(spinnerStyle),
 		),
 		ctx: ctx,
-		// Content: m.Content,
 	}
 }
 
@@ -66,15 +67,13 @@ func (m Model) View() string {
 
 	statusKey := statusStyle.Render(m.Status)
 	encoding := encodingStyle.Render("UTF-8")
-	// TODO: move icon to its package
-	projectName := projectStyle.Render(fmt.Sprintf(" %s", m.ctx.SelectedProject.Name))
-	// TODO: refactor this logic to a separate function
-	if m.Status == Modes.Loading {
+	projectName := projectStyle.Render(fmt.Sprintf("%s %s", icon.Gitlab, m.ctx.SelectedProject.Name))
+
+	// FIX: without this the spinner is not being updated
+	if m.Status == ModesEnum.Loading {
 		m.Content = m.Spinner.View()
-		// return m.spinner.View()
-	} else if m.Status == Modes.Normal {
-		m.Content = ""
 	}
+
 	statusVal := statusText.
 		Width(width - w(statusKey) - w(encoding) - w(projectName)).
 		Render(m.Content)
@@ -90,18 +89,3 @@ func (m Model) View() string {
 }
 
 // TODO: add a function to control statuses
-
-func StartSpinner() string {
-	// TODO: add spinner initialization & model (to statusline model)
-
-	return Modes.Loading
-}
-
-func StopSpinner() string {
-	// TODO: add spinner initialization & model (to statusline model)
-	return Modes.Normal
-}
-
-func (m Model) startSpinner() {
-	m.Content = m.Spinner.View()
-}
