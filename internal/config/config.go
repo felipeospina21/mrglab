@@ -19,7 +19,7 @@ type Config struct {
 
 var GlobalConfig Config
 
-func Load(configObj *Config) {
+func Load(config *Config) error {
 	cmdName := "mrglab"
 
 	viper.SetConfigName(cmdName)
@@ -34,9 +34,13 @@ func Load(configObj *Config) {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
-	err = viper.Unmarshal(&GlobalConfig)
+	err = viper.Unmarshal(&config)
 	if err != nil {
 		panic(fmt.Errorf("fatal error unmarshal: %w", err))
+	}
+
+	if config.BaseURL == "" {
+		config.BaseURL = "https://gitlab.com"
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
@@ -47,7 +51,15 @@ func Load(configObj *Config) {
 	viper.WatchConfig()
 
 	// Env vars
-	viper.SetEnvPrefix(cmdName)
+	err = loadEnvVars(cmdName, config)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func loadEnvVars(prefix string, config *Config) error {
+	viper.SetEnvPrefix(prefix)
 	e := viper.BindEnv("token")
 	if e != nil {
 		logger.Debug("e", func() {
@@ -58,8 +70,11 @@ func Load(configObj *Config) {
 
 	if token == nil {
 		// TODO: report in statusline this error
-		logger.Error(errors.New("api-token not set"))
-		token = ""
+		err := errors.New("api-token not set")
+		logger.Error(err)
+		config.APIToken = ""
+		return err
 	}
-	GlobalConfig.APIToken = token.(string)
+	config.APIToken = token.(string)
+	return nil
 }

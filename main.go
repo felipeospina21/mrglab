@@ -11,9 +11,13 @@ import (
 )
 
 func main() {
-	config.Load(&config.GlobalConfig)
+	ctx := &context.AppContext{}
+	err := config.Load(&config.GlobalConfig)
+	if err != nil {
+		ctx.WarningMsg = err
+	}
 
-	m := app.InitMainModel(&context.AppContext{})
+	m := app.InitMainModel(ctx)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
