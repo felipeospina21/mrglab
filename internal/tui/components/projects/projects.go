@@ -154,3 +154,10 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	}
 	fmt.Fprintf(w, "%s", title) //nolint: errcheck
 }
+
+func GetFrameSize() (int, int) {
+	h, v := ItemStyle.GetFrameSize()
+	th, tv := TitleStyle.GetFrameSize()
+
+	return h + th, v + tv
+}

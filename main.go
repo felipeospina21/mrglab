@@ -14,7 +14,8 @@ func main() {
 	ctx := &context.AppContext{}
 	err := config.Load(&config.GlobalConfig)
 	if err != nil {
-		ctx.WarningMsg = err
+		// TODO: handle this error
+		// ctx.WarningMsg = err
 	}
 
 	m := app.InitMainModel(ctx)

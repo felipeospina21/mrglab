@@ -22,10 +22,11 @@ var (
 		return s
 	}
 	TitleStyle = lipgloss.NewStyle().
-			Margin(2, 0, 1, 2).
+			Margin(0, 0, 0, 1).
 			Foreground(lipgloss.Color(style.Violet[300])).
 			Bold(true)
 
+	EmptyMsg = TitleStyle.Align(lipgloss.Center, lipgloss.Center)
 	DocStyle = lipgloss.NewStyle().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color("240")) // TODO: update color with tokens

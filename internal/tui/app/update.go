@@ -51,11 +51,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 
 	case tea.WindowSizeMsg:
+		// Sets window in context
 		m.ctx.Window = msg
-		h, v := projects.ItemStyle.GetFrameSize()
-		th, tv := projects.TitleStyle.GetFrameSize()
-		m.Projects.List.SetSize(msg.Width-h-th, msg.Height-v-tv)
-		m.Statusline.Width = msg.Width - statusline.StatusBarStyle.GetHorizontalFrameSize() - table.DocStyle.GetHorizontalFrameSize()
+
+		w, h := getWindowFrameSize(msg.Width, msg.Height)
+		m.Projects.List.SetSize(w, h)
+
+		m.Statusline.Width = msg.Width -
+			statusline.StatusBarStyle.GetHorizontalFrameSize() -
+			table.DocStyle.GetHorizontalFrameSize()
 
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
