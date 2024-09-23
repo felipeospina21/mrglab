@@ -30,7 +30,7 @@ func Error(error error) {
 		log.Fatal("Opening error \n", err)
 	}
 	defer f.Close()
-	log.Fatalf("%s\n", error)
+	log.Printf("%s\n", error)
 }
 
 func Log(prefix string, value any) {
