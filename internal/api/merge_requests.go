@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/felipeospina21/mrglab/internal/config"
@@ -9,8 +8,8 @@ import (
 )
 
 func GetProjectMergeRequests(projectID string, opts *gitlab.ListProjectMergeRequestsOptions) ([]*gitlab.MergeRequest, error) {
-	cfg := config.GlobalConfig
-	url := fmt.Sprintf("%s/%s", cfg.BaseURL, cfg.APIVersion)
+	cfg := &config.GlobalConfig
+	url := buildURL(cfg)
 
 	client, err := gitlab.NewClient(
 		cfg.APIToken,
