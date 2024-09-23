@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -19,10 +20,12 @@ type Config struct {
 var GlobalConfig Config
 
 func Load(configObj *Config) {
-	viper.SetConfigName("glabt")
+	cmdName := "mrglab"
+
+	viper.SetConfigName(cmdName)
 	viper.SetConfigType("toml")
 
-	viper.AddConfigPath("$HOME/.config/glabt/")
+	viper.AddConfigPath(fmt.Sprintf("$HOME/.config/%s/", cmdName))
 	viper.AddConfigPath("$HOME")
 	viper.AddConfigPath(".")
 
@@ -44,12 +47,19 @@ func Load(configObj *Config) {
 	viper.WatchConfig()
 
 	// Env vars
-	e := viper.BindEnv("glabt_token")
+	viper.SetEnvPrefix(cmdName)
+	e := viper.BindEnv("token")
 	if e != nil {
 		logger.Debug("e", func() {
 			log.Print(e)
 		})
 	}
-	token := viper.Get("glabt_token")
+	token := viper.Get("token")
+
+	if token == nil {
+		// TODO: report in statusline this error
+		logger.Error(errors.New("api-token not set"))
+		token = ""
+	}
 	GlobalConfig.APIToken = token.(string)
 }
