@@ -3,6 +3,8 @@ package app
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
@@ -16,6 +18,8 @@ type Model struct {
 }
 
 func InitMainModel(ctx *context.AppContext) Model {
+	// Sets global keybinds by default
+	ctx.Keybinds = tui.GlobalKeys
 	return Model{
 		Projects:      projects.New(ctx),
 		MergeRequests: mergerequests.New(ctx),
@@ -83,6 +87,21 @@ func endCommand[T any](m *Model, status endCommandStatus, cb func() T) T {
 		m.setStatus(statusline.ModesEnum.Error, status.error.Error())
 	} else {
 		m.setStatus(statusline.ModesEnum.Normal, "")
+		m.SetHelpKeys(mergerequests.Keybinds)
 	}
 	return cb()
+}
+
+func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
+	var cmd tea.Cmd
+	if m.Statusline.Status == statusline.ModesEnum.Loading {
+		m.Statusline.Content = m.Statusline.Spinner.View()
+	}
+	m.Statusline.Spinner, cmd = m.Statusline.Spinner.Update(msg)
+
+	return cmd
+}
+
+func (m *Model) SetHelpKeys(kb help.KeyMap) {
+	m.ctx.Keybinds = kb
 }
