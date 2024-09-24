@@ -28,6 +28,8 @@ var (
 
 	statusText = lipgloss.NewStyle().Inherit(StatusBarStyle)
 
+	helpText = lipgloss.NewStyle().Inherit(StatusBarStyle).AlignHorizontal(lipgloss.Center)
+
 	projectStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
 
 	spinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[400]))

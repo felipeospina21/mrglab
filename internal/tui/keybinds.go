@@ -23,7 +23,11 @@ func CommonKeys() []key.Binding {
 }
 
 func (k GlobalKeyMap) ShortHelp() []key.Binding {
-	return CommonKeys()
+	// return CommonKeys()
+	return []key.Binding{
+		k.Help, k.ToggleSidePanel, k.Quit, k.NavigateBack,
+		// k.NextTab, k.PrevTab, k.NextPage, k.PrevPage
+	}
 }
 
 func (k GlobalKeyMap) FullHelp() [][]key.Binding {
