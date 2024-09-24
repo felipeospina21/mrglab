@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
@@ -28,8 +29,9 @@ type Model struct {
 	Status  string
 	Content string
 	Width   int
-	ctx     *context.AppContext
 	Spinner spinner.Model
+	Help    help.Model
+	ctx     *context.AppContext
 }
 
 func New(ctx *context.AppContext) Model {
@@ -39,7 +41,8 @@ func New(ctx *context.AppContext) Model {
 			spinner.WithSpinner(spinner.Dot),
 			spinner.WithStyle(spinnerStyle),
 		),
-		ctx: ctx,
+		ctx:  ctx,
+		Help: help.New(),
 	}
 }
 
@@ -66,21 +69,18 @@ func (m Model) View() string {
 	w := lipgloss.Width
 
 	statusKey := statusStyle.Render(m.Status)
+	statusVal := statusText.Render(m.Content)
 	encoding := encodingStyle.Render("UTF-8")
 	projectName := projectStyle.Render(fmt.Sprintf("%s %s", icon.Gitlab, m.ctx.SelectedProject.Name))
 
-	// FIX: without this the spinner is not being updated
-	if m.Status == ModesEnum.Loading {
-		m.Content = m.Spinner.View()
-	}
-
-	statusVal := statusText.
-		Width(width - w(statusKey) - w(encoding) - w(projectName)).
-		Render(m.Content)
+	help := helpText.
+		Width(width - w(statusKey) - w(statusVal) - w(encoding) - w(projectName)).
+		Render(" " + m.Help.View(m.ctx.Keybinds) + " ")
 
 	bar := lipgloss.JoinHorizontal(lipgloss.Top,
 		statusKey,
 		statusVal,
+		help,
 		encoding,
 		projectName,
 	)

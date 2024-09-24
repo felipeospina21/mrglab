@@ -28,6 +28,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 
 	case tea.KeyMsg:
+		if msg.String() == "a" {
+			m.Statusline.Status = "test"
+			m.Statusline.Content = "test"
+			m.SetHelpKeys(mergerequests.Keybinds)
+		}
+		if msg.String() == "b" {
+			m.Statusline.Status = statusline.ModesEnum.Loading
+			cmds = append(cmds, cmd)
+		}
 		switch {
 		case key.Matches(msg, tui.GlobalKeys.Quit):
 			return m, tea.Quit
@@ -47,7 +56,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case spinner.TickMsg:
-		m.Statusline.Spinner, cmd = m.Statusline.Spinner.Update(msg)
+		cmd = m.updateSpinnerViewCommand(msg)
 		cmds = append(cmds, cmd)
 
 	case tea.WindowSizeMsg:
