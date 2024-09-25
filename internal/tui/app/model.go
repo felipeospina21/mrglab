@@ -75,14 +75,8 @@ func (m *Model) setStatus(mode string, content string) {
 // & setting corresponding status
 func (m *Model) startCommand(cb func() tea.Cmd) tea.Cmd {
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
-	m.StartTask()
+	m.startTask()
 	return cb()
-}
-
-type endCommandStatus struct {
-	isError   bool
-	error     error
-	isSuccess bool
 }
 
 func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
@@ -90,8 +84,8 @@ func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
 		m.setStatus(statusline.ModesEnum.Normal, "")
-		m.SetHelpKeys(mergerequests.Keybinds)
-		m.FinishTask()
+		m.setHelpKeys(mergerequests.Keybinds)
+		m.finishTask()
 	}
 	return cb()
 }
@@ -106,14 +100,14 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-func (m *Model) SetHelpKeys(kb help.KeyMap) {
+func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
 }
 
-func (m *Model) StartTask() {
+func (m *Model) startTask() {
 	m.ctx.TaskStatus = task.TaskStarted
 }
 
-func (m *Model) FinishTask() {
+func (m *Model) finishTask() {
 	m.ctx.TaskStatus = task.TaskFinished
 }
