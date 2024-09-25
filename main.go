@@ -12,6 +12,7 @@ import (
 
 func main() {
 	ctx := &context.AppContext{}
+
 	err := config.Load(&config.GlobalConfig)
 	if err != nil {
 		// TODO: handle this error

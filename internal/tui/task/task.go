@@ -11,3 +11,10 @@ type TaskFinishedMsg struct {
 	Err         error
 	Msg         tea.Msg
 }
+
+type TaskStatus = uint
+
+const (
+	TaskStarted TaskStatus = iota
+	TaskFinished
+)

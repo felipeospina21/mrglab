@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -23,15 +22,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case error:
-		logger.Debug("err", func() {
-			log.Println(msg)
-		})
+		l, f := logger.New(logger.Logger{})
+		defer f.Close()
+		l.Error(msg.Error())
 
 	case tea.KeyMsg:
 		if msg.String() == "a" {
 			m.Statusline.Status = "test"
 			m.Statusline.Content = "test"
-			m.SetHelpKeys(mergerequests.Keybinds)
 		}
 		if msg.String() == "b" {
 			m.Statusline.Status = statusline.ModesEnum.Loading
@@ -73,24 +71,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
 		if msg.SectionType == "mrs" {
-			var rows []table.Row
-			if msg.Err != nil {
-				endCommand[error](
-					&m,
-					endCommandStatus{isError: true, error: msg.Err},
-					func() error {
-						return msg.Err
-					},
-				)
-			} else {
-				rows = endCommand[[]table.Row](
-					&m,
-					endCommandStatus{isSuccess: true},
-					func() []table.Row {
-						return mergerequests.GetMRTableRows(msg)
-					},
-				)
-			}
+			rows := endCommand[[]table.Row](
+				&m,
+				msg,
+				func() []table.Row {
+					m.Projects.IsOpen = false
+					return mergerequests.GetMRTableRows(msg)
+				},
+			)
 
 			m.MergeRequests.Table = table.InitModel(table.InitModelParams{
 				Rows:   rows,

@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/fsnotify/fsnotify"
@@ -21,6 +20,8 @@ var GlobalConfig Config
 
 func Load(config *Config) error {
 	cmdName := "mrglab"
+	l, f := logger.New(logger.Logger{})
+	defer f.Close()
 
 	viper.SetConfigName(cmdName)
 	viper.SetConfigType("toml")
@@ -44,9 +45,7 @@ func Load(config *Config) error {
 	}
 
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		logger.Debug("config", func() {
-			log.Println("Config file changed:", e.Name)
-		})
+		l.Info(fmt.Sprintf("Config file changed: %s", e.Name))
 	})
 	viper.WatchConfig()
 
@@ -59,19 +58,20 @@ func Load(config *Config) error {
 }
 
 func loadEnvVars(prefix string, config *Config) error {
+	l, f := logger.New(logger.Logger{})
+	defer f.Close()
+
 	viper.SetEnvPrefix(prefix)
-	e := viper.BindEnv("token")
-	if e != nil {
-		logger.Debug("e", func() {
-			log.Print(e)
-		})
+	err := viper.BindEnv("token")
+	if err != nil {
+		l.Error(err)
 	}
 	token := viper.Get("token")
 
 	if token == nil {
 		// TODO: report in statusline this error
 		err := errors.New("api-token not set")
-		logger.Error(err)
+		l.Error(err)
 		config.APIToken = ""
 		return err
 	}
