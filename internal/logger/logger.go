@@ -1,44 +1,59 @@
 package logger
 
 import (
-	"fmt"
-	"log"
 	"os"
+	"reflect"
 
-	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 )
 
-// Logs to debug.log file
-//
-//	logger.Debug("log", func() {
-//		log.Println(strconv.Itoa(msg.Width))
-//		log.Println("tw " + strconv.Itoa(m.table.Width()))
-//	})
-func Debug(logPrefix string, cb func()) {
-	f, err := tea.LogToFile("debug.log", logPrefix)
-	if err != nil {
-		fmt.Println("fatal:", err)
-		os.Exit(1)
-	}
-	defer f.Close()
-	cb()
+type Logger struct {
+	opts   log.Options
+	prefix string
+	file   string
 }
 
-func Error(error error) {
-	f, err := tea.LogToFile(".log", "Error")
+// Instantiate a new logger
+//
+// //default file ".log"j
+// l, f := logger.New(logger.Logger{})
+//
+// defer f.Close()
+//
+// l.Info("test")
+func New(l Logger) (*log.Logger, *os.File) {
+	var defaultOpts log.Options
+	file := ".log"
+
+	if l.file != "" {
+		file = l.file
+	}
+
+	f, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o600)
 	if err != nil {
 		log.Fatal("Opening error \n", err)
 	}
-	defer f.Close()
-	log.Printf("%s\n", error)
+
+	if reflect.ValueOf(l.opts).IsZero() {
+		defaultOpts = log.Options{
+			ReportCaller:    true,
+			ReportTimestamp: true,
+		}
+	} else {
+		defaultOpts = l.opts
+	}
+
+	defaultOpts.Prefix = l.prefix
+
+	return log.NewWithOptions(f, defaultOpts), f
 }
 
-func Log(prefix string, value any) {
-	f, err := tea.LogToFile("debug.log", prefix)
-	if err != nil {
-		fmt.Println("fatal:", err)
-		os.Exit(1)
-	}
+// Log value to "debug.log"
+//
+// logger.Log("value")
+func Log(value string) {
+	l, f := New(Logger{file: "debug.log"})
 	defer f.Close()
-	log.Println(value)
+
+	l.Debug(value)
 }

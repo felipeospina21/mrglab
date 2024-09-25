@@ -6,10 +6,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
+	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
 func (m Model) View() string {
-	if m.Projects.IsOpen {
+	if m.Projects.IsOpen && m.ctx.TaskStatus != task.TaskFinished {
 		w, h := getWindowFrameSize(m.ctx.Window.Width, m.ctx.Window.Height)
 		body := lipgloss.JoinHorizontal(
 			0,

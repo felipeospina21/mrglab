@@ -59,7 +59,6 @@ func (m *Model) SelectProject() {
 	if ok {
 		m.ctx.SelectedProject.ID = i.ID
 		m.ctx.SelectedProject.Name = i.Name
-		m.IsOpen = false
 	}
 }
 

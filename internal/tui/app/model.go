@@ -8,6 +8,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
+	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
 type Model struct {
@@ -20,6 +21,7 @@ type Model struct {
 func InitMainModel(ctx *context.AppContext) Model {
 	// Sets global keybinds by default
 	ctx.Keybinds = tui.GlobalKeys
+
 	return Model{
 		Projects:      projects.New(ctx),
 		MergeRequests: mergerequests.New(ctx),
@@ -73,6 +75,7 @@ func (m *Model) setStatus(mode string, content string) {
 // & setting corresponding status
 func (m *Model) startCommand(cb func() tea.Cmd) tea.Cmd {
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
+	m.StartTask()
 	return cb()
 }
 
@@ -82,12 +85,13 @@ type endCommandStatus struct {
 	isSuccess bool
 }
 
-func endCommand[T any](m *Model, status endCommandStatus, cb func() T) T {
-	if status.isError {
-		m.setStatus(statusline.ModesEnum.Error, status.error.Error())
+func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
+	if msg.Err != nil {
+		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
 		m.setStatus(statusline.ModesEnum.Normal, "")
 		m.SetHelpKeys(mergerequests.Keybinds)
+		m.FinishTask()
 	}
 	return cb()
 }
@@ -104,4 +108,12 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 
 func (m *Model) SetHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
+}
+
+func (m *Model) StartTask() {
+	m.ctx.TaskStatus = task.TaskStarted
+}
+
+func (m *Model) FinishTask() {
+	m.ctx.TaskStatus = task.TaskFinished
 }
