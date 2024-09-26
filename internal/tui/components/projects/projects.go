@@ -18,9 +18,8 @@ import (
 const ellipsis = "…"
 
 type Model struct {
-	List   list.Model
-	IsOpen bool
-	ctx    *context.AppContext
+	List list.Model
+	ctx  *context.AppContext
 }
 
 func New(ctx *context.AppContext) Model {
@@ -45,10 +44,11 @@ func New(ctx *context.AppContext) Model {
 	l.Styles.PaginationStyle = PaginationStyle
 	l.SetShowHelp(false)
 
+	ctx.IsLeftPanelOpen = true
+
 	return Model{
-		List:   l,
-		IsOpen: true,
-		ctx:    ctx,
+		List: l,
+		ctx:  ctx,
 	}
 }
 

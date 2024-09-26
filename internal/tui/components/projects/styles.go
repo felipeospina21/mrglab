@@ -9,15 +9,15 @@ import (
 var (
 	DocStyle = lipgloss.NewStyle().
 			PaddingRight(4).
+			Margin(1, 0).
 			Foreground(lipgloss.Color(style.Violet[300])).
 			BorderRight(true).
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color(style.DarkGray)).
-			Width(50). // TODO: Set width in config file
-			Border(lipgloss.NormalBorder())
+			Width(50) // TODO: Set width in config file
 
 	TitleStyle = lipgloss.NewStyle().
-			Margin(2).
+			MarginTop(2).
 			Foreground(lipgloss.Color(style.Blue[400]))
 	ItemStyle = lipgloss.NewStyle().
 			MarginTop(1).
