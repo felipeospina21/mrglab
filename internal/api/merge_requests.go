@@ -4,11 +4,17 @@ import (
 	"log"
 
 	"github.com/felipeospina21/mrglab/internal/config"
+	"github.com/felipeospina21/mrglab/internal/data"
 	"github.com/xanzy/go-gitlab"
 )
 
 func GetProjectMergeRequests(projectID string, opts *gitlab.ListProjectMergeRequestsOptions) ([]*gitlab.MergeRequest, error) {
 	cfg := &config.GlobalConfig
+
+	if cfg.DevMode {
+		return data.MergerequestsMock, nil
+	}
+
 	url := buildURL(cfg)
 
 	client, err := gitlab.NewClient(

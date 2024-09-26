@@ -14,12 +14,15 @@ type Config struct {
 	APIToken   string                   `mapstructure:"token"`
 	APIVersion string                   `mapstructure:"api_version"`
 	Projects   []map[string]interface{} `mapstructure:"projects"`
+	DevMode    bool
 }
 
-var GlobalConfig Config
+var (
+	GlobalConfig Config
+	cmdName      = "mrglab"
+)
 
 func Load(config *Config) error {
-	cmdName := "mrglab"
 	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
 
@@ -50,18 +53,18 @@ func Load(config *Config) error {
 	viper.WatchConfig()
 
 	// Env vars
-	err = loadEnvVars(cmdName, config)
+	err = loadEnvVars(config)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func loadEnvVars(prefix string, config *Config) error {
+func loadEnvVars(config *Config) error {
 	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
 
-	viper.SetEnvPrefix(prefix)
+	viper.SetEnvPrefix(cmdName)
 	err := viper.BindEnv("token")
 	if err != nil {
 		l.Error(err)
@@ -75,6 +78,20 @@ func loadEnvVars(prefix string, config *Config) error {
 		config.APIToken = ""
 		return err
 	}
+
 	config.APIToken = token.(string)
+	config.DevMode = isDevMode()
 	return nil
+}
+
+func isDevMode() bool {
+	viper.SetEnvPrefix(cmdName)
+	viper.BindEnv("dev")
+
+	useMockedData := viper.Get("dev")
+	if useMockedData != nil {
+		return true
+	}
+
+	return false
 }
