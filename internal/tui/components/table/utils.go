@@ -3,15 +3,13 @@ package table
 import (
 	"fmt"
 	"math"
+	"slices"
 	"time"
+
+	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/tui/icon"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
-
-type TableColIndex uint
-
-type TableCol struct {
-	Name string
-	Idx  TableColIndex
-}
 
 type InitModelParams struct {
 	Rows      []Row
@@ -34,35 +32,43 @@ func InitModel(params InitModelParams) Model {
 	return t
 }
 
-// func StyleIconsColumns(s Styles, iconColIdx []int) StyleFunc {
-// 	return func(row, col int, value string) lipgloss.Style {
-// 		isIconCol := slices.Contains(iconColIdx, col)
-//
-// 		if isIconCol {
-// 			switch value {
-// 			case icon.Check:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Green[300]))
-// 			case icon.Clock:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Yellow[300]))
-// 			case icon.CircleCheck:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Green[300]))
-// 			case icon.CircleCross:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Red[300]))
-// 			case icon.CirclePlay:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Violet[400]))
-// 			case icon.Gear:
-// 				return s.Cell.Foreground(lipgloss.Color(style.Yellow[100]))
-//
-// 			}
-// 		}
-//
-// 		return s.Cell
-// 	}
-// }
+func StyleIconsColumns(s Styles, iconColIdx []int) StyleFunc {
+	return func(row, col int, value string) lipgloss.Style {
+		type color = lipgloss.Color
+		isIconCol := slices.Contains(iconColIdx, col)
+		defStyle := s.Cell.Foreground
 
-func FormatTime(d string) string {
+		iconStyle := map[string]lipgloss.Style{
+			icon.Alert:       defStyle(color(style.Yellow[300])),
+			icon.Time:        defStyle(color(style.Blue[200])),
+			icon.Empty:       defStyle(color(style.Green[300])),
+			icon.Dash:        defStyle(color(style.DarkGray)),
+			icon.Check:       defStyle(color(style.Green[300])),
+			icon.Clock:       defStyle(color(style.Yellow[300])),
+			icon.Rebase:      defStyle(color(style.Green[300])),
+			icon.Cross:       defStyle(color(style.Red[300])),
+			icon.Discussion:  defStyle(color(style.Green[300])),
+			icon.Edit:        defStyle(color(style.Green[300])),
+			icon.CircleCheck: defStyle(color(style.Green[300])),
+			icon.CircleCross: defStyle(color(style.Red[300])),
+			icon.CirclePlay:  defStyle(color(style.Violet[300])),
+			icon.Gear:        defStyle(color(style.Yellow[300])),
+		}
+
+		if isIconCol {
+			return iconStyle[value]
+		}
+
+		return s.Cell
+	}
+}
+
+func ParseTimeString(d string) time.Time {
 	t, _ := time.Parse(time.RFC3339, d)
+	return t
+}
 
+func FormatTime(t time.Time) string {
 	locale := t.Local()
 
 	r := time.Since(locale)
@@ -112,4 +118,23 @@ func FormatDuration(d float32) string {
 	default:
 		return ""
 	}
+}
+
+func ColWidth(w int, p int) int {
+	pr := float32(p) / float32(100)
+	return int(float32(w) * pr)
+}
+
+func RenderIcon(b bool, i string) string {
+	if b {
+		return i
+	}
+
+	return icon.Empty
+}
+
+func GetColIndex(cols []TableCol, n string) int {
+	return slices.IndexFunc(cols, func(c TableCol) bool {
+		return c.Name == n
+	})
 }

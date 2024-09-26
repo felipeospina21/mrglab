@@ -20,7 +20,7 @@ var GlobalConfig Config
 
 func Load(config *Config) error {
 	cmdName := "mrglab"
-	l, f := logger.New(logger.Logger{})
+	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
 
 	viper.SetConfigName(cmdName)
@@ -58,7 +58,7 @@ func Load(config *Config) error {
 }
 
 func loadEnvVars(prefix string, config *Config) error {
-	l, f := logger.New(logger.Logger{})
+	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
 
 	viper.SetEnvPrefix(prefix)

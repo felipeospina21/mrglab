@@ -12,8 +12,9 @@ type AppContext struct {
 		ID   string
 	}
 
-	SelectedMRID string
-	Window       tea.WindowSizeMsg
-	Keybinds     help.KeyMap
-	TaskStatus   task.TaskStatus
+	SelectedMRID    string
+	Window          tea.WindowSizeMsg
+	Keybinds        help.KeyMap
+	TaskStatus      task.TaskStatus
+	IsLeftPanelOpen bool
 }
