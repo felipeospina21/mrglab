@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-type Logger struct {
+type NewLogger struct {
 	opts   log.Options
 	prefix string
 	file   string
@@ -15,13 +15,13 @@ type Logger struct {
 
 // Instantiate a new logger
 //
-// //default file ".log"j
+// default file ".log"
 // l, f := logger.New(logger.Logger{})
 //
 // defer f.Close()
 //
 // l.Info("test")
-func New(l Logger) (*log.Logger, *os.File) {
+func New(l NewLogger) (*log.Logger, *os.File) {
 	var defaultOpts log.Options
 	file := ".log"
 
@@ -48,12 +48,11 @@ func New(l Logger) (*log.Logger, *os.File) {
 	return log.NewWithOptions(f, defaultOpts), f
 }
 
-// Log value to "debug.log"
+// Debug value to "debug.log"
 //
-// logger.Log("value")
-func Log(value string) {
-	l, f := New(Logger{file: "debug.log"})
+// logger.Debug("value")
+func Debug(value ...any) {
+	l, f := New(NewLogger{file: "debug.log"})
 	defer f.Close()
-
-	l.Debug(value)
+	l.Info(value)
 }
