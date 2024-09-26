@@ -10,6 +10,13 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
+// TODO: Replace this over Column
+type TableCol struct {
+	Name  string
+	Title string
+	Width int
+}
+
 // Model defines a state for the table widget.
 type Model struct {
 	KeyMap KeyMap

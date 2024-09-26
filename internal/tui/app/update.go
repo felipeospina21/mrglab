@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -22,7 +21,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case error:
-		l, f := logger.New(logger.Logger{})
+		l, f := logger.New(logger.NewLogger{})
 		defer f.Close()
 		l.Error(msg.Error())
 
@@ -48,7 +47,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, projects.Keybinds.MRList):
 			cb := func() tea.Cmd {
 				m.Projects.SelectProject()
-				return m.MergeRequests.GetMRListCmd()
+				return m.MergeRequests.GetListCmd()
 			}
 			cmds = append(cmds, m.startCommand(cb))
 		}
@@ -71,20 +70,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
 		if msg.SectionType == "mrs" {
-			rows := endCommand[[]table.Row](
+			t := endCommand[table.Model](
 				&m,
 				msg,
-				func() []table.Row {
-					m.Projects.IsOpen = false
-					return mergerequests.GetMRTableRows(msg)
-				},
+				m.MergeRequests.GetTableModel(msg),
 			)
 
-			m.MergeRequests.Table = table.InitModel(table.InitModelParams{
-				Rows:   rows,
-				Colums: mergerequests.GetMergeReqsColums(m.ctx.Window.Width - 10),
-				// StyleFunc: mergerequests.StyleIconsColumns(table.Styles(table.DefaultStyle()), table.MergeReqsIconCols),
-			})
+			m.MergeRequests.Table = t
 		}
 	}
 
