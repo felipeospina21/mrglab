@@ -4,10 +4,12 @@ package icon
 // nf-oct family
 
 const (
+	Alert          = " "
 	Dash           = " "
 	Check          = " "
 	Cross          = " "
 	Clock          = " "
+	Time           = " "
 	Rebase         = " "
 	Edit           = " "
 	Person         = " "
