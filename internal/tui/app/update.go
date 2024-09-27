@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -53,8 +54,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, projects.Keybinds.ToggleSidePanel):
 			m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
-			logger.Debug("table", m.ctx.Window.Width, m.Projects.List.Width())
-			// m.MergeRequests.Table.SetWidth(150)
+			m.MergeRequests.Table.SetWidth(m.ctx.Window.Width - m.Projects.List.Width() - 10)       // FIX: Magic num
+			m.MergeRequests.Table.SetColumns(mergerequests.GetTableColums(m.ctx.Window.Width - 20)) // FIX: Magic num
 		}
 
 	case spinner.TickMsg:
