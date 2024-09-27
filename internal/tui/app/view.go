@@ -40,6 +40,6 @@ func (m Model) renderLayout(c LayoutComponents) string {
 		sl = lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
 		body = main
 	}
-	// return body
+
 	return MainFrameStyle.Render(lipgloss.JoinVertical(0, body, sl))
 }

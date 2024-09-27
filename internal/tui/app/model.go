@@ -130,7 +130,7 @@ func (m Model) getEmptyTableSize() (int, int) {
 	statusHeight := lipgloss.Height(m.Statusline.View())
 
 	width := w - leftPanX - leftPanW - tableX
-	height := h - leftPanY - statusHeight
+	height := h - leftPanY - statusHeight - MainFrameStyle.GetVerticalFrameSize()
 
 	return width, height
 }

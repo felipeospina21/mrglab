@@ -28,7 +28,8 @@ var (
 
 	EmptyMsg = TitleStyle.Align(lipgloss.Center, lipgloss.Center)
 	DocStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color("240")) // TODO: update color with tokens
+		// Margin(1).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(style.DarkGray)) // TODO: update color with tokens
 
 )
