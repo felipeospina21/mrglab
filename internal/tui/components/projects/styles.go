@@ -1,7 +1,6 @@
 package projects
 
 import (
-	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
@@ -9,27 +8,26 @@ import (
 var (
 	DocStyle = lipgloss.NewStyle().
 			PaddingRight(4).
-			Margin(1, 0).
+			Margin(2, 0).
 			Foreground(lipgloss.Color(style.Violet[300])).
-		// BorderRight(true).
-		// Border(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color(style.DarkGray)).
-		Width(30) // TODO: Set width in config file
+			Border(lipgloss.NormalBorder(), false, true, false, false).
+			BorderForeground(lipgloss.Color(style.DarkGray)).
+			Width(30) // TODO: Set width in config file
 
 	TitleStyle = lipgloss.NewStyle().
-			MarginTop(2).
+			MarginTop(0).
 			Foreground(lipgloss.Color(style.Blue[400]))
 	ItemStyle = lipgloss.NewStyle().
-			MarginTop(1).
+			MarginTop(0).
 			Foreground(lipgloss.Color(style.Violet[300]))
-	SelectedItemStyle = lipgloss.NewStyle().
-				MarginLeft(2).
-				MarginTop(1).
-				PaddingLeft(2).
-				Foreground(lipgloss.Color(style.Violet[50])).
-				Background(lipgloss.Color(style.Violet[800]))
-	PaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	HelpStyle       = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
+	// SelectedItemStyle = lipgloss.NewStyle().
+	// 			MarginLeft(2).
+	// 			MarginTop(1).
+	// 			PaddingLeft(2).
+	// 			Foreground(lipgloss.Color(style.Violet[50])).
+	// 			Background(lipgloss.Color(style.Violet[800]))
+	// PaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
+	// HelpStyle       = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 )
 
 var (
