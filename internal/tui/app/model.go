@@ -65,9 +65,10 @@ func (m *Model) setStatus(mode string, content string) {
 	case statusline.ModesEnum.Insert:
 		fallthrough
 	case statusline.ModesEnum.Error:
+		fallthrough
+	case statusline.ModesEnum.Dev:
 		m.Statusline.Status = mode
 		m.Statusline.Content = content
-
 	default:
 		m.Statusline.Content = "status not supported"
 	}
@@ -85,7 +86,11 @@ func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
 	if msg.Err != nil {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
-		m.setStatus(statusline.ModesEnum.Normal, "")
+		mode := statusline.ModesEnum.Normal
+		if m.ctx.IsDevMode {
+			mode = statusline.ModesEnum.Dev
+		}
+		m.setStatus(mode, "")
 		m.setHelpKeys(mergerequests.Keybinds)
 		m.finishTask()
 	}

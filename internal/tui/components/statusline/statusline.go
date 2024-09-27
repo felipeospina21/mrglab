@@ -16,6 +16,7 @@ type Modes struct {
 	Insert  string
 	Loading string
 	Error   string
+	Dev     string
 }
 
 var ModesEnum = Modes{
@@ -23,6 +24,7 @@ var ModesEnum = Modes{
 	Insert:  "INSERT",
 	Loading: "LOADING",
 	Error:   "ERROR",
+	Dev:     "DEVELOP",
 }
 
 type Model struct {
@@ -35,8 +37,12 @@ type Model struct {
 }
 
 func New(ctx *context.AppContext) Model {
+	status := ModesEnum.Normal
+	if ctx.IsDevMode {
+		status = ModesEnum.Dev
+	}
 	return Model{
-		Status: ModesEnum.Normal,
+		Status: status,
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Dot),
 			spinner.WithStyle(spinnerStyle),
