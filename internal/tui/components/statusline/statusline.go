@@ -88,4 +88,10 @@ func (m Model) View() string {
 	return StatusBarStyle.Render(bar)
 }
 
-// TODO: add a function to control statuses
+func GetFrameSize() (int, int) {
+	x, y := StatusBarStyle.GetFrameSize()
+	xNugget, yNugget := statusNugget.GetFrameSize()
+	xStatus, yStatus := statusStyle.GetFrameSize()
+
+	return x + xNugget + xStatus, y + yNugget + yStatus
+}

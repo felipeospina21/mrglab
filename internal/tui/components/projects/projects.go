@@ -38,10 +38,10 @@ func New(ctx *context.AppContext) Model {
 
 	}
 
-	l := list.New(li, itemDelegate{ShowDescription: true, Styles: NewDefaultItemStyles()}, 0, len(li))
+	l := list.New(li, itemDelegate{ShowDescription: true, Styles: NewDefaultItemStyles()}, 30, len(li))
 	l.Title = "Projects"
-	l.Styles.Title = ItemStyle
-	l.Styles.PaginationStyle = PaginationStyle
+	l.Styles.Title = TitleStyle
+	// l.Styles.PaginationStyle = PaginationStyle
 	l.SetShowHelp(false)
 
 	ctx.IsLeftPanelOpen = true
@@ -155,8 +155,9 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 }
 
 func GetFrameSize() (int, int) {
-	h, v := ItemStyle.GetFrameSize()
-	th, tv := TitleStyle.GetFrameSize()
+	x, y := DocStyle.GetFrameSize()
+	xItem, yItem := ItemStyle.GetFrameSize()
+	xTitle, yTitle := TitleStyle.GetFrameSize()
 
-	return h + th, v + tv
+	return x + xItem + xTitle, y + yItem + yTitle
 }

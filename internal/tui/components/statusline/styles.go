@@ -9,7 +9,7 @@ var (
 	StatusBarStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
 			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"}).
-			Margin(0, 2)
+			Margin(0, 0)
 
 	statusNugget = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FFFDF5")).

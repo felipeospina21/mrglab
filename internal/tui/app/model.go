@@ -2,12 +2,14 @@ package app
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
+	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
@@ -110,4 +112,40 @@ func (m *Model) startTask() {
 
 func (m *Model) finishTask() {
 	m.ctx.TaskStatus = task.TaskFinished
+}
+
+func getFrameSize() (int, int) {
+	xMain, yMain := MainFrameStyle.GetFrameSize()
+	xProjects, yProjects := projects.GetFrameSize()
+	xStatus, yStatus := statusline.GetFrameSize()
+
+	return xMain + xProjects + xStatus, yMain + yProjects + yStatus
+}
+
+func (m Model) getEmptyTableSize() (int, int) {
+	w, h := m.ctx.Window.Width, m.ctx.Window.Height
+	leftPanX, leftPanY := projects.GetFrameSize()
+	leftPanW := m.Projects.List.Width()
+	tableX := table.TitleStyle.GetHorizontalFrameSize()
+
+	width := w - leftPanX - leftPanW - tableX
+	height := h - leftPanY
+
+	return width, height
+}
+
+func (m *Model) setLeftPanelHeight() {
+	_, y := getFrameSize()
+	yStatus := lipgloss.Height(m.Statusline.View())
+	height := m.ctx.Window.Height - y - yStatus
+
+	m.Projects.List.SetHeight(height)
+}
+
+func (m *Model) setStatuslineWidth() {
+	windowW := m.ctx.Window.Width
+	xStatus, _ := statusline.GetFrameSize()
+	m.Statusline.Width = windowW - xStatus
+	// statusline.StatusBarStyle.GetHorizontalFrameSize() -
+	// table.DocStyle.GetHorizontalFrameSize()
 }

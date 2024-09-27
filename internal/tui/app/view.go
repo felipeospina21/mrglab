@@ -11,18 +11,12 @@ import (
 
 func (m Model) View() string {
 	if m.ctx.IsLeftPanelOpen && m.ctx.TaskStatus != task.TaskFinished {
-		w, h := getWindowFrameSize(m.ctx.Window.Width, m.ctx.Window.Height)
-		body := lipgloss.JoinHorizontal(
-			0,
-			projects.DocStyle.Render(m.Projects.List.View()),
-			table.EmptyMsg.Width(w).Height(h).Render("Select Project"),
-		)
+		w, h := m.getEmptyTableSize()
 
 		return m.renderLayout(LayoutComponents{
 			header: "",
-			body:   body,
+			body:   table.EmptyMsg.Width(w).Height(h).Border(lipgloss.NormalBorder()).Render("Select Project"),
 		})
-
 	}
 	return m.renderLayout(LayoutComponents{
 		header: table.TitleStyle.Render(
@@ -38,9 +32,17 @@ type LayoutComponents struct {
 }
 
 func (m Model) renderLayout(c LayoutComponents) string {
-	h := m.ctx.Window.Height - lipgloss.Height(c.header) - lipgloss.Height(c.body)
-	sl := lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
-	return lipgloss.JoinVertical(0, c.header, c.body, sl)
+	left := projects.DocStyle.Render(m.Projects.List.View())
+	main := lipgloss.JoinVertical(0, c.header, c.body)
+	body := lipgloss.JoinHorizontal(0, left, main)
+	sl := m.Statusline.View()
+	if !m.ctx.IsLeftPanelOpen {
+		h := m.ctx.Window.Height - lipgloss.Height(c.header) - lipgloss.Height(c.body)
+		sl = lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
+		body = lipgloss.JoinHorizontal(0, main)
+	}
+	// return body
+	return MainFrameStyle.Render(lipgloss.JoinVertical(0, body, sl))
 }
 
 func getWindowFrameSize(width, height int) (int, int) {

@@ -50,6 +50,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.MergeRequests.GetListCmd()
 			}
 			cmds = append(cmds, m.startCommand(cb))
+
+		case key.Matches(msg, projects.Keybinds.ToggleSidePanel):
+			m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
+			logger.Debug("table", m.ctx.Window.Width, m.Projects.List.Width())
+			// m.MergeRequests.Table.SetWidth(150)
 		}
 
 	case spinner.TickMsg:
@@ -60,12 +65,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// Sets window in context
 		m.ctx.Window = msg
 
-		w, h := getWindowFrameSize(msg.Width, msg.Height)
-		m.Projects.List.SetSize(w, h)
+		m.setLeftPanelHeight()
 
-		m.Statusline.Width = msg.Width -
-			statusline.StatusBarStyle.GetHorizontalFrameSize() -
-			table.DocStyle.GetHorizontalFrameSize()
+		m.setStatuslineWidth()
+
+		// table
+		// m.MergeRequests.Table.SetWidth(msg.Width - w)
 
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
