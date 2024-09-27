@@ -14,8 +14,7 @@ func (m Model) View() string {
 		w, h := m.getEmptyTableSize()
 
 		return m.renderLayout(LayoutComponents{
-			header: "",
-			body:   table.EmptyMsg.Width(w).Height(h).Border(lipgloss.NormalBorder()).Render("Select Project"),
+			body: table.EmptyMsg.Width(w).Height(h).Render("Select Project"),
 		})
 	}
 	return m.renderLayout(LayoutComponents{
@@ -37,16 +36,10 @@ func (m Model) renderLayout(c LayoutComponents) string {
 	body := lipgloss.JoinHorizontal(0, left, main)
 	sl := m.Statusline.View()
 	if !m.ctx.IsLeftPanelOpen {
-		h := m.ctx.Window.Height - lipgloss.Height(c.header) - lipgloss.Height(c.body)
+		h := m.ctx.Window.Height - lipgloss.Height(c.header) - lipgloss.Height(c.body) - MainFrameStyle.GetVerticalFrameSize()
 		sl = lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
-		body = lipgloss.JoinHorizontal(0, main)
+		body = main
 	}
 	// return body
 	return MainFrameStyle.Render(lipgloss.JoinVertical(0, body, sl))
-}
-
-func getWindowFrameSize(width, height int) (int, int) {
-	h, v := projects.GetFrameSize()
-
-	return width - h, height - v
 }

@@ -127,9 +127,10 @@ func (m Model) getEmptyTableSize() (int, int) {
 	leftPanX, leftPanY := projects.GetFrameSize()
 	leftPanW := m.Projects.List.Width()
 	tableX := table.TitleStyle.GetHorizontalFrameSize()
+	statusHeight := lipgloss.Height(m.Statusline.View())
 
 	width := w - leftPanX - leftPanW - tableX
-	height := h - leftPanY
+	height := h - leftPanY - statusHeight
 
 	return width, height
 }
@@ -137,7 +138,7 @@ func (m Model) getEmptyTableSize() (int, int) {
 func (m *Model) setLeftPanelHeight() {
 	_, y := getFrameSize()
 	yStatus := lipgloss.Height(m.Statusline.View())
-	height := m.ctx.Window.Height - y - yStatus
+	height := m.ctx.Window.Height - y - yStatus - 3 // FIX: find how to replace this magic num
 
 	m.Projects.List.SetHeight(height)
 }
@@ -146,6 +147,4 @@ func (m *Model) setStatuslineWidth() {
 	windowW := m.ctx.Window.Width
 	xStatus, _ := statusline.GetFrameSize()
 	m.Statusline.Width = windowW - xStatus
-	// statusline.StatusBarStyle.GetHorizontalFrameSize() -
-	// table.DocStyle.GetHorizontalFrameSize()
 }
