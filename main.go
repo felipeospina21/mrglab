@@ -19,6 +19,10 @@ func main() {
 		// ctx.WarningMsg = err
 	}
 
+	if config.GlobalConfig.DevMode {
+		ctx.IsDevMode = true
+	}
+
 	m := app.InitMainModel(ctx)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {

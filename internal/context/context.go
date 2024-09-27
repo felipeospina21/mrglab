@@ -17,4 +17,5 @@ type AppContext struct {
 	Keybinds        help.KeyMap
 	TaskStatus      task.TaskStatus
 	IsLeftPanelOpen bool
+	IsDevMode       bool
 }
