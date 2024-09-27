@@ -11,10 +11,10 @@ var (
 			PaddingRight(4).
 			Margin(1, 0).
 			Foreground(lipgloss.Color(style.Violet[300])).
-			BorderRight(true).
-			BorderStyle(lipgloss.NormalBorder()).
-			BorderForeground(lipgloss.Color(style.DarkGray)).
-			Width(50) // TODO: Set width in config file
+		// BorderRight(true).
+		// Border(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color(style.DarkGray)).
+		Width(30) // TODO: Set width in config file
 
 	TitleStyle = lipgloss.NewStyle().
 			MarginTop(2).
