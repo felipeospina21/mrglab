@@ -14,10 +14,13 @@ var (
 			BorderForeground(lipgloss.Color(style.Violet[400])).
 			BorderBottom(true).
 			Bold(false)
+
 		s.Selected = s.Selected.
 			Foreground(lipgloss.Color(style.Violet[50])).
 			Background(lipgloss.Color(style.Violet[800])).
 			Bold(false)
+
+		s.Cell = s.Cell
 
 		return s
 	}
