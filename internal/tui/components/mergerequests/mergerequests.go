@@ -15,16 +15,17 @@ type Model struct {
 	ctx   *context.AppContext
 }
 
-var Cols = []table.TableCol{
+var Cols = []table.Column{
 	{
 		Name:  "created_at",
 		Title: icon.Clock,
-		Width: 4,
+		Width: 3,
 	},
 	{
-		Name:  "is_draft",
-		Title: icon.Edit,
-		Width: 4,
+		Name:     "is_draft",
+		Title:    icon.Edit,
+		Width:    4,
+		Centered: true,
 	},
 	{
 		Name:  "title",
@@ -37,29 +38,34 @@ var Cols = []table.TableCol{
 		Width: 8,
 	},
 	{
-		Name:  "status",
-		Title: "Status",
-		Width: 4,
+		Name:     "status",
+		Title:    "Status",
+		Width:    4,
+		Centered: true,
 	},
 	{
-		Name:  "is_mergeable",
-		Title: icon.Merge,
-		Width: 4,
+		Name:     "is_mergeable",
+		Title:    icon.Merge,
+		Width:    4,
+		Centered: true,
 	},
 	{
-		Name:  "approvals",
-		Title: icon.Approval,
-		Width: 4,
+		Name:     "approvals",
+		Title:    icon.Approval,
+		Width:    4,
+		Centered: true,
 	},
 	{
-		Name:  "discussions",
-		Title: icon.Discussion,
-		Width: 4,
+		Name:     "discussions",
+		Title:    icon.Discussion,
+		Width:    4,
+		Centered: true,
 	},
 	{
-		Name:  "diffs",
-		Title: icon.Diff,
-		Width: 8,
+		Name:     "diffs",
+		Title:    icon.Diff,
+		Width:    8,
+		Centered: true,
 	},
 	{
 		Name:  "updated_at",
@@ -88,7 +94,7 @@ var IconCols = func() []int {
 		table.GetColIndex(Cols, "is_draft"),
 		table.GetColIndex(Cols, "status"),
 		table.GetColIndex(Cols, "is_mergeable"),
-		// table.GetColIndex(Cols, "approvals"),
+		table.GetColIndex(Cols, "approvals"),
 		// table.GetColIndex(Cols, "diffs"),
 	}
 }
@@ -104,7 +110,8 @@ func GetTableColums(width int) []table.Column {
 	w := table.ColWidth
 	columns := []table.Column{}
 	for _, col := range Cols {
-		columns = append(columns, table.Column{Title: col.Title, Width: w(width, col.Width)})
+		col.Width = w(width, col.Width)
+		columns = append(columns, table.Column(col))
 	}
 	return columns
 }

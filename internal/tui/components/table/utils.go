@@ -20,11 +20,12 @@ type InitModelParams struct {
 func InitModel(params InitModelParams) Model {
 	s := DefaultStyle()
 
+	rowVerticalFrame := rowTopMargin + rowBottomMargin + rowHeight
 	t := New(
 		WithColumns(params.Colums),
 		WithRows(params.Rows),
 		WithFocused(true),
-		WithHeight(len(params.Rows)+1),
+		WithHeight((len(params.Rows)*rowVerticalFrame)+1),
 		WithStyles(Styles(s)),
 		WithStyleFunc(params.StyleFunc),
 	)
@@ -56,7 +57,11 @@ func StyleIconsColumns(s Styles, iconColIdx []int) StyleFunc {
 		}
 
 		if isIconCol {
-			return iconStyle[value]
+			v, ok := iconStyle[value]
+			if ok {
+				return v
+			}
+			return s.Cell
 		}
 
 		return s.Cell
@@ -133,8 +138,8 @@ func RenderIcon(b bool, i string) string {
 	return icon.Empty
 }
 
-func GetColIndex(cols []TableCol, n string) int {
-	return slices.IndexFunc(cols, func(c TableCol) bool {
+func GetColIndex(cols []Column, n string) int {
+	return slices.IndexFunc(cols, func(c Column) bool {
 		return c.Name == n
 	})
 }

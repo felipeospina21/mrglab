@@ -10,12 +10,11 @@ import (
 	"github.com/mattn/go-runewidth"
 )
 
-// TODO: Replace this over Column
-type TableCol struct {
-	Name  string
-	Title string
-	Width int
-}
+const (
+	rowTopMargin    = 1
+	rowBottomMargin = 1
+	rowHeight       = 1
+)
 
 // Model defines a state for the table widget.
 type Model struct {
@@ -38,8 +37,10 @@ type Row []string
 
 // Column defines the table structure.
 type Column struct {
-	Title string
-	Width int
+	Title    string
+	Width    int
+	Name     string
+	Centered bool
 }
 
 // KeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
@@ -421,7 +422,11 @@ func (m Model) headersView() string {
 		if col.Width <= 0 {
 			continue
 		}
+
 		style := lipgloss.NewStyle().Width(col.Width).MaxWidth(col.Width).Inline(true)
+		if col.Centered {
+			style = style.Align(lipgloss.Center, lipgloss.Center)
+		}
 		renderedCell := style.Render(runewidth.Truncate(col.Title, col.Width, "…"))
 		s = append(s, m.styles.Header.Render(renderedCell))
 	}
@@ -444,8 +449,19 @@ func (m *Model) renderRow(r int) string {
 			cellStyle = m.styles.Cell
 		}
 
-		style := lipgloss.NewStyle().Width(m.cols[i].Width).MaxWidth(m.cols[i].Width).Inline(true)
-		renderedCell := cellStyle.Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
+		style := lipgloss.NewStyle().
+			Width(m.cols[i].Width).
+			MaxWidth(m.cols[i].Width).
+			Inline(true).
+			AlignVertical(lipgloss.Center)
+
+		if m.cols[i].Centered {
+			style = style.AlignHorizontal(lipgloss.Center)
+		}
+		renderedCell := cellStyle.
+			Height(rowHeight).
+			Margin(rowTopMargin, 0, rowBottomMargin, 0).
+			Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
 
 		s = append(s, renderedCell)
 	}
