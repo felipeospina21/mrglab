@@ -99,7 +99,7 @@ func isDevMode() bool {
 	viper.BindEnv("dev")
 
 	useMockedData := viper.Get("dev")
-	if useMockedData != nil {
+	if useMockedData != nil && useMockedData != "false" {
 		return true
 	}
 
