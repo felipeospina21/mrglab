@@ -1,6 +1,7 @@
 package mergerequests
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/felipeospina21/mrglab/internal/context"
@@ -28,12 +29,12 @@ var Cols = []table.TableCol{
 	{
 		Name:  "title",
 		Title: "Title",
-		Width: 50,
+		Width: 25,
 	},
 	{
 		Name:  "author",
 		Title: "Author",
-		Width: 20,
+		Width: 8,
 	},
 	{
 		Name:  "status",
@@ -41,13 +42,28 @@ var Cols = []table.TableCol{
 		Width: 4,
 	},
 	{
-		Name:  "conflicts",
-		Title: "Conflicts",
+		Name:  "is_mergeable",
+		Title: icon.Merge,
+		Width: 4,
+	},
+	{
+		Name:  "approvals",
+		Title: icon.Approval,
 		Width: 4,
 	},
 	{
 		Name:  "discussions",
-		Title: "Discussions",
+		Title: icon.Discussion,
+		Width: 4,
+	},
+	{
+		Name:  "diffs",
+		Title: icon.Diff,
+		Width: 8,
+	},
+	{
+		Name:  "updated_at",
+		Title: icon.Update,
 		Width: 4,
 	},
 	{
@@ -71,7 +87,9 @@ var IconCols = func() []int {
 	return []int{
 		table.GetColIndex(Cols, "is_draft"),
 		table.GetColIndex(Cols, "status"),
-		table.GetColIndex(Cols, "conflicts"),
+		table.GetColIndex(Cols, "is_mergeable"),
+		// table.GetColIndex(Cols, "approvals"),
+		// table.GetColIndex(Cols, "diffs"),
 	}
 }
 
@@ -93,20 +111,25 @@ func GetTableColums(width int) []table.Column {
 
 func getTableRows(msg task.TaskFinishedMsg) []table.Row {
 	var rows []table.Row
-	ml := msg.Msg.(MergeRequestsFetchedMsg)
-	for _, mr := range ml.Mrs {
+	mrs := msg.Msg.(MergeRequestsFetchedMsg)
+
+	for _, edge := range mrs.Mrs.Edges {
+		node := edge.Node
 		r := table.Row{
-			table.FormatTime(*mr.CreatedAt),
-			table.RenderIcon(mr.Draft, icon.Check),
-			mr.Title,
-			mr.Author.Name,
-			// mr.DetailedMergeStatus,
-			mapMergeStatus(mr.DetailedMergeStatus),
-			table.RenderIcon(mr.HasConflicts, icon.Cross),
-			strconv.Itoa(mr.UserNotesCount),
-			mr.WebURL,
-			mr.Description,
-			strconv.Itoa(mr.IID),
+			table.FormatTime(node.CreatedAt),
+			table.RenderIcon(node.Draft, icon.Check),
+			node.Title,
+			node.Author.Name,
+			// node.DetailedMergeStatus,
+			detailedStatus(node.DetailedMergeStatus),
+			isMergeable(node.DetailedMergeStatus, node.Conflicts),
+			approvals(node.ApprovalsLeft, node.ApprovalsRequired),
+			strconv.Itoa(node.UserNotesCount),
+			fmt.Sprintf("+%v / -%v", node.DiffStatsSummary.Additions, node.DiffStatsSummary.Deletions),
+			table.FormatTime(node.UpdatedAt),
+			node.WebURL,
+			node.Description,
+			node.IID,
 		}
 
 		rows = append(rows, r)
@@ -130,7 +153,7 @@ func getTableRows(msg task.TaskFinishedMsg) []table.Row {
 // not_open: The merge request must be open before merge.
 // requested_changes: The merge request has reviewers who have requested changes.
 // unchecked: Git has not yet tested if a valid merge is possible.
-func mapMergeStatus(status string) string {
+func detailedStatus(status string) string {
 	s := map[string]string{
 		"not_approved":             icon.Empty,
 		"unchecked":                icon.Dash,
@@ -144,4 +167,24 @@ func mapMergeStatus(status string) string {
 		"draft_status":             icon.Edit,
 	}
 	return s[status]
+}
+
+func isMergeable(status string, hasConflicts bool) string {
+	if hasConflicts {
+		return icon.CircleCross
+	}
+
+	if status == "mergeable" {
+		return icon.CircleCheck
+	}
+
+	return icon.Dash
+}
+
+func approvals(left int, total int) string {
+	if left == total {
+		return icon.Check
+	}
+
+	return fmt.Sprintf("%v/%v", left, total)
 }
