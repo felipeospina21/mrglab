@@ -9,11 +9,21 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Project struct {
+	Name     string `mapstructure:"name"`
+	FullPath string `mapstructure:"fullPath"`
+	ID       string `mapstructure:"id"`
+}
+
+type Filter struct {
+	Projects []Project `mapstructure:"projects"`
+}
 type Config struct {
 	BaseURL    string                   `mapstructure:"base_url"`
 	APIToken   string                   `mapstructure:"token"`
 	APIVersion string                   `mapstructure:"api_version"`
 	Projects   []map[string]interface{} `mapstructure:"projects"`
+	Filters    Filter                   `mapstructure:"filters"`
 	DevMode    bool
 }
 
