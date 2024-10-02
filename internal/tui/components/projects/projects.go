@@ -161,3 +161,7 @@ func GetFrameSize() (int, int) {
 
 	return x + xItem + xTitle, y + yItem + yTitle
 }
+
+func (m *Model) SetFocus() {
+	m.ctx.FocusedPanel = context.LeftPanel
+}

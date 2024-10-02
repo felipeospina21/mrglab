@@ -54,6 +54,7 @@ func StyleIconsColumns(s Styles, iconColIdx []int) StyleFunc {
 			icon.CircleCross: defStyle(color(style.Red[300])),
 			icon.CirclePlay:  defStyle(color(style.Violet[300])),
 			icon.Gear:        defStyle(color(style.Yellow[300])),
+			icon.Plus:        defStyle(color(style.Green[300])),
 		}
 
 		if isIconCol {

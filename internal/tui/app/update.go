@@ -7,9 +7,9 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -19,6 +19,9 @@ import (
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+	isLeftPanelFocused := m.ctx.FocusedPanel == context.LeftPanel
+	isMainPanelFocused := m.ctx.FocusedPanel == context.MainPanel
+	isRightPanelFocused := m.ctx.FocusedPanel == context.RightPanel
 
 	switch msg := msg.(type) {
 	case error:
@@ -27,10 +30,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	case tea.KeyMsg:
+		// TODO: Delete this cmd
 		if msg.String() == "a" {
 			m.Statusline.Status = "test"
 			m.Statusline.Content = "test"
 		}
+		// TODO: Delete this cmd
 		if msg.String() == "b" {
 			m.Statusline.Status = statusline.ModesEnum.Loading
 			cmds = append(cmds, cmd)
@@ -44,18 +49,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return errors.New("mocked")
 			})
 
-		// TODO: separate in views
-		case key.Matches(msg, projects.Keybinds.MRList):
-			cb := func() tea.Cmd {
-				m.Projects.SelectProject()
-				return m.MergeRequests.GetListCmd()
-			}
-			cmds = append(cmds, m.startCommand(cb))
-
 		case key.Matches(msg, projects.Keybinds.ToggleSidePanel):
-			m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
-			m.MergeRequests.Table.SetWidth(m.ctx.Window.Width - m.Projects.List.Width() - 10)       // FIX: Magic num
-			m.MergeRequests.Table.SetColumns(mergerequests.GetTableColums(m.ctx.Window.Width - 20)) // FIX: Magic num
+			m.toggleLeftPanel()
+		}
+
+		if isLeftPanelFocused {
+			switch {
+			case key.Matches(msg, projects.Keybinds.MRList):
+				cb := func() tea.Cmd {
+					m.Projects.SelectProject()
+					return m.MergeRequests.GetListCmd()
+				}
+				cmds = append(cmds, m.startCommand(cb))
+			}
+		}
+
+		if isMainPanelFocused {
+			// TODO: main panel cmds
+		}
+
+		if isRightPanelFocused {
+			// TODO: right panel cmds
 		}
 
 	case spinner.TickMsg:

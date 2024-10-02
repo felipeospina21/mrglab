@@ -6,6 +6,14 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
+type focusedPanel uint
+
+const (
+	LeftPanel focusedPanel = iota
+	MainPanel
+	RightPanel
+)
+
 type AppContext struct {
 	SelectedProject struct {
 		Name string
@@ -18,4 +26,5 @@ type AppContext struct {
 	TaskStatus      task.TaskStatus
 	IsLeftPanelOpen bool
 	IsDevMode       bool
+	FocusedPanel    focusedPanel
 }

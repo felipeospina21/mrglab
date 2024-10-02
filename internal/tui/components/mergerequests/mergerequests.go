@@ -69,7 +69,7 @@ var Cols = []table.Column{
 	},
 	{
 		Name:  "updated_at",
-		Title: icon.Update,
+		Title: icon.UserUpdate,
 		Width: 4,
 	},
 	{
@@ -95,7 +95,7 @@ var IconCols = func() []int {
 		table.GetColIndex(Cols, "status"),
 		table.GetColIndex(Cols, "is_mergeable"),
 		table.GetColIndex(Cols, "approvals"),
-		// table.GetColIndex(Cols, "diffs"),
+		table.GetColIndex(Cols, "diffs"),
 	}
 }
 
@@ -104,6 +104,10 @@ func New(ctx *context.AppContext) Model {
 		Table: table.Model{},
 		ctx:   ctx,
 	}
+}
+
+func (m *Model) SetFocus() {
+	m.ctx.FocusedPanel = context.MainPanel
 }
 
 func GetTableColums(width int) []table.Column {
@@ -132,7 +136,7 @@ func getTableRows(msg task.TaskFinishedMsg) []table.Row {
 			isMergeable(node.DetailedMergeStatus, node.Conflicts),
 			approvals(node.ApprovalsLeft, node.ApprovalsRequired),
 			strconv.Itoa(node.UserNotesCount),
-			fmt.Sprintf("+%v / -%v", node.DiffStatsSummary.Additions, node.DiffStatsSummary.Deletions),
+			diff(node.DiffStatsSummary.Additions, node.DiffStatsSummary.Deletions),
 			table.FormatTime(node.UpdatedAt),
 			node.WebURL,
 			node.Description,
@@ -194,4 +198,8 @@ func approvals(left int, total int) string {
 	}
 
 	return fmt.Sprintf("%v/%v", left, total)
+}
+
+func diff(additions int, deletions int) string {
+	return fmt.Sprintf("+%v / -%v", additions, deletions)
 }

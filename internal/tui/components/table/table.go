@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rowTopMargin    = 1
+	rowTopMargin    = 0
 	rowBottomMargin = 1
 	rowHeight       = 1
 )
@@ -460,7 +460,6 @@ func (m *Model) renderRow(r int) string {
 		}
 		renderedCell := cellStyle.
 			Height(rowHeight).
-			Margin(rowTopMargin, 0, rowBottomMargin, 0).
 			Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
 
 		s = append(s, renderedCell)
@@ -469,10 +468,10 @@ func (m *Model) renderRow(r int) string {
 	row := lipgloss.JoinHorizontal(lipgloss.Left, s...)
 
 	if r == m.cursor {
-		return m.styles.Selected.Render(row)
+		return m.styles.Selected.MarginBottom(rowBottomMargin).Render(row)
 	}
 
-	return row
+	return lipgloss.NewStyle().MarginBottom(rowBottomMargin).Render(row)
 }
 
 func max(a, b int) int {
