@@ -29,7 +29,6 @@ func (m *Model) GetListCmd() tea.Cmd {
 
 func (m Model) GetTableModel(msg task.TaskFinishedMsg) func() table.Model {
 	return func() table.Model {
-		m.ctx.IsLeftPanelOpen = false
 		rows := getTableRows(msg)
 		return table.InitModel(table.InitModelParams{
 			Rows:   rows,
