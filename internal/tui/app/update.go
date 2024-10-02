@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -65,7 +66,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isMainPanelFocused {
-			// TODO: main panel cmds
+			switch {
+			// TODO: replace keybinds
+			case key.Matches(msg, projects.Keybinds.MRList):
+				m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
+				m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
+				m.MergeRequests.Table.UpdateViewport()
+				m.Details.Viewport.SetContent(content)
+				// m.Details.SetFocus()
+			}
 		}
 
 		if isRightPanelFocused {
@@ -81,11 +90,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.ctx.Window = msg
 
 		m.setLeftPanelHeight()
-
 		m.setStatuslineWidth()
 
-		// table
-		// m.MergeRequests.Table.SetWidth(msg.Width - w)
 
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
@@ -96,6 +102,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.MergeRequests.GetTableModel(msg),
 			)
 
+			m.toggleLeftPanel()
+			m.MergeRequests.SetFocus()
 			m.MergeRequests.Table = t
 		}
 	}
