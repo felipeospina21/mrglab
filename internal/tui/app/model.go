@@ -107,6 +107,18 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
+func (m *Model) toggleLeftPanel() {
+	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
+	m.MergeRequests.Table.SetWidth(m.ctx.Window.Width - m.Projects.List.Width() - 10)       // FIX: Magic num
+	m.MergeRequests.Table.SetColumns(mergerequests.GetTableColums(m.ctx.Window.Width - 20)) // FIX: Magic num
+
+	if m.ctx.IsLeftPanelOpen {
+		m.Projects.SetFocus()
+	} else {
+		m.MergeRequests.SetFocus()
+	}
+}
+
 func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
 }
