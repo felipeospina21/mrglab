@@ -4,23 +4,10 @@ import (
 	"time"
 )
 
-type GetMRsResponse struct {
+type GetProjectMrs struct {
 	Projects struct {
-		Count    int
-		PageInfo PageInfo
-		Edges    []ProjectEdge
+		Edges []ProjectEdge
 	} `graphql:"projects(fullPaths: $fullPaths)"`
-}
-
-type MergeRequestOptions struct {
-	State     string
-	FullPaths []string
-}
-
-type PageInfo struct {
-	StartCursor string
-	EndCursor   string
-	HasNextPage bool
 }
 
 type ProjectEdge struct {
@@ -84,6 +71,17 @@ type DiffStatsSummary struct {
 	Changes   int
 	Deletions int
 	FileCount int
+}
+
+type MergeRequestOptions struct {
+	State     string
+	FullPaths []string
+}
+
+type PageInfo struct {
+	StartCursor string
+	EndCursor   string
+	HasNextPage bool
 }
 
 func GetMRVariables(opts MergeRequestOptions) map[string]any {
