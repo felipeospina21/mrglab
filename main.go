@@ -23,8 +23,9 @@ func main() {
 		ctx.IsDevMode = true
 	}
 
+	// api.GetProjectMergeRequestsGQL("98211", gql.MergeRequestOptions{State: "opened"})
 	m := app.InitMainModel(ctx)
-
+	//
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
