@@ -1,8 +1,8 @@
 package mergerequests
 
-import "github.com/xanzy/go-gitlab"
+import "github.com/felipeospina21/mrglab/internal/gql"
 
 type MergeRequestsFetchedMsg struct {
-	Mrs    []*gitlab.MergeRequest
+	Mrs    gql.MergeRequestConnection
 	TaskId string
 }

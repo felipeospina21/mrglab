@@ -3,18 +3,16 @@ package mergerequests
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/api"
+	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
-	"github.com/xanzy/go-gitlab"
 )
 
 func (m *Model) GetListCmd() tea.Cmd {
 	return func() tea.Msg {
-		p := &gitlab.ListProjectMergeRequestsOptions{
-			State: gitlab.Ptr("opened"),
-		}
-
-		mrs, err := api.GetProjectMergeRequests(m.ctx.SelectedProject.ID, p)
+		mrs, err := api.GetProjectMergeRequestsGQL(m.ctx.SelectedProject.ID, gql.MergeRequestOptions{
+			State: "opened",
+		})
 
 		return task.TaskFinishedMsg{
 			TaskID:      "",

@@ -2,6 +2,10 @@
 
 mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
+## Requirements
+
+- Nerd Font (Symbols) v3.2.1 or higher [ download ](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/NerdFontsSymbolsOnly.zip)
+
 ## install
 
 // TODO
