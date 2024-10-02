@@ -92,6 +92,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setLeftPanelHeight()
 		m.setStatuslineWidth()
 
+		cmd = m.Details.SetViewportViewSize(tea.WindowSizeMsg{Width: 35, Height: 20})
+		cmds = append(cmds, cmd)
 
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
@@ -110,5 +112,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.Projects.List, cmd = m.Projects.List.Update(msg)
 	m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
+	m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
 	return m, tea.Batch(cmds...)
 }

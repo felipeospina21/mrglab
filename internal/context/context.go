@@ -20,11 +20,12 @@ type AppContext struct {
 		ID   string
 	}
 
-	SelectedMRID    string
-	Window          tea.WindowSizeMsg
-	Keybinds        help.KeyMap
-	TaskStatus      task.TaskStatus
-	IsLeftPanelOpen bool
-	IsDevMode       bool
-	FocusedPanel    focusedPanel
+	SelectedMRID     string
+	Window           tea.WindowSizeMsg
+	Keybinds         help.KeyMap
+	TaskStatus       task.TaskStatus
+	IsLeftPanelOpen  bool
+	IsRightPanelOpen bool
+	IsDevMode        bool
+	FocusedPanel     focusedPanel
 }

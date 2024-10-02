@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
@@ -16,6 +17,7 @@ import (
 type Model struct {
 	Projects      projects.Model
 	MergeRequests mergerequests.Model
+	Details       details.Model
 	Statusline    statusline.Model
 	ctx           *context.AppContext
 }
@@ -23,10 +25,12 @@ type Model struct {
 func InitMainModel(ctx *context.AppContext) Model {
 	// Sets global keybinds by default
 	ctx.Keybinds = tui.GlobalKeys
+	ctx.FocusedPanel = context.LeftPanel
 
 	return Model{
 		Projects:      projects.New(ctx),
 		MergeRequests: mergerequests.New(ctx),
+		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx),
 		ctx:           ctx,
 		// 	isSidePanelOpen: false,
@@ -109,14 +113,8 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 
 func (m *Model) toggleLeftPanel() {
 	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
-	m.MergeRequests.Table.SetWidth(m.ctx.Window.Width - m.Projects.List.Width() - 10)       // FIX: Magic num
-	m.MergeRequests.Table.SetColumns(mergerequests.GetTableColums(m.ctx.Window.Width - 20)) // FIX: Magic num
-
-	if m.ctx.IsLeftPanelOpen {
-		m.Projects.SetFocus()
-	} else {
-		m.MergeRequests.SetFocus()
-	}
+	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
+	m.MergeRequests.Table.UpdateViewport()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
