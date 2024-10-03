@@ -51,7 +51,7 @@ func (m Model) renderLayout(c LayoutComponents) string {
 	}
 
 	if m.ctx.IsRightPanelOpen {
-		render := lipgloss.NewStyle().Border(lipgloss.NormalBorder()).Render
+		render := lipgloss.NewStyle().MarginTop(1).Border(lipgloss.NormalBorder()).Render
 		right := render(
 			fmt.Sprintf(
 				"%s\n%s\n%s",

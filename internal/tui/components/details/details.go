@@ -16,17 +16,17 @@ const useHighPerformanceRenderer = false
 
 type Model struct {
 	Viewport viewport.Model
-	Ready    isResponseReady
+	Ready    IsDetailsResponseReady
 	Content  responseMsg
 	Err      error
 	ctx      *context.AppContext
 }
 
 type (
-	responseMsg        string
-	contentRenderedMsg string
-	isResponseReady    bool
-	errMsg             struct{ err error }
+	responseMsg            string
+	contentRenderedMsg     string
+	IsDetailsResponseReady bool
+	errMsg                 struct{ err error }
 )
 
 func New(ctx *context.AppContext) Model {
@@ -54,17 +54,19 @@ func (m *Model) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
-func (m Model) setResponseContent(content string) {
-	styledContent := renderWithGlamour(m, content)
+func (m *Model) SetResponseContent(content string) {
+	styledContent := renderWithGlamour(*m, content)
 
 	m.Viewport.SetContent(styledContent)
 }
 
 func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
-	w := msg.Width
+	magicnumber := 8 // FIX: find where this comes from
+
+	w := msg.Width - magicnumber
 	headerHeight := lipgloss.Height(m.HeaderView(""))
 	footerHeight := lipgloss.Height(m.FooterView())
-	verticalMarginHeight := headerHeight + footerHeight
+	verticalMarginHeight := headerHeight + footerHeight + magicnumber
 
 	if !m.Ready {
 		// Since this program is using the full size of the viewport we
@@ -76,7 +78,7 @@ func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 		m.Viewport.YPosition = headerHeight
 		m.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
 
-		// m.setResponseContent()
+		// m.SetResponseContent(string(m.Content))
 		m.Ready = true
 
 		// This is only necessary for high performance rendering, which in

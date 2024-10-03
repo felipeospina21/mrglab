@@ -15,17 +15,17 @@ type InitModelParams struct {
 	Rows      []Row
 	Colums    []Column
 	StyleFunc StyleFunc
+	Height    int
 }
 
 func InitModel(params InitModelParams) Model {
 	s := DefaultStyle()
 
-	rowVerticalFrame := rowTopMargin + rowBottomMargin + rowHeight
 	t := New(
 		WithColumns(params.Colums),
 		WithRows(params.Rows),
 		WithFocused(true),
-		WithHeight((len(params.Rows)*rowVerticalFrame)+1),
+		WithHeight(params.Height),
 		WithStyles(Styles(s)),
 		WithStyleFunc(params.StyleFunc),
 	)

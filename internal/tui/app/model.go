@@ -156,6 +156,7 @@ func (m *Model) setLeftPanelHeight() {
 	height := m.ctx.Window.Height - y - yStatus - 3 // FIX: find how to replace this magic num
 
 	m.Projects.List.SetHeight(height)
+	m.ctx.PanelHeight = height
 }
 
 func (m *Model) setStatuslineWidth() {

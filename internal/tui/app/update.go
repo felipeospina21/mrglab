@@ -11,6 +11,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -25,6 +26,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	isRightPanelFocused := m.ctx.FocusedPanel == context.RightPanel
 
 	switch msg := msg.(type) {
+	case details.IsDetailsResponseReady:
+		m.Details.SetResponseContent(content)
+
 	case error:
 		l, f := logger.New(logger.NewLogger{})
 		defer f.Close()
@@ -58,6 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, projects.Keybinds.MRList):
 				cb := func() tea.Cmd {
+					m.toggleLeftPanel()
 					m.Projects.SelectProject()
 					return m.MergeRequests.GetListCmd()
 				}
@@ -69,11 +74,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			// TODO: replace keybinds
 			case key.Matches(msg, projects.Keybinds.MRList):
+				// TODO: move to separate command function (duplicated in toggleLeftPanel)
 				m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
 				m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
 				m.MergeRequests.Table.UpdateViewport()
-				m.Details.Viewport.SetContent(content)
 				// m.Details.SetFocus()
+
+				// TODO: move to separate command function
+				viewportWidth := m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
+
+				c := m.Details.SetViewportViewSize(
+					tea.WindowSizeMsg{Width: viewportWidth, Height: m.ctx.Window.Height},
+				)
+
+				cmd = func() tea.Msg {
+					return details.IsDetailsResponseReady(true)
+				}
+				// m.Details.Viewport.Update(msg)
+				cmds = append(cmds, c, cmd)
 			}
 		}
 
@@ -92,9 +110,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setLeftPanelHeight()
 		m.setStatuslineWidth()
 
-		cmd = m.Details.SetViewportViewSize(tea.WindowSizeMsg{Width: 35, Height: 20})
-		cmds = append(cmds, cmd)
-
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
 		if msg.SectionType == "mrs" {
@@ -104,7 +119,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.MergeRequests.GetTableModel(msg),
 			)
 
-			m.toggleLeftPanel()
 			m.MergeRequests.SetFocus()
 			m.MergeRequests.Table = t
 		}

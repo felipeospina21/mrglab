@@ -30,13 +30,15 @@ func (m *Model) GetListCmd() tea.Cmd {
 func (m Model) GetTableModel(msg task.TaskFinishedMsg) func() table.Model {
 	return func() table.Model {
 		rows := getTableRows(msg)
+		mainPanelHeaderHeight := 1
 		return table.InitModel(table.InitModelParams{
 			Rows:   rows,
-			Colums: GetTableColums(m.ctx.Window.Width - 10),
+			Colums: GetTableColums(m.ctx.Window.Width),
 			StyleFunc: table.StyleIconsColumns(
 				table.Styles(table.DefaultStyle()),
 				IconCols(),
 			),
+			Height: m.ctx.PanelHeight - mainPanelHeaderHeight,
 		})
 	}
 }
