@@ -101,8 +101,10 @@ var IconCols = func() []int {
 
 func New(ctx *context.AppContext) Model {
 	return Model{
-		Table: table.Model{},
-		ctx:   ctx,
+		Table: table.Model{
+			EmptyMessage: "Select A Project",
+		},
+		ctx: ctx,
 	}
 }
 

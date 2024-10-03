@@ -18,7 +18,10 @@ const (
 
 // Model defines a state for the table widget.
 type Model struct {
-	KeyMap KeyMap
+	KeyMap       KeyMap
+	EmptyMessage string
+	W            int
+	H            int
 
 	cols      []Column
 	rows      []Row
@@ -264,6 +267,9 @@ func (m *Model) Blur() {
 
 // View renders the component.
 func (m Model) View() string {
+	if len(m.viewport.View()) == 0 {
+		return EmptyMsg.Width(m.W).Height(m.H).Render(m.EmptyMessage)
+	}
 	return m.headersView() + "\n" + m.viewport.View()
 }
 
