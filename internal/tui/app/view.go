@@ -10,46 +10,28 @@ import (
 )
 
 func (m Model) View() string {
-	if m.ctx.IsLeftPanelOpen && m.ctx.TaskStatus != task.TaskFinished {
-		w, h := m.getEmptyTableSize()
-		return m.renderLayout(LayoutComponents{
-			body: table.EmptyMsg.Width(w).Height(h).Render("Select Project"),
-		})
-	}
-
-	if m.ctx.IsRightPanelOpen {
-		return m.renderLayout(LayoutComponents{
-			header: table.TitleStyle.Render(
-				fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Merge Requests"),
-			),
-			body: table.DocStyle.Render(m.MergeRequests.Table.View()),
-		})
-	}
-
-	return m.renderLayout(LayoutComponents{
-		header: table.TitleStyle.Render(
-			fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Merge Requests"),
-		),
-		body: table.DocStyle.Render(m.MergeRequests.Table.View()),
-	})
-}
-
-type LayoutComponents struct {
-	header string
-	body   string
-}
-
-func (m Model) renderLayout(c LayoutComponents) string {
 	left := projects.DocStyle.Render(m.Projects.List.View())
-	main := lipgloss.JoinVertical(0, c.header, c.body)
-	body := lipgloss.JoinHorizontal(0, left, main)
-	sl := m.Statusline.View()
-	if !m.ctx.IsLeftPanelOpen {
-		h := m.ctx.Window.Height - lipgloss.Height(c.header) - lipgloss.Height(c.body) - MainFrameStyle.GetVerticalFrameSize()
-		sl = lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
-		body = main
+	if m.ctx.TaskStatus == task.TaskIdle {
+		m.MergeRequests.Table.W, m.MergeRequests.Table.H = m.getEmptyTableSize()
+		body := lipgloss.JoinHorizontal(0, left, table.DocStyle.Render(m.MergeRequests.Table.View()))
+		sl := m.Statusline.View()
+		return MainFrameStyle.Render(lipgloss.JoinVertical(0, body, sl))
+
 	}
 
+	header := table.TitleStyle.Render(
+		fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Merge Requests"),
+	)
+	body := lipgloss.JoinVertical(0, header, table.DocStyle.Render(m.MergeRequests.Table.View()))
+	if m.ctx.IsLeftPanelOpen {
+		main := lipgloss.JoinHorizontal(0, left, body)
+		sl := m.Statusline.View()
+		return MainFrameStyle.Render(lipgloss.JoinVertical(0, main, sl))
+
+	}
+
+	h := m.ctx.Window.Height - lipgloss.Height(body) - MainFrameStyle.GetVerticalFrameSize()
+	sl := lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
 	if m.ctx.IsRightPanelOpen {
 		render := lipgloss.NewStyle().MarginTop(1).Border(lipgloss.NormalBorder()).Render
 		right := render(
@@ -60,7 +42,8 @@ func (m Model) renderLayout(c LayoutComponents) string {
 				m.Details.FooterView(),
 			),
 		)
-		body = lipgloss.JoinHorizontal(0, main, right)
+		main := lipgloss.JoinHorizontal(0, body, right)
+		return MainFrameStyle.Render(lipgloss.JoinVertical(0, main, sl))
 	}
 
 	return MainFrameStyle.Render(lipgloss.JoinVertical(0, body, sl))
