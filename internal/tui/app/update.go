@@ -13,7 +13,6 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
-	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
@@ -35,16 +34,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	case tea.KeyMsg:
-		// TODO: Delete this cmd
-		if msg.String() == "a" {
-			m.Statusline.Status = "test"
-			m.Statusline.Content = "test"
-		}
-		// TODO: Delete this cmd
-		if msg.String() == "b" {
-			m.Statusline.Status = statusline.ModesEnum.Loading
-			cmds = append(cmds, cmd)
-		}
 		switch {
 		case key.Matches(msg, tui.GlobalKeys.Quit):
 			return m, tea.Quit
@@ -56,13 +45,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, projects.Keybinds.ToggleSidePanel):
 			m.toggleLeftPanel()
+			if m.ctx.IsLeftPanelOpen {
+				m.Projects.SetFocus()
+			} else {
+				m.MergeRequests.SetFocus()
+			}
 		}
 
 		if isLeftPanelFocused {
+			m.Projects.List, cmd = m.Projects.List.Update(msg)
 			switch {
 			case key.Matches(msg, projects.Keybinds.MRList):
 				cb := func() tea.Cmd {
-					m.toggleLeftPanel()
 					m.Projects.SelectProject()
 					return m.MergeRequests.GetListCmd()
 				}
@@ -71,6 +65,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isMainPanelFocused {
+			m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 			switch {
 			// TODO: replace keybinds
 			case key.Matches(msg, projects.Keybinds.MRList):
@@ -119,13 +114,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.MergeRequests.GetTableModel(msg),
 			)
 
+			m.toggleLeftPanel()
 			m.MergeRequests.SetFocus()
 			m.MergeRequests.Table = t
 		}
 	}
 
-	m.Projects.List, cmd = m.Projects.List.Update(msg)
-	m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 	m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
 	return m, tea.Batch(cmds...)
 }

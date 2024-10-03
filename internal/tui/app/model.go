@@ -115,7 +115,7 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 func (m *Model) toggleLeftPanel() {
 	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
 	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
-	m.MergeRequests.Table.UpdateViewport()
+	// m.MergeRequests.Table.UpdateViewport()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {

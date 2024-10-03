@@ -11,7 +11,7 @@ import (
 
 func (m Model) View() string {
 	left := projects.DocStyle.Render(m.Projects.List.View())
-	if m.ctx.TaskStatus == task.TaskIdle {
+	if m.ctx.TaskStatus != task.TaskFinished {
 		m.MergeRequests.Table.W, m.MergeRequests.Table.H = m.getEmptyTableSize()
 		body := lipgloss.JoinHorizontal(0, left, table.DocStyle.Render(m.MergeRequests.Table.View()))
 		sl := m.Statusline.View()
