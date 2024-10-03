@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
 type Model struct {
@@ -122,11 +122,10 @@ func GetTableColums(width int) []table.Column {
 	return columns
 }
 
-func getTableRows(msg task.TaskFinishedMsg) []table.Row {
+func GetTableRows(msg message.MergeRequestsFetchedMsg) []table.Row {
 	var rows []table.Row
-	mrs := msg.Msg.(MergeRequestsFetchedMsg)
 
-	for _, edge := range mrs.Mrs.Edges {
+	for _, edge := range msg.Mrs.Edges {
 		node := edge.Node
 		r := table.Row{
 			table.FormatTime(node.CreatedAt),
