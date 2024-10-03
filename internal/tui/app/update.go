@@ -9,9 +9,11 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/data"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
+	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
@@ -26,7 +28,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case details.IsDetailsResponseReady:
-		m.Details.SetStyledContent(content)
+		m.Details.SetStyledContent(data.Content)
 
 	case error:
 		l, f := logger.New(logger.NewLogger{})
@@ -34,16 +36,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, tui.GlobalKeys.Quit):
-			return m, tea.Quit
+		match := keyMatcher(msg)
+		gk := tui.GlobalKeys
+		lpk := projects.Keybinds
+		mpk := mergerequests.Keybinds
+		rpk := details.Keybinds
 
-		case key.Matches(msg, tui.GlobalKeys.ThrowError):
+		switch {
+		case match(gk.ThrowError):
 			cmds = append(cmds, func() tea.Msg {
 				return errors.New("mocked")
 			})
 
-		case key.Matches(msg, projects.Keybinds.ToggleSidePanel):
+		case match(gk.Quit):
+			return m, tea.Quit
+
+		case match(gk.ToggleLeftPanel):
 			m.toggleLeftPanel()
 			if m.ctx.IsLeftPanelOpen {
 				m.Projects.SetFocus()
@@ -55,10 +63,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if isLeftPanelFocused {
 			m.Projects.List, cmd = m.Projects.List.Update(msg)
 			switch {
-			case key.Matches(msg, projects.Keybinds.MRList):
+			case match(lpk.MRList):
 				cb := func() tea.Cmd {
 					m.Projects.SelectProject()
-					return m.MergeRequests.GetListCmd()
+					return m.Projects.GetListCmd()
 				}
 				cmds = append(cmds, m.startCommand(cb))
 			}
@@ -67,13 +75,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if isMainPanelFocused {
 			m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 			switch {
-			// TODO: replace keybinds
-			case key.Matches(msg, projects.Keybinds.MRList):
+			case match(mpk.Details):
 				// TODO: move to separate command function (duplicated in toggleLeftPanel)
 				m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
 				m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
 				m.MergeRequests.Table.UpdateViewport()
-				// m.Details.SetFocus()
+				m.Details.SetFocus()
 
 				// TODO: move to separate command function
 				viewportWidth := m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
@@ -91,7 +98,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isRightPanelFocused {
-			// TODO: right panel cmds
+			m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
+			switch {
+			case match(rpk.ClosePanel):
+				m.ctx.IsRightPanelOpen = false
+				m.MergeRequests.SetFocus()
+			}
 		}
 
 	case spinner.TickMsg:
@@ -111,7 +123,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			t := endCommand[table.Model](
 				&m,
 				msg,
-				m.MergeRequests.GetTableModel(msg),
+				m.GetMergeRequestModel(msg),
 			)
 
 			m.toggleLeftPanel()
@@ -120,6 +132,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
 	return m, tea.Batch(cmds...)
+}
+
+func keyMatcher(msg tea.KeyMsg) func(key.Binding) bool {
+	return func(k key.Binding) bool {
+		return key.Matches(msg, k)
+	}
 }

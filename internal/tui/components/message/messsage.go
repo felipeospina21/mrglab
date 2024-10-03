@@ -1,4 +1,4 @@
-package mergerequests
+package message
 
 import "github.com/felipeospina21/mrglab/internal/gql"
 
