@@ -10,14 +10,14 @@ type GlobalKeyMap struct {
 	// PrevTab         key.Binding
 	// NextPage        key.Binding
 	// PrevPage        key.Binding
-	NavigateBack    key.Binding
-	ToggleSidePanel key.Binding
+	// NavigateBack    key.Binding
+	ToggleLeftPanel key.Binding
 }
 
 func CommonKeys() []key.Binding {
 	var k GlobalKeyMap
 	return []key.Binding{
-		k.Help, k.ToggleSidePanel, k.Quit, k.NavigateBack,
+		k.Help, k.ToggleLeftPanel, k.Quit,
 		// k.NextTab, k.PrevTab, k.NextPage, k.PrevPage
 	}
 }
@@ -25,7 +25,7 @@ func CommonKeys() []key.Binding {
 func (k GlobalKeyMap) ShortHelp() []key.Binding {
 	// return CommonKeys()
 	return []key.Binding{
-		k.Help, k.ToggleSidePanel, k.Quit, k.NavigateBack,
+		k.Help, k.ToggleLeftPanel, k.Quit,
 		// k.NextTab, k.PrevTab, k.NextPage, k.PrevPage
 	}
 }
@@ -42,8 +42,8 @@ var GlobalKeys = GlobalKeyMap{
 		key.WithHelp("?", "toggle help"),
 	),
 	Quit: key.NewBinding(
-		key.WithKeys("q", "esc", "ctrl+c"),
-		key.WithHelp("q", "quit"),
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
 	),
 	// NextTab: key.NewBinding(
 	// 	key.WithKeys("tab"),
@@ -61,11 +61,7 @@ var GlobalKeys = GlobalKeyMap{
 	// 	key.WithKeys("left"),
 	// 	key.WithHelp("<-", "prev page"),
 	// ),
-	NavigateBack: key.NewBinding(
-		key.WithKeys("backspace"),
-		key.WithHelp("backspace", "navigate back"),
-	),
-	ToggleSidePanel: key.NewBinding(
+	ToggleLeftPanel: key.NewBinding(
 		key.WithKeys("ctrl+o"),
 		key.WithHelp("ctrl+o", "toggle side panel"),
 	),
