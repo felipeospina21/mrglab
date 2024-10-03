@@ -26,6 +26,7 @@ func InitMainModel(ctx *context.AppContext) Model {
 	// Sets global keybinds by default
 	ctx.Keybinds = tui.GlobalKeys
 	ctx.FocusedPanel = context.LeftPanel
+	ctx.TaskStatus = task.TaskIdle
 
 	return Model{
 		Projects:      projects.New(ctx),

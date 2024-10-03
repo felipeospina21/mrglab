@@ -15,6 +15,7 @@ type TaskFinishedMsg struct {
 type TaskStatus = uint
 
 const (
-	TaskStarted TaskStatus = iota
+	TaskIdle TaskStatus = iota
+	TaskStarted
 	TaskFinished
 )
