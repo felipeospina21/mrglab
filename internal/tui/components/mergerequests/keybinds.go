@@ -10,19 +10,19 @@ type MergeReqsKeyMap struct {
 	Pipelines     key.Binding
 	OpenInBrowser key.Binding
 	Refetch       key.Binding
-	Description   key.Binding
+	Details       key.Binding
 	Merge         key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k MergeReqsKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Discussions, k.Pipelines, k.Description, k.OpenInBrowser, k.Merge, k.NavigateBack, k.Help, k.Quit}
+	return []key.Binding{k.Discussions, k.Pipelines, k.Details, k.OpenInBrowser, k.Merge, k.Help, k.Quit}
 }
 
 func (k MergeReqsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys(), // first column
-		{k.Discussions, k.Pipelines, k.Description, k.OpenInBrowser, k.Merge, k.Refetch}, // second column
+		{k.Discussions, k.Pipelines, k.Details, k.OpenInBrowser, k.Merge, k.Refetch}, // second column
 	}
 }
 
@@ -43,9 +43,9 @@ var Keybinds = MergeReqsKeyMap{
 		key.WithKeys("r"),
 		key.WithHelp("r", "refetch"),
 	),
-	Description: key.NewBinding(
+	Details: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "view description"),
+		key.WithHelp("enter", "view details"),
 	),
 	Merge: key.NewBinding(
 		key.WithKeys("M"),
