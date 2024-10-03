@@ -54,7 +54,7 @@ func (m *Model) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
-func (m *Model) SetResponseContent(content string) {
+func (m *Model) SetStyledContent(content string) {
 	styledContent := renderWithGlamour(*m, content)
 
 	m.Viewport.SetContent(styledContent)
