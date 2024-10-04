@@ -1,6 +1,9 @@
 package details
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
+)
 
 var (
 	MdTitle = func() lipgloss.Style {
@@ -14,4 +17,9 @@ var (
 		b.Left = "┤"
 		return MdTitle.Copy().BorderStyle(b)
 	}()
+
+	PanelStyle = lipgloss.NewStyle().
+			MarginTop(1).
+			Border(lipgloss.NormalBorder()).
+			BorderForeground(lipgloss.Color(style.DarkGray))
 )
