@@ -11,6 +11,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
@@ -131,7 +132,7 @@ func (m *Model) finishTask() {
 }
 
 func getFrameSize() (int, int) {
-	xMain, yMain := MainFrameStyle.GetFrameSize()
+	xMain, yMain := style.MainFrameStyle.GetFrameSize()
 	xProjects, yProjects := projects.GetFrameSize()
 	xStatus, yStatus := statusline.GetFrameSize()
 
@@ -146,7 +147,7 @@ func (m Model) getEmptyTableSize() (int, int) {
 	statusHeight := lipgloss.Height(m.Statusline.View())
 
 	width := w - leftPanX - leftPanW - tableX
-	height := h - leftPanY - statusHeight - MainFrameStyle.GetVerticalFrameSize()
+	height := h - leftPanY - statusHeight - style.MainFrameStyle.GetVerticalFrameSize()
 
 	return width, height
 }
