@@ -2,6 +2,7 @@ package mergerequests
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/felipeospina21/mrglab/internal/context"
@@ -15,75 +16,107 @@ type Model struct {
 	ctx   *context.AppContext
 }
 
+type ColName struct {
+	CreatedAt   string
+	IsDraft     string
+	Title       string
+	Author      string
+	Status      string
+	IsMergeable string
+	Approvals   string
+	Discussions string
+	Diffs       string
+	UpdatedAt   string
+	URL         string
+	Description string
+	ID          string
+}
+
+var ColNames = ColName{
+	CreatedAt:   "created_at",
+	IsDraft:     "is_draft",
+	Title:       "title",
+	Author:      "author",
+	Status:      "status",
+	IsMergeable: "is_mergeable",
+	Approvals:   "approvals",
+	Discussions: "discussions",
+	Diffs:       "diffs",
+	UpdatedAt:   "updated_at",
+	URL:         "url",
+	Description: "description",
+	ID:          "id",
+}
+
 var Cols = []table.Column{
 	{
-		Name:  "created_at",
+		Name:  ColNames.CreatedAt,
 		Title: icon.Clock,
-		Width: 3,
+		Width: 2,
 	},
 	{
-		Name:     "is_draft",
-		Title:    icon.Edit,
-		Width:    4,
+		Name:     ColNames.IsDraft,
+		Title:    "",
+		Width:    2,
 		Centered: true,
 	},
 	{
-		Name:  "title",
+		Name:  ColNames.Title,
 		Title: "Title",
 		Width: 25,
 	},
 	{
-		Name:  "author",
+		Name:  ColNames.Author,
 		Title: "Author",
 		Width: 8,
 	},
 	{
-		Name:     "status",
+		Name:     ColNames.Status,
 		Title:    "Status",
 		Width:    4,
 		Centered: true,
 	},
 	{
-		Name:     "is_mergeable",
+		Name:     ColNames.IsMergeable,
 		Title:    icon.Merge,
 		Width:    4,
 		Centered: true,
 	},
 	{
-		Name:     "approvals",
+		Name:     ColNames.Approvals,
 		Title:    icon.Approval,
 		Width:    4,
 		Centered: true,
 	},
 	{
-		Name:     "discussions",
+		Name:     ColNames.Discussions,
 		Title:    icon.Discussion,
 		Width:    4,
 		Centered: true,
 	},
 	{
-		Name:     "diffs",
+		Name:     ColNames.Diffs,
 		Title:    icon.Diff,
 		Width:    8,
 		Centered: true,
 	},
 	{
-		Name:  "updated_at",
+		Name:  ColNames.UpdatedAt,
 		Title: icon.UserUpdate,
 		Width: 4,
 	},
 	{
-		Name:  "url",
+		Name:  ColNames.URL,
 		Title: "Url",
 		Width: 0,
 	},
 	{
-		Name:  "description",
+		Name:  ColNames.Description,
 		Title: "Description",
 		Width: 0,
 	},
 	{
-		Name:  "id",
+		Name:  ColNames.ID,
 		Title: "Id",
 		Width: 0,
 	},
@@ -129,7 +162,7 @@ func GetTableRows(msg message.MergeRequestsFetchedMsg) []table.Row {
 		node := edge.Node
 		r := table.Row{
 			table.FormatTime(node.CreatedAt),
-			table.RenderIcon(node.Draft, icon.Check),
+			table.RenderIcon(node.Draft, icon.Edit),
 			node.Title,
 			node.Author.Name,
 			// node.DetailedMergeStatus,
@@ -147,6 +180,12 @@ func GetTableRows(msg message.MergeRequestsFetchedMsg) []table.Row {
 		rows = append(rows, r)
 	}
 	return rows
+}
+
+func GetColIndex(colName string) int {
+	return slices.IndexFunc(Cols, func(c table.Column) bool {
+		return c.Name == colName
+	})
 }
 
 // approvals_syncing: The merge request’s approvals are syncing.

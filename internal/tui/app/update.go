@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/context"
-	"github.com/felipeospina21/mrglab/internal/data"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
@@ -28,7 +27,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case details.IsDetailsResponseReady:
-		m.Details.SetStyledContent(data.Content)
+		idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
+		c := m.MergeRequests.Table.SelectedRow()[idx]
+		m.Details.SetStyledContent(c)
 
 	case error:
 		l, f := logger.New(logger.NewLogger{})
