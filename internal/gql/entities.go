@@ -4,17 +4,7 @@ import (
 	"time"
 )
 
-type GetProjectMrs struct {
-	Projects struct {
-		Edges []ProjectEdge
-	} `graphql:"projects(fullPaths: $fullPaths)"`
-}
-
-type ProjectEdge struct {
-	Node ProjectNode
-}
-
-type ProjectNode struct {
+type Project struct {
 	Name string
 	ID   string
 	// TODO: check how to have multiple MergeRequests values each with different states
@@ -73,20 +63,8 @@ type DiffStatsSummary struct {
 	FileCount int
 }
 
-type MergeRequestOptions struct {
-	State     string
-	FullPaths []string
-}
-
 type PageInfo struct {
 	StartCursor string
 	EndCursor   string
 	HasNextPage bool
-}
-
-func GetMRVariables(opts MergeRequestOptions) map[string]any {
-	return map[string]any{
-		"fullPaths": opts.FullPaths,
-		// "state":     graphql.String(opts.State),
-	}
 }
