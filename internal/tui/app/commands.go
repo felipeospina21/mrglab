@@ -53,6 +53,7 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskFinishedMsg) func() strin
 					content.WriteString(body)
 					content.WriteString("\n\n")
 				} else {
+					// FIX: make comments responses to wrap
 					l := lipgloss.NewStyle().MarginLeft(4).Render
 					// w := lipgloss.NewStyle().Width(viewportWidth - 40).Render
 					content.WriteString(l("--> "))

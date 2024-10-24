@@ -10,7 +10,7 @@ import (
 	"github.com/hasura/go-graphql-client"
 )
 
-func GetProjectMergeRequestsGQL(projectID string, opts gql.MergeRequestOptions) (gql.MergeRequestConnection, error) {
+func GetProjectMergeRequestsGQL(projectID string, vars gql.MergeRequestsQueryVariables) (gql.MergeRequestConnection, error) {
 	cfg := &config.GlobalConfig
 
 	if cfg.DevMode {
@@ -23,9 +23,9 @@ func GetProjectMergeRequestsGQL(projectID string, opts gql.MergeRequestOptions) 
 		return p.ID == projectID
 	})
 
-	opts.ProjectFullPath = graphql.ID(configProjects[projectIdx].FullPath)
+	vars.ProjectFullPath = graphql.ID(configProjects[projectIdx].FullPath)
 
-	variables := gql.GetMRVariables(opts)
+	variables := gql.GetMergeRequestsVariables(vars)
 
 	client := newClient()
 
@@ -37,7 +37,7 @@ func GetProjectMergeRequestsGQL(projectID string, opts gql.MergeRequestOptions) 
 	return query.Project.MergeRequests, nil
 }
 
-func GetMergeRequestDiscussions(projectID string, opts gql.MergeRequestOptions) (gql.MergeRequestNotesConnection, error) {
+func GetMergeRequestDiscussions(projectID string, vars gql.NotesQueryVariables) (gql.MergeRequestNotesConnection, error) {
 	cfg := &config.GlobalConfig
 
 	if cfg.DevMode {
@@ -50,9 +50,9 @@ func GetMergeRequestDiscussions(projectID string, opts gql.MergeRequestOptions) 
 		return p.ID == projectID
 	})
 
-	opts.ProjectFullPath = graphql.ID(configProjects[projectIdx].FullPath)
+	vars.ProjectFullPath = graphql.ID(configProjects[projectIdx].FullPath)
 
-	variables := gql.GetMRVariables(opts)
+	variables := gql.GetNotesVariables(vars)
 
 	client := newClient()
 

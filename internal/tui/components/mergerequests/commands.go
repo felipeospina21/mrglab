@@ -10,7 +10,7 @@ import (
 
 func (m *Model) GetMRNotesCmd() tea.Cmd {
 	return func() tea.Msg {
-		d, err := api.GetMergeRequestDiscussions(m.ctx.SelectedProject.ID, gql.MergeRequestOptions{
+		d, err := api.GetMergeRequestDiscussions(m.ctx.SelectedProject.ID, gql.NotesQueryVariables{
 			MRIID: m.ctx.SelectedMRID,
 		})
 

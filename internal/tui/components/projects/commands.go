@@ -10,7 +10,7 @@ import (
 
 func (m *Model) GetListCmd() tea.Cmd {
 	return func() tea.Msg {
-		mrs, err := api.GetProjectMergeRequestsGQL(m.ctx.SelectedProject.ID, gql.MergeRequestOptions{
+		mrs, err := api.GetProjectMergeRequestsGQL(m.ctx.SelectedProject.ID, gql.MergeRequestsQueryVariables{
 			State: "opened",
 		})
 
