@@ -1,5 +1,7 @@
 package gql
 
+import "time"
+
 type GetMrDiscussions struct {
 	Project struct {
 		MergeRequest struct {
@@ -11,32 +13,25 @@ type GetMrDiscussions struct {
 
 type MergeRequestNotesConnection struct {
 	Count int
-	Edges []MergeRequestNotesEdges
+	Nodes []DiscussionNode
 }
 
-type MergeRequestNotesEdges struct {
-	Node MergeRequestNotesNode
+type DiscussionNode struct {
+	Discussion Discussion
 }
 
-type MergeRequestNotesNode struct {
-	Id         string
-	Discussion MergeRequestDiscussion
-}
-
-type MergeRequestDiscussion struct {
+type Discussion struct {
 	Notes NoteConnection
 }
 
 type NoteConnection struct {
 	Count int
-	Edges []NoteEdges
-}
-
-type NoteEdges struct {
-	Node Note
+	Nodes []Note
 }
 
 type Note struct {
-	Author Author
-	Body   string
+	Author    Author
+	Body      string
+	CreatedAt time.Time
+	Resolved  bool
 }

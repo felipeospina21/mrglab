@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -27,9 +28,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case details.IsDetailsResponseReady:
-		idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
-		c := m.MergeRequests.Table.SelectedRow()[idx]
-		m.Details.SetStyledContent(c)
+		cmds = append(cmds, m.startCommand(m.MergeRequests.GetMRNotesCmd))
 
 	case error:
 		l, f := logger.New(logger.NewLogger{})
@@ -93,7 +92,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmd = func() tea.Msg {
 					return details.IsDetailsResponseReady(true)
 				}
-				// m.Details.Viewport.Update(msg)
+
 				cmds = append(cmds, c, cmd)
 			}
 		}
@@ -120,16 +119,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case task.TaskFinishedMsg:
 		// TODO: Rethink this logic
-		if msg.SectionType == "mrs" {
-			t := endCommand[table.Model](
-				&m,
-				msg,
-				m.GetMergeRequestModel(msg),
-			)
+		if msg.SectionType == task.TaskSectionMR {
+			if msg.TaskID == task.FetchMRs {
+				t := endCommand[table.Model](
+					&m,
+					msg,
+					m.GetMergeRequestModel(msg),
+				)
 
-			m.toggleLeftPanel()
-			m.MergeRequests.SetFocus()
-			m.MergeRequests.Table = t
+				m.toggleLeftPanel()
+				m.MergeRequests.SetFocus()
+				m.MergeRequests.Table = t
+			}
+
+			if msg.TaskID == task.FetchDiscussions {
+				s := endCommand[string](
+					&m,
+					msg,
+					m.GetMergeRequestDiscussions(msg),
+				)
+
+				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
+				d := m.MergeRequests.Table.SelectedRow()[idx]
+
+				// Merge Mr details with comments
+				var content strings.Builder
+				content.WriteString(d)
+				content.WriteString("\n\n")
+				content.WriteString(s)
+				m.Details.SetStyledContent(content.String())
+			}
 		}
 	}
 
