@@ -33,31 +33,38 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 		notesMsg := msg.Msg.(message.MergeRequestNotesFetchedMsg)
 
 		var content strings.Builder
-		// var resolved strings.Builder
 		separator := strings.Repeat("-", 5)
-		for _, discussion := range notesMsg.Notes {
-			for _, note := range discussion {
-				if note.Resolved {
-					// TODO: check how can this be styled better
-					content.WriteString(icon.Check + " ")
+
+		content.WriteString(fmt.Sprintf("**%s Discussions**", icon.Discussion))
+		content.WriteString("\n\n")
+
+		if len(notesMsg.Notes) == 0 {
+			// TODO: figure out how to add space/tab without losing italics
+			content.WriteString("*No Discussions*")
+		} else {
+			for _, discussion := range notesMsg.Notes {
+				for _, note := range discussion {
+					if note.Resolved {
+						// TODO: check how can this be styled better
+						content.WriteString(icon.Check + " ")
+					}
+					createdAt := table.FormatTime(note.CreatedAt)
+					author := note.Author.Name
+					body := note.Body
+
+					content.WriteString(fmt.Sprintf("`%s` ", author))
+					content.WriteString(fmt.Sprintf("*%s ago*", createdAt))
+					content.WriteString("\n")
+
+					content.WriteString(body)
+					content.WriteString("\n\n")
+
 				}
-				createdAt := table.FormatTime(note.CreatedAt)
-				author := note.Author.Name
-				body := note.Body
-
-				content.WriteString(fmt.Sprintf("`%s` ", author))
-				content.WriteString(fmt.Sprintf("*%s ago*", createdAt))
-				content.WriteString("\n")
-
-				content.WriteString(body)
+				content.WriteString(separator)
 				content.WriteString("\n\n")
-
 			}
-			content.WriteString(separator)
-			content.WriteString("\n\n")
 		}
 
-		// content.WriteString(resolved.String())
 		return content.String()
 	}
 }

@@ -79,6 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				cb := func() tea.Cmd {
 					m.SelectMRID()
+					// TODO: set md header to mr title
 					return m.MergeRequests.GetMRNotesCmd()
 				}
 
