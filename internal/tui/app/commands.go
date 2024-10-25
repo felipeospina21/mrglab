@@ -1,9 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -33,50 +33,31 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 		notesMsg := msg.Msg.(message.MergeRequestNotesFetchedMsg)
 
 		var content strings.Builder
-		var resolved strings.Builder
+		// var resolved strings.Builder
 		separator := strings.Repeat("-", 5)
 		for _, discussion := range notesMsg.Notes {
-			for idx, note := range discussion {
+			for _, note := range discussion {
+				if note.Resolved {
+					// TODO: check how can this be styled better
+					content.WriteString(icon.Check + " ")
+				}
 				createdAt := table.FormatTime(note.CreatedAt)
 				author := note.Author.Name
 				body := note.Body
 
-				if idx == 0 {
-					content.WriteString(icon.User + " ")
-					content.WriteString(author + " ")
-					content.WriteString("-" + " ")
-					content.WriteString(icon.Clock + " ")
-					content.WriteString(createdAt + " ")
-					content.WriteString("\n\n")
+				content.WriteString(fmt.Sprintf("`%s` ", author))
+				content.WriteString(fmt.Sprintf("*%s ago*", createdAt))
+				content.WriteString("\n")
 
-					content.WriteString(icon.Discussion + " ")
-					content.WriteString(body)
-					content.WriteString("\n\n")
-				} else {
-					// FIX: make comments responses to wrap
-					l := lipgloss.NewStyle().MarginLeft(4).Render
-					// w := lipgloss.NewStyle().Width(viewportWidth - 40).Render
-					content.WriteString(l("--> "))
-					content.WriteString(icon.User + " ")
-					content.WriteString(author + " ")
-					content.WriteString("-" + " ")
-					content.WriteString(icon.Clock + " ")
-					content.WriteString(createdAt + " ")
-					content.WriteString("\n\n")
-
-					content.WriteString(l("    "))
-					content.WriteString(icon.Discussion + " ")
-					content.WriteString(body)
-					content.WriteString("\n\n")
-
-				}
+				content.WriteString(body)
+				content.WriteString("\n\n")
 
 			}
-			content.WriteString("\t\t" + separator)
+			content.WriteString(separator)
 			content.WriteString("\n\n")
 		}
 
-		content.WriteString(resolved.String())
+		// content.WriteString(resolved.String())
 		return content.String()
 	}
 }
