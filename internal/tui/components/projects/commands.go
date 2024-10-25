@@ -14,7 +14,7 @@ func (m *Model) GetListCmd() tea.Cmd {
 			State: "opened",
 		})
 
-		return task.TaskFinishedMsg{
+		return task.TaskMsg{
 			TaskID:      task.FetchMRs,
 			SectionType: task.TaskSectionMR,
 			Err:         err,

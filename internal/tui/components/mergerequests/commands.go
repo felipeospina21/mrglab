@@ -19,7 +19,7 @@ func (m *Model) GetMRNotesCmd() tea.Cmd {
 			notes = append(notes, item.Discussion.Notes.Nodes)
 		}
 
-		return task.TaskFinishedMsg{
+		return task.TaskMsg{
 			TaskID:      task.FetchDiscussions,
 			SectionType: task.TaskSectionMR,
 			Err:         err,

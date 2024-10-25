@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -27,8 +26,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	isRightPanelFocused := m.ctx.FocusedPanel == context.RightPanel
 
 	switch msg := msg.(type) {
-	case details.IsDetailsResponseReady:
-		cmds = append(cmds, m.startCommand(m.MergeRequests.GetMRNotesCmd))
 
 	case error:
 		l, f := logger.New(logger.NewLogger{})
@@ -76,24 +73,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 			switch {
 			case match(mpk.Details):
-				// TODO: move to separate command function (duplicated in toggleLeftPanel)
-				m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
-				m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
-				m.MergeRequests.Table.UpdateViewport()
-				m.Details.SetFocus()
-
-				// TODO: move to separate command function
-				viewportWidth := m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
-
-				c := m.Details.SetViewportViewSize(
-					tea.WindowSizeMsg{Width: viewportWidth, Height: m.ctx.Window.Height},
+				resizeCmd := m.Details.SetViewportViewSize(
+					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.Window.Height},
 				)
 
-				cmd = func() tea.Msg {
-					return details.IsDetailsResponseReady(true)
-				}
-
-				cmds = append(cmds, c, cmd)
+				cmds = append(cmds, resizeCmd, m.startCommand(m.MergeRequests.GetMRNotesCmd))
 			}
 		}
 
@@ -101,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
 			switch {
 			case match(rpk.ClosePanel):
-				m.ctx.IsRightPanelOpen = false
+				m.toggleRightPanel()
 				m.MergeRequests.SetFocus()
 			}
 		}
@@ -117,7 +101,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setLeftPanelHeight()
 		m.setStatuslineWidth()
 
-	case task.TaskFinishedMsg:
+	case task.TaskMsg:
 		// TODO: Rethink this logic
 		if msg.SectionType == task.TaskSectionMR {
 			if msg.TaskID == task.FetchMRs {
@@ -148,6 +132,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				content.WriteString("\n\n")
 				content.WriteString(s)
 				m.Details.SetStyledContent(content.String())
+
+				m.toggleRightPanel()
+				m.Details.SetFocus()
 			}
 		}
 	}
