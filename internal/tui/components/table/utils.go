@@ -84,22 +84,22 @@ func FormatTime(t time.Time) string {
 
 	switch {
 	case week > 4:
-		return fmt.Sprintf("%.0f M", week/4)
+		return fmt.Sprintf("%.0fM", week/4)
 
 	case days > 7:
-		return fmt.Sprintf("%.0f w", week)
+		return fmt.Sprintf("%.0fw", week)
 
 	case math.Floor(r.Hours()) > 24:
-		return fmt.Sprintf("%.0f d", days)
+		return fmt.Sprintf("%.0fd", days)
 
 	case math.Floor(r.Hours()) > 0:
-		return fmt.Sprintf("%.0f h", r.Hours())
+		return fmt.Sprintf("%.0fh", r.Hours())
 
 	case math.Floor(r.Minutes()) > 0:
-		return fmt.Sprintf("%.0f m", r.Minutes())
+		return fmt.Sprintf("%.0fm", r.Minutes())
 
 	default:
-		return fmt.Sprintf("%.0f s", r.Seconds())
+		return fmt.Sprintf("%.0fs", r.Seconds())
 	}
 }
 
