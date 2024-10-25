@@ -177,3 +177,8 @@ func (m *Model) setStatuslineWidth() {
 func (m Model) getViewportViewWidth() int {
 	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
 }
+
+func (m *Model) SelectMRID() {
+	idx := mergerequests.GetColIndex(mergerequests.ColNames.ID)
+	m.ctx.SelectedMRID = m.MergeRequests.Table.SelectedRow()[idx]
+}
