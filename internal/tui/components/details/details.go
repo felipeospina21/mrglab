@@ -121,11 +121,13 @@ func renderWithGlamour(m Model, md string) string {
 
 // This is where the magic happens.
 func glamourRender(m Model, markdown string) (string, error) {
-	width := m.Viewport.Width
+	magicnumber := 8 // FIX: find where this comes from
+	width := m.Viewport.Width - magicnumber
 	r, err := glamour.NewTermRenderer(
 		glamour.WithStandardStyle("dark"),
 		glamour.WithWordWrap(width),
 		glamour.WithEmoji(),
+		glamour.WithPreservedNewLines(),
 	)
 	if err != nil {
 		return "", err
