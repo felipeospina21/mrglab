@@ -77,7 +77,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.Window.Height},
 				)
 
-				cmds = append(cmds, resizeCmd, m.startCommand(m.MergeRequests.GetMRNotesCmd))
+				cb := func() tea.Cmd {
+					m.SelectMRID()
+					return m.MergeRequests.GetMRNotesCmd()
+				}
+
+				cmds = append(cmds, resizeCmd, m.startCommand(cb))
 			}
 		}
 
