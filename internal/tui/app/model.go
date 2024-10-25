@@ -27,7 +27,7 @@ func InitMainModel(ctx *context.AppContext) Model {
 	// Sets global keybinds by default
 	ctx.Keybinds = tui.GlobalKeys
 	ctx.FocusedPanel = context.LeftPanel
-	ctx.TaskStatus = task.TaskIdle
+	ctx.Task = task.TaskMsg{Status: task.TaskIdle}
 
 	return Model{
 		Projects:      projects.New(ctx),
@@ -84,11 +84,11 @@ func (m *Model) setStatus(mode string, content string) {
 // & setting corresponding status
 func (m *Model) startCommand(cb func() tea.Cmd) tea.Cmd {
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
-	m.startTask()
+	// m.startTask()
 	return cb()
 }
 
-func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
+func endCommand[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 	if msg.Err != nil {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
@@ -98,7 +98,7 @@ func endCommand[T any](m *Model, msg task.TaskFinishedMsg, cb func() T) T {
 		}
 		m.setStatus(mode, "")
 		m.setHelpKeys(mergerequests.Keybinds)
-		m.finishTask()
+		m.finishTask(msg)
 	}
 	return cb()
 }
@@ -116,19 +116,26 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 func (m *Model) toggleLeftPanel() {
 	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
 	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
-	// m.MergeRequests.Table.UpdateViewport()
+}
+
+func (m *Model) toggleRightPanel() {
+	m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
+	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
+	m.MergeRequests.Table.UpdateViewport()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
 }
 
+// FIX: not used, causing weird behavior during render
 func (m *Model) startTask() {
-	m.ctx.TaskStatus = task.TaskStarted
+	m.ctx.Task.Status = task.TaskStarted
 }
 
-func (m *Model) finishTask() {
-	m.ctx.TaskStatus = task.TaskFinished
+func (m *Model) finishTask(taskMsg task.TaskMsg) {
+	m.ctx.Task = taskMsg
+	m.ctx.Task.Status = task.TaskFinished
 }
 
 func getFrameSize() (int, int) {
@@ -165,4 +172,8 @@ func (m *Model) setStatuslineWidth() {
 	windowW := m.ctx.Window.Width
 	xStatus, _ := statusline.GetFrameSize()
 	m.Statusline.Width = windowW - xStatus
+}
+
+func (m Model) getViewportViewWidth() int {
+	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
 }

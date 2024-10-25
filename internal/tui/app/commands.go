@@ -11,7 +11,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
-func (m Model) GetMergeRequestModel(msg task.TaskFinishedMsg) func() table.Model {
+func (m Model) GetMergeRequestModel(msg task.TaskMsg) func() table.Model {
 	return func() table.Model {
 		mrMsg := msg.Msg.(message.MergeRequestsFetchedMsg)
 		rows := mergerequests.GetTableRows(mrMsg)
@@ -28,7 +28,7 @@ func (m Model) GetMergeRequestModel(msg task.TaskFinishedMsg) func() table.Model
 	}
 }
 
-func (m Model) GetMergeRequestDiscussions(msg task.TaskFinishedMsg) func() string {
+func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 	return func() string {
 		notesMsg := msg.Msg.(message.MergeRequestNotesFetchedMsg)
 

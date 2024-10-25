@@ -4,9 +4,10 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type TaskFinishedMsg struct {
+type TaskMsg struct {
 	TaskID      TaskID
 	SectionType TaskSection
+	Status      TaskStatus
 	Err         error
 	Msg         tea.Msg
 }
