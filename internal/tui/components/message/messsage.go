@@ -9,3 +9,7 @@ type MergeRequestsFetchedMsg struct {
 type MergeRequestNotesFetchedMsg struct {
 	Discussions []gql.DiscussionNode
 }
+
+type MergeRequestPipelineFetchedMsg struct {
+	Stages []gql.CiStageNode
+}

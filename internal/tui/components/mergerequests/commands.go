@@ -10,7 +10,7 @@ import (
 
 func (m *Model) GetMRNotesCmd() tea.Cmd {
 	return func() tea.Msg {
-		d, err := api.GetMergeRequestDiscussions(m.ctx.SelectedProject.ID, gql.NotesQueryVariables{
+		d, err := api.GetMergeRequestDiscussions(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
 			MRIID: m.ctx.SelectedMRID,
 		})
 
@@ -25,6 +25,23 @@ func (m *Model) GetMRNotesCmd() tea.Cmd {
 			Err:         err,
 			Msg: message.MergeRequestNotesFetchedMsg{
 				Discussions: discussions,
+			},
+		}
+	}
+}
+
+func (m *Model) GetMRPipelineCmd() tea.Cmd {
+	return func() tea.Msg {
+		p, err := api.GetMergeRequestHeadPipeline(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
+			MRIID: m.ctx.SelectedMRID,
+		})
+
+		return task.TaskMsg{
+			TaskID:      task.FetchPipeline,
+			SectionType: task.TaskSectionMR,
+			Err:         err,
+			Msg: message.MergeRequestPipelineFetchedMsg{
+				Stages: p.Nodes,
 			},
 		}
 	}

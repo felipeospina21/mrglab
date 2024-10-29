@@ -21,6 +21,7 @@ type (
 const (
 	FetchMRs TaskID = iota
 	FetchDiscussions
+	FetchPipeline
 )
 
 const (

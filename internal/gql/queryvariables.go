@@ -7,7 +7,7 @@ type MergeRequestsQueryVariables struct {
 	ProjectFullPath graphql.ID
 }
 
-type NotesQueryVariables struct {
+type MergeRequestQueryVariables struct {
 	MRIID string
 	MergeRequestsQueryVariables
 }
@@ -19,7 +19,7 @@ func GetMergeRequestsVariables(vars MergeRequestsQueryVariables) map[string]any 
 	}
 }
 
-func GetNotesVariables(vars NotesQueryVariables) map[string]any {
+func MergeRequestVariables(vars MergeRequestQueryVariables) map[string]any {
 	return map[string]any{
 		"fullPath": vars.ProjectFullPath,
 		"mrIID":    vars.MRIID,
