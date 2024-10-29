@@ -7,5 +7,5 @@ type MergeRequestsFetchedMsg struct {
 }
 
 type MergeRequestNotesFetchedMsg struct {
-	Notes [][]gql.Note
+	Discussions []gql.DiscussionNode
 }

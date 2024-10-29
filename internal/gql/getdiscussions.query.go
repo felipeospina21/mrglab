@@ -5,33 +5,30 @@ import "time"
 type GetMrDiscussions struct {
 	Project struct {
 		MergeRequest struct {
-			Id    string
-			Notes MergeRequestNotesConnection `graphql:"notes(filter: ONLY_COMMENTS)"`
+			Id          string
+			Discussions MergeRequestDiscussionsConnection
 		} `graphql:"mergeRequest(iid: $mrIID)"`
 	} `graphql:"project(fullPath: $fullPath)"`
 }
 
-type MergeRequestNotesConnection struct {
-	Count int
+type MergeRequestDiscussionsConnection struct {
 	Nodes []DiscussionNode
 }
 
 type DiscussionNode struct {
-	Discussion Discussion
-}
-
-type Discussion struct {
-	Notes NoteConnection
+	Resolvable bool
+	Resolved   bool
+	ResolvedAt time.Time
+	Notes      NoteConnection
 }
 
 type NoteConnection struct {
-	Count int
 	Nodes []Note
 }
 
 type Note struct {
-	Author    Author
-	Body      string
-	CreatedAt time.Time
-	Resolved  bool
+	Author     Author
+	Body       string
+	CreatedAt  time.Time
+	Resolvable bool
 }

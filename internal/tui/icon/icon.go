@@ -9,6 +9,7 @@ const (
 	Dash           = " "
 	Diff           = " "
 	Discussion     = " "
+	Dot            = " "
 	Check          = " "
 	Cross          = " "
 	Clock          = " "

@@ -14,9 +14,9 @@ func (m *Model) GetMRNotesCmd() tea.Cmd {
 			MRIID: m.ctx.SelectedMRID,
 		})
 
-		var notes [][]gql.Note
+		var discussions []gql.DiscussionNode
 		for _, item := range d.Nodes {
-			notes = append(notes, item.Discussion.Notes.Nodes)
+			discussions = append(discussions, item)
 		}
 
 		return task.TaskMsg{
@@ -24,7 +24,7 @@ func (m *Model) GetMRNotesCmd() tea.Cmd {
 			SectionType: task.TaskSectionMR,
 			Err:         err,
 			Msg: message.MergeRequestNotesFetchedMsg{
-				Notes: notes,
+				Discussions: discussions,
 			},
 		}
 	}
