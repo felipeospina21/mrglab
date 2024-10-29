@@ -37,7 +37,7 @@ func GetProjectMergeRequestsGQL(projectID string, vars gql.MergeRequestsQueryVar
 	return query.Project.MergeRequests, nil
 }
 
-func GetMergeRequestDiscussions(projectID string, vars gql.NotesQueryVariables) (gql.MergeRequestNotesConnection, error) {
+func GetMergeRequestDiscussions(projectID string, vars gql.NotesQueryVariables) (gql.MergeRequestDiscussionsConnection, error) {
 	cfg := &config.GlobalConfig
 
 	if cfg.DevMode {
@@ -58,8 +58,8 @@ func GetMergeRequestDiscussions(projectID string, vars gql.NotesQueryVariables) 
 
 	err := client.Query(context.Background(), &query, variables)
 	if err != nil {
-		return gql.MergeRequestNotesConnection{}, err
+		return gql.MergeRequestDiscussionsConnection{}, err
 	}
 
-	return query.Project.MergeRequest.Notes, nil
+	return query.Project.MergeRequest.Discussions, nil
 }

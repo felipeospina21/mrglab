@@ -2,8 +2,10 @@ package app
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
+	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -38,30 +40,60 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 		content.WriteString(fmt.Sprintf("**%s Discussions**", icon.Discussion))
 		content.WriteString("\n\n")
 
-		if len(notesMsg.Notes) == 0 {
-			// TODO: figure out how to add space/tab without losing italics
-			content.WriteString("*No Discussions*")
+		hasDiscussions := slices.ContainsFunc(notesMsg.Discussions, func(d gql.DiscussionNode) bool {
+			return d.Resolvable
+		})
+
+		if !hasDiscussions {
+			content.WriteString("... *No Discussions*")
 		} else {
-			for _, discussion := range notesMsg.Notes {
-				for _, note := range discussion {
-					if note.Resolved {
-						// TODO: check how can this be styled better
-						content.WriteString(icon.Check + " ")
-					}
-					createdAt := table.FormatTime(note.CreatedAt)
+			for _, discussion := range notesMsg.Discussions {
+				if !discussion.Resolvable {
+					continue
+				}
+
+				content.WriteString(separator)
+				if discussion.Resolved {
+					resolvedAt := table.FormatTime(discussion.ResolvedAt)
+					content.WriteString(fmt.Sprintf(" **%s %s** ", icon.Check, timeAgo(resolvedAt)))
+				} else {
+					content.WriteString(fmt.Sprintf(" %s ", icon.Dash))
+				}
+				content.WriteString(separator)
+				content.WriteString("\n\n")
+
+				for _, note := range discussion.Notes.Nodes {
 					author := note.Author.Name
 					body := note.Body
+					createdAt := table.FormatTime(note.CreatedAt)
+
+					if !note.Resolvable {
+						before, _, found := strings.Cut(body, "(")
+						if found {
+							content.WriteString(
+								fmt.Sprintf(
+									"*%s %s %s %s* ",
+									icon.Dot,
+									author,
+									before,
+									timeAgo(createdAt),
+								),
+							)
+							content.WriteString("\n\n")
+						}
+						continue
+					}
 
 					content.WriteString(fmt.Sprintf("`%s` ", author))
-					content.WriteString(fmt.Sprintf("*%s ago*", createdAt))
+					content.WriteString(timeAgo(createdAt))
 					content.WriteString("\n")
 
 					content.WriteString(body)
 					content.WriteString("\n\n")
 
 				}
-				content.WriteString(separator)
 				content.WriteString("\n\n")
+
 			}
 		}
 
@@ -69,22 +101,6 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 	}
 }
 
-type BuildStringArgs struct {
-	builder    *strings.Builder
-	s          string
-	addNewLine bool
-	withSpace  bool
-}
-
-func BuildString(args BuildStringArgs) *strings.Builder {
-	if args.withSpace {
-		args.builder.WriteString(args.s + " ")
-	} else {
-		args.builder.WriteString(args.s)
-	}
-
-	if !args.addNewLine {
-		args.builder.WriteString("\n\n")
-	}
-	return args.builder
+func timeAgo(time string) string {
+	return fmt.Sprintf("_%s ago_", time)
 }
