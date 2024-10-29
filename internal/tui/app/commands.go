@@ -101,6 +101,59 @@ func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
 	}
 }
 
+func (m Model) GetMergeRequestPipeline(msg task.TaskMsg) func() string {
+	return func() string {
+		notesMsg := msg.Msg.(message.MergeRequestPipelineFetchedMsg)
+
+		var content strings.Builder
+		// separator := strings.Repeat("-", 5)
+
+		content.WriteString(fmt.Sprintf("**%s Pipeline**", icon.Discussion))
+		content.WriteString("\n\n")
+
+		for _, stage := range notesMsg.Stages {
+			content.WriteString(stage.Status)
+			content.WriteString(stage.Name)
+			content.WriteString("\n")
+
+			// for _, note := range discussion.Notes.Nodes {
+			// 	author := note.Author.Name
+			// 	body := note.Body
+			// 	createdAt := table.FormatTime(note.CreatedAt)
+			//
+			// 	if !note.Resolvable {
+			// 		before, _, found := strings.Cut(body, "(")
+			// 		if found {
+			// 			content.WriteString(
+			// 				fmt.Sprintf(
+			// 					"*%s %s %s %s* ",
+			// 					icon.Dot,
+			// 					author,
+			// 					before,
+			// 					timeAgo(createdAt),
+			// 				),
+			// 			)
+			// 			content.WriteString("\n\n")
+			// 		}
+			// 		continue
+			// 	}
+			//
+			// 	content.WriteString(fmt.Sprintf("`%s` ", author))
+			// 	content.WriteString(timeAgo(createdAt))
+			// 	content.WriteString("\n")
+			//
+			// 	content.WriteString(body)
+			// 	content.WriteString("\n\n")
+			//
+			// }
+			// content.WriteString("\n\n")
+
+		}
+
+		return content.String()
+	}
+}
+
 func timeAgo(time string) string {
 	return fmt.Sprintf("_%s ago_", time)
 }
