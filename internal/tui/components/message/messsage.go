@@ -2,14 +2,11 @@ package message
 
 import "github.com/felipeospina21/mrglab/internal/gql"
 
-type MergeRequestsFetchedMsg struct {
+type MergeRequestsListFetchedMsg struct {
 	Mrs gql.MergeRequestConnection
 }
 
-type MergeRequestNotesFetchedMsg struct {
+type MergeRequestFetchedMsg struct {
 	Discussions []gql.DiscussionNode
-}
-
-type MergeRequestPipelineFetchedMsg struct {
-	Stages []gql.CiStageNode
+	Stages      []gql.CiStageNode
 }

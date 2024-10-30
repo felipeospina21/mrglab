@@ -18,7 +18,7 @@ func (m *Model) GetListCmd() tea.Cmd {
 			TaskID:      task.FetchMRs,
 			SectionType: task.TaskSectionMR,
 			Err:         err,
-			Msg: message.MergeRequestsFetchedMsg{
+			Msg: message.MergeRequestsListFetchedMsg{
 				Mrs: mrs,
 			},
 		}

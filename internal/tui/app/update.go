@@ -77,21 +77,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.Window.Height},
 				)
 
-				discussions := func() tea.Cmd {
+				mr := func() tea.Cmd {
 					m.SelectMRID()
 					// TODO: set md header to mr title
-					return m.MergeRequests.GetMRNotesCmd()
-				}
-
-				pipeline := func() tea.Cmd {
-					m.SelectMRID()
-					return m.MergeRequests.GetMRPipelineCmd()
+					return m.MergeRequests.GetMergeRequestCmd()
 				}
 
 				cmds = append(cmds,
 					resizeCmd,
-					m.startCommand(discussions),
-					m.startCommand(pipeline),
+					m.startCommand(mr),
 				)
 			}
 		}
@@ -131,48 +125,46 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.MergeRequests.Table = t
 			}
 
-			// if msg.TaskID == task.FetchDiscussions {
+			if msg.TaskID == task.FetchDiscussions {
+				s := endCommand[string](
+					&m,
+					msg,
+					m.GetMergeRequestDiscussions(msg),
+				)
+
+				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
+				d := m.MergeRequests.Table.SelectedRow()[idx]
+
+				// Merge Mr details with comments
+				var content strings.Builder
+				content.WriteString(d)
+				content.WriteString("\n\n")
+				content.WriteString(s)
+				m.Details.SetStyledContent(content.String())
+
+				m.toggleRightPanel()
+				m.Details.SetFocus()
+
+			}
+
+			// if msg.TaskID == task.FetchPipeline {
 			// 	s := endCommand[string](
 			// 		&m,
 			// 		msg,
-			// 		m.GetMergeRequestDiscussions(msg),
+			// 		m.GetMergeRequestPipeline(msg),
 			// 	)
 			//
-			// 	idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
-			// 	d := m.MergeRequests.Table.SelectedRow()[idx]
-			//
-			// 	// Merge Mr details with comments
 			// 	var content strings.Builder
-			// 	content.WriteString(d)
+			// 	c := m.Details.Content
+			// 	content.WriteString(string(c))
 			// 	content.WriteString("\n\n")
 			// 	content.WriteString(s)
 			// 	m.Details.SetStyledContent(content.String())
-			//
 			// 	if !m.ctx.IsRightPanelOpen {
 			// 		m.toggleRightPanel()
 			// 		m.Details.SetFocus()
 			// 	}
-			//
 			// }
-
-			if msg.TaskID == task.FetchPipeline {
-				s := endCommand[string](
-					&m,
-					msg,
-					m.GetMergeRequestPipeline(msg),
-				)
-
-				var content strings.Builder
-				c := m.Details.Content
-				content.WriteString(string(c))
-				content.WriteString("\n\n")
-				content.WriteString(s)
-				m.Details.SetStyledContent(content.String())
-				if !m.ctx.IsRightPanelOpen {
-					m.toggleRightPanel()
-					m.Details.SetFocus()
-				}
-			}
 		}
 	}
 

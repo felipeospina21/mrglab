@@ -8,14 +8,14 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
-func (m *Model) GetMRNotesCmd() tea.Cmd {
+func (m *Model) GetMergeRequestCmd() tea.Cmd {
 	return func() tea.Msg {
-		d, err := api.GetMergeRequestDiscussions(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
+		mr, err := api.GetMergeRequest(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
 			MRIID: m.ctx.SelectedMRID,
 		})
 
 		var discussions []gql.DiscussionNode
-		for _, item := range d.Nodes {
+		for _, item := range mr.Discussions.Nodes {
 			discussions = append(discussions, item)
 		}
 
@@ -23,25 +23,9 @@ func (m *Model) GetMRNotesCmd() tea.Cmd {
 			TaskID:      task.FetchDiscussions,
 			SectionType: task.TaskSectionMR,
 			Err:         err,
-			Msg: message.MergeRequestNotesFetchedMsg{
+			Msg: message.MergeRequestFetchedMsg{
 				Discussions: discussions,
-			},
-		}
-	}
-}
-
-func (m *Model) GetMRPipelineCmd() tea.Cmd {
-	return func() tea.Msg {
-		p, err := api.GetMergeRequestHeadPipeline(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
-			MRIID: m.ctx.SelectedMRID,
-		})
-
-		return task.TaskMsg{
-			TaskID:      task.FetchPipeline,
-			SectionType: task.TaskSectionMR,
-			Err:         err,
-			Msg: message.MergeRequestPipelineFetchedMsg{
-				Stages: p.Nodes,
+				Stages:      mr.HeadPipeline.Stages.Nodes,
 			},
 		}
 	}
