@@ -155,7 +155,7 @@ func GetTableColums(width int) []table.Column {
 	return columns
 }
 
-func GetTableRows(msg message.MergeRequestsFetchedMsg) []table.Row {
+func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
 	var rows []table.Row
 
 	for _, edge := range msg.Mrs.Edges {
