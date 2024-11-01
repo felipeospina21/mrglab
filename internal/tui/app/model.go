@@ -59,7 +59,7 @@ func InitMainModel(ctx *context.AppContext) Model {
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.Statusline.Spinner.Tick
+	return m.Statusline.Init()
 }
 
 func (m *Model) setStatus(mode string, content string) {

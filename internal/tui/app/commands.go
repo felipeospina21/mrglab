@@ -5,11 +5,13 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
@@ -30,52 +32,93 @@ func (m Model) GetMergeRequestModel(msg task.TaskMsg) func() table.Model {
 	}
 }
 
-func (m Model) GetMergeRequestDiscussions(msg task.TaskMsg) func() string {
-	return func() string {
+type MergeRequestDetails struct {
+	Pipelines   string
+	Discussions string
+}
+
+func (m Model) GetMergeRequestDetails(msg task.TaskMsg) func() MergeRequestDetails {
+	return func() MergeRequestDetails {
 		mrMsg := msg.Msg.(message.MergeRequestFetchedMsg)
-		var content strings.Builder
+		pStyle := lipgloss.NewStyle().MarginLeft(2).Render
+		var discussions, pipelines strings.Builder
 
-		processPipeline(&content, mrMsg.Stages)
-		processComments(&content, mrMsg.Discussions)
+		processPipeline(&pipelines, mrMsg.Stages)
+		processComments(&discussions, mrMsg.Discussions)
 
-		return content.String()
+		return MergeRequestDetails{
+			Pipelines:   pStyle(pipelines.String()),
+			Discussions: discussions.String(),
+		}
 	}
 }
 
 func processPipeline(content *strings.Builder, stages []gql.CiStageNode) {
-	content.WriteString(fmt.Sprintf("**%s Pipeline**", icon.Pipeline))
+	baseStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(style.White))
+	headStyle := baseStyle.Bold(true)
+
+	content.WriteString(headStyle.Render(fmt.Sprintf("%s Pipeline", icon.Pipeline)))
 	content.WriteString("\n\n")
 
 	for _, stage := range stages {
-		content.WriteString(getStageIconStatus(stage.Status))
+		styledIcon := func(i stageIcon) lipgloss.Style {
+			return lipgloss.NewStyle().Foreground(lipgloss.Color(i.color))
+		}
+
+		stageStatus := getStageIconStatus(stage.Status)
+		content.WriteString(styledIcon(stageStatus).Render(stageStatus.icon))
 		content.WriteString(" ")
-		content.WriteString(stage.Name)
+		content.WriteString(baseStyle.Render(stage.Name))
 		content.WriteString("\n")
+
+		lower := strings.ToLower
+		if lower(stage.Status) != "success" || lower(stage.Status) != "manual" {
+			for _, node := range stage.Jobs.Nodes {
+				if lower(node.Status) != "success" {
+					nodeStatus := getStageIconStatus(node.Status)
+					indentStyle := baseStyle.MarginLeft(2).Foreground(lipgloss.Color(style.DarkGray)).Render
+					iconStyle := styledIcon(nodeStatus).Render
+					textStyle := baseStyle.Render
+
+					content.WriteString(indentStyle("└ "))
+					content.WriteString(iconStyle(nodeStatus.icon))
+					content.WriteString(" ")
+					content.WriteString(textStyle(node.Name))
+					content.WriteString("\n")
+				}
+			}
+		}
+		// TODO: iterate stage.Jobs.Nodes to render nested jobs
 	}
 	content.WriteString("\n\n")
 }
 
-func getStageIconStatus(s string) string {
-	icons := map[string]string{
-		"running":              icon.CircleRunning,
-		"preparing":            icon.CirclePause,
-		"success":              icon.CircleCheck,
-		"skipped":              icon.CircleSkip,
-		"failed":               icon.CircleCross,
-		"manual":               icon.Gear,
-		"created":              icon.CircleDot,
-		"waiting_for_resource": icon.CircleQuestion,
-		"scheduled":            icon.Time,
-		"pending":              icon.CirclePause,
-		"canceled":             icon.CircleCancel,
+type stageIcon struct {
+	icon  string
+	color string
+}
+
+func getStageIconStatus(s string) stageIcon {
+	icons := map[string]stageIcon{
+		"running":              {icon: icon.CircleRunning, color: style.Blue[400]},
+		"preparing":            {icon: icon.CirclePause, color: style.Yellow[400]},
+		"success":              {icon: icon.CircleCheck, color: style.Green[400]},
+		"failed":               {icon: icon.CircleCross, color: style.Red[400]},
+		"skipped":              {icon: icon.CircleSkip, color: style.Yellow[400]},
+		"manual":               {icon: icon.Gear, color: style.White},
+		"created":              {icon: icon.CircleDot, color: style.White},
+		"waiting_for_resource": {icon: icon.CircleQuestion, color: style.White},
+		"scheduled":            {icon: icon.Time, color: style.White},
+		"pending":              {icon: icon.CirclePause, color: style.White},
+		"canceled":             {icon: icon.CircleCancel, color: style.White},
 	}
 
-	v, ok := icons[s]
+	v, ok := icons[strings.ToLower(s)]
 	if ok {
 		return v
 	}
 
-	return icon.Dash
+	return stageIcon{icon: icon.Dash}
 }
 
 func processComments(content *strings.Builder, discussions []gql.DiscussionNode) {
