@@ -8,7 +8,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
-func (m *Model) GetMergeRequestCmd() tea.Cmd {
+func (m *Model) FetchMergeRequest() tea.Cmd {
 	return func() tea.Msg {
 		mr, err := api.GetMergeRequest(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
 			MRIID: m.ctx.SelectedMRID,

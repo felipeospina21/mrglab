@@ -14,10 +14,17 @@ import (
 
 const useHighPerformanceRenderer = false
 
+type DetailsContent struct {
+	Title       string
+	Body        string
+	Discussions string
+	Pipelines   string
+}
+
 type Model struct {
 	Viewport viewport.Model
 	Ready    IsDetailsResponseReady
-	Content  responseMsg
+	Content  DetailsContent
 	Err      error
 	ctx      *context.AppContext
 }
@@ -42,8 +49,23 @@ func (m *Model) SetFocus() {
 
 func (e errMsg) Error() string { return e.err.Error() }
 
-func (m *Model) HeaderView(queryName string) string {
-	title := MdTitle.Render(queryName)
+func (m Model) View() string {
+	var content strings.Builder
+
+	content.WriteString(m.renderBody())
+	content.WriteString("\n\n")
+	content.WriteString(m.Content.Pipelines)
+	content.WriteString(m.renderDiscussions())
+
+	return fmt.Sprintf("%s\n%s\n%s",
+		m.HeaderView(),
+		content.String(),
+		m.FooterView(),
+	)
+}
+
+func (m *Model) HeaderView() string {
+	title := MdTitle.Render(m.Content.Title)
 	line := strings.Repeat("─", max(0, m.Viewport.Width-lipgloss.Width(title)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
@@ -54,17 +76,71 @@ func (m *Model) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
-func (m *Model) SetStyledContent(content string) {
-	styledContent := renderWithGlamour(*m, content)
+func (m Model) renderDiscussions() string {
+	r, err := getMdRenderer(m)
+	if err != nil {
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(err)
 
-	m.Viewport.SetContent(styledContent)
+		return ""
+	}
+
+	d, err := r.Render(m.Content.Discussions)
+	if err != nil {
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(err)
+
+		return ""
+	}
+
+	return d
+}
+
+func (m Model) renderBody() string {
+	r, err := getMdRenderer(m)
+	if err != nil {
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(err)
+
+		return ""
+	}
+
+	b, err := r.Render(m.Content.Body)
+	if err != nil {
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(err)
+
+		return ""
+	}
+
+	return b
+}
+
+func getMdRenderer(m Model) (*glamour.TermRenderer, error) {
+	magicnumber := 8 // FIX: find where this comes from
+	width := m.Viewport.Width - magicnumber
+	r, err := glamour.NewTermRenderer(
+		glamour.WithStandardStyle("dark"),
+		glamour.WithWordWrap(width),
+		glamour.WithEmoji(),
+		glamour.WithPreservedNewLines(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	magicnumber := 8 // FIX: find where this comes from
 
 	w := msg.Width - magicnumber
-	headerHeight := lipgloss.Height(m.HeaderView(""))
+	headerHeight := lipgloss.Height(m.HeaderView())
 	footerHeight := lipgloss.Height(m.FooterView())
 	verticalMarginHeight := headerHeight + footerHeight + magicnumber
 
@@ -107,49 +183,4 @@ func max(a, b int) int {
 		return a
 	}
 	return b
-}
-
-func renderWithGlamour(m Model, md string) string {
-	s, err := glamourRender(m, md)
-	if err != nil {
-		l, f := logger.New(logger.NewLogger{})
-		defer f.Close()
-		l.Error(err)
-	}
-	return s
-}
-
-// This is where the magic happens.
-func glamourRender(m Model, markdown string) (string, error) {
-	magicnumber := 8 // FIX: find where this comes from
-	width := m.Viewport.Width - magicnumber
-	r, err := glamour.NewTermRenderer(
-		glamour.WithStandardStyle("dark"),
-		glamour.WithWordWrap(width),
-		glamour.WithEmoji(),
-		glamour.WithPreservedNewLines(),
-	)
-	if err != nil {
-		return "", err
-	}
-
-	out, err := r.Render(markdown)
-	if err != nil {
-		return "", err
-	}
-
-	// trim lines
-	lines := strings.Split(out, "\n")
-
-	var content string
-	for i, s := range lines {
-		content += strings.TrimSpace(s)
-
-		// don't add an artificial newline after the last split
-		if i+1 < len(lines) {
-			content += "\n"
-		}
-	}
-
-	return content, nil
 }

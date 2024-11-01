@@ -2,7 +2,6 @@ package app
 
 import (
 	"errors"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -80,7 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				mr := func() tea.Cmd {
 					m.SelectMRID()
 					// TODO: set md header to mr title
-					return m.MergeRequests.GetMergeRequestCmd()
+					return m.MergeRequests.FetchMergeRequest()
 				}
 
 				cmds = append(cmds,
@@ -126,45 +125,29 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if msg.TaskID == task.FetchDiscussions {
-				s := endCommand[string](
+				mr := endCommand[MergeRequestDetails](
 					&m,
 					msg,
-					m.GetMergeRequestDiscussions(msg),
+					m.GetMergeRequestDetails(msg),
 				)
 
+				// get description
 				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
 				d := m.MergeRequests.Table.SelectedRow()[idx]
 
-				// Merge Mr details with comments
-				var content strings.Builder
-				content.WriteString(d)
-				content.WriteString("\n\n")
-				content.WriteString(s)
-				m.Details.SetStyledContent(content.String())
+				// get title
+				titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
+				t := m.MergeRequests.Table.SelectedRow()[titleIdx]
+
+				m.Details.Content.Title = t
+				m.Details.Content.Body = d
+				m.Details.Content.Pipelines = mr.Pipelines
+				m.Details.Content.Discussions = mr.Discussions
 
 				m.toggleRightPanel()
 				m.Details.SetFocus()
 
 			}
-
-			// if msg.TaskID == task.FetchPipeline {
-			// 	s := endCommand[string](
-			// 		&m,
-			// 		msg,
-			// 		m.GetMergeRequestPipeline(msg),
-			// 	)
-			//
-			// 	var content strings.Builder
-			// 	c := m.Details.Content
-			// 	content.WriteString(string(c))
-			// 	content.WriteString("\n\n")
-			// 	content.WriteString(s)
-			// 	m.Details.SetStyledContent(content.String())
-			// 	if !m.ctx.IsRightPanelOpen {
-			// 		m.toggleRightPanel()
-			// 		m.Details.SetFocus()
-			// 	}
-			// }
 		}
 	}
 

@@ -17,7 +17,7 @@ type NewLogger struct {
 //
 // default file ".log"
 //
-// l, f := logger.New(logger.Logger{})
+// l, f := logger.New(logger.NewLogger{})
 //
 // defer f.Close()
 //

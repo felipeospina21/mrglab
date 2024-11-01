@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
@@ -37,14 +36,7 @@ func (m Model) View() string {
 	h := m.ctx.Window.Height - lipgloss.Height(body) - style.MainFrameStyle.GetVerticalFrameSize()
 	sl := lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
 	if m.ctx.IsRightPanelOpen {
-		right := details.PanelStyle.Render(
-			fmt.Sprintf(
-				"%s\n%s\n%s",
-				m.Details.HeaderView("Header"),
-				m.Details.Viewport.View(),
-				m.Details.FooterView(),
-			),
-		)
+		right := m.Details.View()
 		main := lipgloss.JoinHorizontal(0, body, right)
 		return render(lipgloss.JoinVertical(0, main, sl))
 	}
