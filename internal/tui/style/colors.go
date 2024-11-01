@@ -72,6 +72,20 @@ var Violet = colorShades{
 	950: "#250077",
 }
 
+var Orange = colorShades{
+	50:  "#fff6ed",
+	100: "#ffead4",
+	200: "#ffd0a8",
+	300: "#ffaf70",
+	400: "#ff8237",
+	500: "#ff5c0a",
+	600: "#f04406",
+	700: "#c73107",
+	800: "#9e270e",
+	900: "#7f240f",
+	950: "#450e05",
+}
+
 var (
 	DarkGray = "#3f4145"
 	White    = "#C4C4C4"

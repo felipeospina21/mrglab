@@ -104,7 +104,7 @@ func getStageIconStatus(s string) stageIcon {
 		"preparing":            {icon: icon.CirclePause, color: style.Yellow[400]},
 		"success":              {icon: icon.CircleCheck, color: style.Green[400]},
 		"failed":               {icon: icon.CircleCross, color: style.Red[400]},
-		"skipped":              {icon: icon.CircleSkip, color: style.Yellow[400]},
+		"skipped":              {icon: icon.CircleSkip, color: style.Orange[400]},
 		"manual":               {icon: icon.Gear, color: style.White},
 		"created":              {icon: icon.CircleDot, color: style.White},
 		"waiting_for_resource": {icon: icon.CircleQuestion, color: style.White},

@@ -131,18 +131,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.GetMergeRequestDetails(msg),
 				)
 
-				// get description
-				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
-				d := m.MergeRequests.Table.SelectedRow()[idx]
-
 				// get title
 				titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
 				t := m.MergeRequests.Table.SelectedRow()[titleIdx]
-
 				m.Details.Content.Title = t
-				m.Details.Content.Body = d
-				m.Details.Content.Pipelines = mr.Pipelines
-				m.Details.Content.Discussions = mr.Discussions
+
+				// get description
+				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
+				d := m.MergeRequests.Table.SelectedRow()[idx]
+				c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
+				m.Details.Viewport.SetContent(c)
 
 				m.toggleRightPanel()
 				m.Details.SetFocus()

@@ -49,17 +49,27 @@ func (m *Model) SetFocus() {
 
 func (e errMsg) Error() string { return e.err.Error() }
 
-func (m Model) View() string {
+// FIX: type duplicated with the one in app/commands
+type MergeRequestDetails struct {
+	Pipelines   string
+	Discussions string
+}
+
+func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 	var content strings.Builder
 
-	content.WriteString(m.renderBody())
+	content.WriteString(m.RenderBody(b))
 	content.WriteString("\n\n")
-	content.WriteString(m.Content.Pipelines)
-	content.WriteString(m.renderDiscussions())
+	content.WriteString(mr.Pipelines)
+	content.WriteString(m.RenderDiscussions(mr.Discussions))
 
+	return content.String()
+}
+
+func (m Model) View() string {
 	return fmt.Sprintf("%s\n%s\n%s",
 		m.HeaderView(),
-		content.String(),
+		m.Viewport.View(),
 		m.FooterView(),
 	)
 }
@@ -76,8 +86,8 @@ func (m *Model) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
-func (m Model) renderDiscussions() string {
-	r, err := getMdRenderer(m)
+func (m Model) RenderDiscussions(discussion string) string {
+	d, err := glamourRender(m, discussion)
 	if err != nil {
 		l, f := logger.New(logger.NewLogger{})
 		defer f.Close()
@@ -85,21 +95,11 @@ func (m Model) renderDiscussions() string {
 
 		return ""
 	}
-
-	d, err := r.Render(m.Content.Discussions)
-	if err != nil {
-		l, f := logger.New(logger.NewLogger{})
-		defer f.Close()
-		l.Error(err)
-
-		return ""
-	}
-
 	return d
 }
 
-func (m Model) renderBody() string {
-	r, err := getMdRenderer(m)
+func (m Model) RenderBody(body string) string {
+	b, err := glamourRender(m, body)
 	if err != nil {
 		l, f := logger.New(logger.NewLogger{})
 		defer f.Close()
@@ -107,20 +107,10 @@ func (m Model) renderBody() string {
 
 		return ""
 	}
-
-	b, err := r.Render(m.Content.Body)
-	if err != nil {
-		l, f := logger.New(logger.NewLogger{})
-		defer f.Close()
-		l.Error(err)
-
-		return ""
-	}
-
 	return b
 }
 
-func getMdRenderer(m Model) (*glamour.TermRenderer, error) {
+func getMdRenderer(m Model) *glamour.TermRenderer {
 	magicnumber := 8 // FIX: find where this comes from
 	width := m.Viewport.Width - magicnumber
 	r, err := glamour.NewTermRenderer(
@@ -130,10 +120,14 @@ func getMdRenderer(m Model) (*glamour.TermRenderer, error) {
 		glamour.WithPreservedNewLines(),
 	)
 	if err != nil {
-		return nil, err
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(err)
+
+		return nil
 	}
 
-	return r, nil
+	return r
 }
 
 func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
@@ -143,6 +137,7 @@ func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	headerHeight := lipgloss.Height(m.HeaderView())
 	footerHeight := lipgloss.Height(m.FooterView())
 	verticalMarginHeight := headerHeight + footerHeight + magicnumber
+	// verticalMarginHeight := headerHeight + footerHeight + magicnumber
 
 	if !m.Ready {
 		// Since this program is using the full size of the viewport we
@@ -183,4 +178,27 @@ func max(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func glamourRender(m Model, markdown string) (string, error) {
+	r := getMdRenderer(m)
+	out, err := r.Render(markdown)
+	if err != nil {
+		return "", err
+	}
+
+	// trim lines
+	lines := strings.Split(out, "\n")
+
+	var content string
+	for i, s := range lines {
+		content += strings.TrimSpace(s)
+
+		// don't add an artificial newline after the last split
+		if i+1 < len(lines) {
+			content += "\n"
+		}
+	}
+
+	return content, nil
 }
