@@ -73,7 +73,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case match(mpk.Details):
 				resizeCmd := m.Details.SetViewportViewSize(
-					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.Window.Height},
+					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.PanelHeight},
 				)
 
 				mr := func() tea.Cmd {
@@ -125,7 +125,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if msg.TaskID == task.FetchDiscussions {
-				mr := endCommand[MergeRequestDetails](
+				mr := endCommand[details.MergeRequestDetails](
 					&m,
 					msg,
 					m.GetMergeRequestDetails(msg),

@@ -23,8 +23,8 @@ type MergeRequestEdge struct {
 }
 
 type MergeRequestNode struct {
-	ApprovalsLeft       int
 	ApprovalsRequired   int
+	ApprovalState       MergeRequestApprovalState
 	Author              Author
 	Conflicts           bool
 	CreatedAt           time.Time

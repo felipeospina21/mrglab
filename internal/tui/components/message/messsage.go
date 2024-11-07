@@ -9,4 +9,6 @@ type MergeRequestsListFetchedMsg struct {
 type MergeRequestFetchedMsg struct {
 	Discussions []gql.DiscussionNode
 	Stages      []gql.CiStageNode
+	Branches    [2]string
+	Approvals   []gql.ApprovalRule
 }
