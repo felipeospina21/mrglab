@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 
 	"github.com/felipeospina21/mrglab/internal/logger"
@@ -95,13 +96,8 @@ func loadEnvVars(config *Config) error {
 }
 
 func isDevMode() bool {
-	viper.SetEnvPrefix(cmdName)
-	viper.BindEnv("dev")
+	isDevMode := flag.Bool("dev", false, "activates dev mode to use mocked data instead of calling api")
+	flag.Parse()
 
-	useMockedData := viper.Get("dev")
-	if useMockedData != nil && useMockedData != "false" {
-		return true
-	}
-
-	return false
+	return *isDevMode
 }
