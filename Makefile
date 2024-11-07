@@ -1,6 +1,8 @@
 start:
-	@echo "Starting app..."
 	go run .
+
+dev:
+	go run . -dev
 
 build:
 	go build .

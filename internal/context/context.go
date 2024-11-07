@@ -26,7 +26,6 @@ type AppContext struct {
 	Task             task.TaskMsg
 	IsLeftPanelOpen  bool
 	IsRightPanelOpen bool
-	IsDevMode        bool
 	FocusedPanel     focusedPanel
 	PanelHeight      int
 }

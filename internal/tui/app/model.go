@@ -3,6 +3,7 @@ package app
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
@@ -93,7 +94,7 @@ func endCommand[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
 		mode := statusline.ModesEnum.Normal
-		if m.ctx.IsDevMode {
+		if config.GlobalConfig.DevMode {
 			mode = statusline.ModesEnum.Dev
 		}
 		m.setStatus(mode, "")

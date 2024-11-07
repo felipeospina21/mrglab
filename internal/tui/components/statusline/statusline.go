@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
@@ -38,7 +39,7 @@ type Model struct {
 
 func New(ctx *context.AppContext) Model {
 	status := ModesEnum.Normal
-	if ctx.IsDevMode {
+	if config.GlobalConfig.DevMode {
 		status = ModesEnum.Dev
 	}
 	return Model{
