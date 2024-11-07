@@ -26,6 +26,8 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 			Msg: message.MergeRequestFetchedMsg{
 				Discussions: discussions,
 				Stages:      mr.HeadPipeline.Stages.Nodes,
+				Branches:    [2]string{mr.SourceBranch, mr.TargetBranch},
+				Approvals:   mr.ApprovalState.Rules,
 			},
 		}
 	}

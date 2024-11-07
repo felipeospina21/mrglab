@@ -9,9 +9,26 @@ type GetMergeRequest struct {
 }
 
 type MergeRequestResponse struct {
-	Id           string
-	Discussions  MergeRequestDiscussionsConnection
-	HeadPipeline MergeRequestHeadPipelineConnection
+	Id            string
+	SourceBranch  string
+	TargetBranch  string
+	ApprovalState MergeRequestApprovalState
+	Discussions   MergeRequestDiscussionsConnection
+	HeadPipeline  MergeRequestHeadPipelineConnection
+}
+type MergeRequestApprovalState struct {
+	Rules []ApprovalRule
+}
+
+type ApprovalRule struct {
+	Name              string
+	ApprovalsRequired int
+	Approved          bool
+	ApprovedBy        struct {
+		Nodes []struct {
+			Name string
+		}
+	}
 }
 
 type MergeRequestDiscussionsConnection struct {

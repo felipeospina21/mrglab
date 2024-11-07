@@ -175,7 +175,9 @@ func (m *Model) setStatuslineWidth() {
 }
 
 func (m Model) getViewportViewWidth() int {
-	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View())
+	_, xFrame := getFrameSize()
+	panelFrame := details.PanelStyle.GetHorizontalFrameSize()
+	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View()) - xFrame - panelFrame
 }
 
 func (m *Model) SelectMRID() {

@@ -22,7 +22,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -45,7 +44,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      10,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -68,7 +66,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -91,7 +88,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -114,7 +110,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -137,7 +132,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       3,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -160,7 +154,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       1,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
@@ -183,7 +176,6 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsLeft:       2,
 				ApprovalsRequired:   3,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,

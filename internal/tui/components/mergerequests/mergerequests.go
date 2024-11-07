@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
@@ -84,7 +85,7 @@ var Cols = []table.Column{
 	},
 	{
 		Name:     ColNames.Approvals,
-		Title:    icon.Approval,
+		Title:    icon.UserApproval,
 		Width:    4,
 		Centered: true,
 	},
@@ -168,7 +169,7 @@ func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
 			// node.DetailedMergeStatus,
 			detailedStatus(node.DetailedMergeStatus),
 			isMergeable(node.DetailedMergeStatus, node.Conflicts),
-			approvals(node.ApprovalsLeft, node.ApprovalsRequired),
+			approvals(node.ApprovalState.Rules, node.ApprovalsRequired),
 			strconv.Itoa(node.UserNotesCount),
 			diff(node.DiffStatsSummary.Additions, node.DiffStatsSummary.Deletions),
 			table.FormatTime(node.UpdatedAt),
@@ -232,12 +233,16 @@ func isMergeable(status string, hasConflicts bool) string {
 	return icon.Dash
 }
 
-func approvals(left int, total int) string {
-	if left == total {
+func approvals(rules []gql.ApprovalRule, total int) string {
+	count := 0
+	for _, rule := range rules {
+		count += len(rule.ApprovedBy.Nodes)
+	}
+	if count >= total {
 		return icon.Check
 	}
 
-	return fmt.Sprintf("%v/%v", left, total)
+	return fmt.Sprintf("%v/%v", count, total)
 }
 
 func diff(additions int, deletions int) string {
