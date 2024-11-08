@@ -19,8 +19,11 @@ type AppContext struct {
 		Name string
 		ID   string
 	}
-
-	SelectedMRID     string
+	SelectedMR struct {
+		IID    string
+		Sha    string
+		Status string
+	}
 	Window           tea.WindowSizeMsg
 	Keybinds         help.KeyMap
 	Task             task.TaskMsg

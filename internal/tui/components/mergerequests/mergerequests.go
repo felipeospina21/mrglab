@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gql"
@@ -31,6 +32,7 @@ type ColName struct {
 	URL         string
 	Description string
 	ID          string
+	Sha         string
 }
 
 var ColNames = ColName{
@@ -47,6 +49,7 @@ var ColNames = ColName{
 	URL:         "url",
 	Description: "description",
 	ID:          "id",
+	Sha:         "sha",
 }
 
 var Cols = []table.Column{
@@ -74,7 +77,7 @@ var Cols = []table.Column{
 	{
 		Name:     ColNames.Status,
 		Title:    "Status",
-		Width:    4,
+		Width:    0,
 		Centered: true,
 	},
 	{
@@ -119,6 +122,11 @@ var Cols = []table.Column{
 	{
 		Name:  ColNames.ID,
 		Title: "Id",
+		Width: 0,
+	},
+	{
+		Name:  ColNames.Sha,
+		Title: "Sha",
 		Width: 0,
 	},
 }
@@ -166,8 +174,8 @@ func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
 			table.RenderIcon(node.Draft, icon.Edit),
 			node.Title,
 			node.Author.Name,
-			// node.DetailedMergeStatus,
-			detailedStatus(node.DetailedMergeStatus),
+			node.DetailedMergeStatus,
+			// getStatusIcon(node.DetailedMergeStatus),
 			isMergeable(node.DetailedMergeStatus, node.Conflicts),
 			approvals(node.ApprovalState.Rules, node.ApprovalsRequired),
 			strconv.Itoa(node.UserNotesCount),
@@ -176,6 +184,7 @@ func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
 			node.WebURL,
 			node.Description,
 			node.IID,
+			node.DiffHeadSha,
 		}
 
 		rows = append(rows, r)
@@ -205,28 +214,30 @@ func GetColIndex(colName string) int {
 // not_open: The merge request must be open before merge.
 // requested_changes: The merge request has reviewers who have requested changes.
 // unchecked: Git has not yet tested if a valid merge is possible.
-func detailedStatus(status string) string {
+func getStatusIcon(status string) string {
+	// TODO: Refactor function to render Icon + Status in details view
 	s := map[string]string{
+		"need_rebase":              icon.Alert,
+		"blocked_status":           icon.Alert,
 		"not_approved":             icon.Empty,
-		"unchecked":                icon.Dash,
 		"mergeable":                icon.Check,
 		"checking":                 icon.Clock,
-		"need_rebase":              icon.Rebase,
-		"conflict":                 icon.Cross,
-		"blocked_status":           icon.Alert,
+		"conflict":                 icon.Conflict,
 		"discussions_not_resolved": icon.Discussion,
 		"ci_still_running":         icon.Time,
 		"draft_status":             icon.Edit,
+		"unchecked":                icon.Dash,
+		"external_status_checks":   icon.CircleDash,
 	}
-	return s[status]
+	return s[strings.ToLower(status)]
 }
 
 func isMergeable(status string, hasConflicts bool) string {
 	if hasConflicts {
-		return icon.CircleCross
+		return icon.CircleDash
 	}
 
-	if status == "mergeable" {
+	if strings.ToLower(status) == "mergeable" {
 		return icon.CircleCheck
 	}
 
@@ -236,7 +247,13 @@ func isMergeable(status string, hasConflicts bool) string {
 func approvals(rules []gql.ApprovalRule, total int) string {
 	count := 0
 	for _, rule := range rules {
-		count += len(rule.ApprovedBy.Nodes)
+		req := rule.ApprovalsRequired
+		ruleApprovals := len(rule.ApprovedBy.Nodes)
+		if ruleApprovals >= req {
+			count += req
+		} else {
+			count += ruleApprovals
+		}
 	}
 	if count >= total {
 		return icon.Check
