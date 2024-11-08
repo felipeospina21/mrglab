@@ -10,6 +10,7 @@ import (
 	"github.com/hasura/go-graphql-client"
 )
 
+// Get a projects list of Merge Requests
 func GetProjectMergeRequestsGQL(
 	projectID string,
 	vars gql.MergeRequestsQueryVariables,
@@ -40,6 +41,7 @@ func GetProjectMergeRequestsGQL(
 	return query.Project.MergeRequests, nil
 }
 
+// Get a Merge Request Details
 func GetMergeRequest(
 	projectID string,
 	vars gql.MergeRequestQueryVariables,
@@ -68,4 +70,35 @@ func GetMergeRequest(
 	}
 
 	return query.Project.MergeRequest, nil
+}
+
+// Accept and Merge a Merge Request
+func AcceptMergeRequest(
+	projectID string,
+	input gql.MergeRequestAcceptInput,
+) (gql.AcceptMergeRequestResponse, error) {
+	cfg := &config.GlobalConfig
+
+	if cfg.DevMode {
+		return gql.AcceptMergeRequestResponse{}, nil
+	}
+
+	var mutation gql.AcceptMergeRequest
+	configProjects := config.GlobalConfig.Filters.Projects
+	projectIdx := slices.IndexFunc(configProjects, func(p config.Project) bool {
+		return p.ID == projectID
+	})
+
+	input.ProjectPath = graphql.ID(configProjects[projectIdx].FullPath)
+
+	variables := gql.AcceptMergeRequestVariables(input)
+
+	client := newClient()
+
+	err := client.Mutate(context.Background(), &mutation, variables)
+	if err != nil {
+		return gql.AcceptMergeRequestResponse{}, err
+	}
+
+	return mutation.MergeRequestAccept, nil
 }

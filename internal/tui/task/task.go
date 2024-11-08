@@ -22,6 +22,7 @@ const (
 	FetchMRs TaskID = iota
 	FetchDiscussions
 	FetchPipeline
+	MergeMR
 )
 
 const (

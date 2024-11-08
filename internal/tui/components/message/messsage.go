@@ -12,3 +12,5 @@ type MergeRequestFetchedMsg struct {
 	Branches    [2]string
 	Approvals   []gql.ApprovalRule
 }
+
+type MergeRequestMergedMsg = gql.AcceptMergeRequestResponse

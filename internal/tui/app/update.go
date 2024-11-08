@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
@@ -77,8 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 
 				mr := func() tea.Cmd {
-					m.SelectMRID()
-					// TODO: set md header to mr title
+					m.SelectMR()
 					return m.MergeRequests.FetchMergeRequest()
 				}
 
@@ -86,6 +87,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					resizeCmd,
 					m.startCommand(mr),
 				)
+
+			case match(mpk.Merge):
+				merge := func() tea.Cmd {
+					m.SelectMR()
+					return m.MergeRequests.AcceptMergeRequest()
+				}
+				cmds = append(cmds, m.startCommand(merge))
 			}
 		}
 
@@ -110,6 +118,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setStatuslineWidth()
 
 	case task.TaskMsg:
+		if msg.Err != nil {
+			l, f := logger.New(logger.NewLogger{})
+			defer f.Close()
+			l.Error(msg.Err)
+
+		}
 		// TODO: Rethink this logic
 		if msg.SectionType == task.TaskSectionMR {
 			if msg.TaskID == task.FetchMRs {
@@ -145,6 +159,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.toggleRightPanel()
 				m.Details.SetFocus()
 
+			}
+
+			if msg.TaskID == task.MergeMR {
+				endCommand[any](
+					&m,
+					msg,
+					func() any {
+						// TODO: implement some kind of success notification
+						return nil
+					},
+				)
+
+				res := msg.Msg.(message.MergeRequestMergedMsg)
+				if len(res.Errors) > 0 {
+					// TODO: show errors in statusline
+					e := strings.Join(res.Errors, ", ")
+					cmd = func() tea.Msg {
+						return errors.New(e)
+					}
+					cmds = append(cmds, cmd)
+				}
 			}
 		}
 	}

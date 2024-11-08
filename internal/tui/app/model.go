@@ -181,7 +181,13 @@ func (m Model) getViewportViewWidth() int {
 	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View()) - xFrame - panelFrame
 }
 
-func (m *Model) SelectMRID() {
-	idx := mergerequests.GetColIndex(mergerequests.ColNames.ID)
-	m.ctx.SelectedMRID = m.MergeRequests.Table.SelectedRow()[idx]
+func (m *Model) SelectMR() {
+	idColIdx := mergerequests.GetColIndex(mergerequests.ColNames.ID)
+	m.ctx.SelectedMR.IID = m.MergeRequests.Table.SelectedRow()[idColIdx]
+
+	shaColIdx := mergerequests.GetColIndex(mergerequests.ColNames.Sha)
+	m.ctx.SelectedMR.Sha = m.MergeRequests.Table.SelectedRow()[shaColIdx]
+
+	statusColIdx := mergerequests.GetColIndex(mergerequests.ColNames.Status)
+	m.ctx.SelectedMR.Status = m.MergeRequests.Table.SelectedRow()[statusColIdx]
 }
