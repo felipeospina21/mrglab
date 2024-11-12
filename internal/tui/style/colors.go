@@ -89,4 +89,5 @@ var Orange = colorShades{
 var (
 	DarkGray = "#3f4145"
 	White    = "#C4C4C4"
+	Black    = "#111"
 )

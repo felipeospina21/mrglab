@@ -140,9 +140,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.GetMergeRequestModel(msg),
 				)
 
-				m.toggleLeftPanel()
-				m.MergeRequests.SetFocus()
-				m.MergeRequests.Table = t
+				if msg.Err == nil {
+					m.toggleLeftPanel()
+					m.MergeRequests.SetFocus()
+					m.MergeRequests.Table = t
+				}
+
 			}
 
 			if msg.TaskID == task.FetchDiscussions {
@@ -191,6 +194,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	m.Modal, cmd = m.Modal.Update(msg)
 	return m, tea.Batch(cmds...)
 }
 

@@ -9,6 +9,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -21,6 +22,7 @@ type Model struct {
 	MergeRequests mergerequests.Model
 	Details       details.Model
 	Statusline    statusline.Model
+	Modal         modal.Model
 	ctx           *context.AppContext
 }
 
@@ -35,6 +37,7 @@ func InitMainModel(ctx *context.AppContext) Model {
 		MergeRequests: mergerequests.New(ctx),
 		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx),
+		Modal:         modal.New(ctx),
 		ctx:           ctx,
 		// 	isSidePanelOpen: false,
 		// 	CurrView:      HomeView,
@@ -92,6 +95,7 @@ func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
 func finishTask[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 	if msg.Err != nil {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
+		m.ctx.Task.Err = msg.Err
 	} else {
 		mode := statusline.ModesEnum.Normal
 		if config.GlobalConfig.DevMode {
@@ -100,8 +104,8 @@ func finishTask[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 		m.setStatus(mode, "")
 		m.setHelpKeys(mergerequests.Keybinds)
 		m.ctx.Task = msg
-		m.ctx.Task.Status = task.TaskFinished
 	}
+	m.ctx.Task.Status = task.TaskFinished
 	return cb()
 }
 
