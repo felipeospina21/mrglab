@@ -87,8 +87,15 @@ func (m *Model) FooterView() string {
 
 func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 	var content strings.Builder
+	mergeStatus := strings.ToLower(m.ctx.SelectedMR.Status)
 
 	content.WriteString(renderBranches(mr.Branches[0], mr.Branches[1]))
+	content.WriteString("\n\n")
+
+	if mergeStatus == "mergeable" {
+		content.WriteString(renderStatus(mergeStatus))
+		content.WriteString("\n\n")
+	}
 
 	content.WriteString(m.renderWithStyle(b))
 	content.WriteString("\n\n")
@@ -110,6 +117,20 @@ func renderIndentedText(content *strings.Builder, i styledIcon, text string) {
 	content.WriteString("\n")
 }
 
+func renderStatus(status string) string {
+	s := contentStyle.
+		Background(lipgloss.Color(style.Green[400])).
+		Foreground(lipgloss.Color("#111")).
+		Padding(0, 1).
+		Bold(true)
+
+	var content strings.Builder
+	content.WriteString(icon.Mergeable)
+	content.WriteString(strings.ToUpper(status[:1]) + status[1:])
+
+	return s.Render(content.String())
+}
+
 func renderBranches(source, target string) string {
 	s := contentStyle.Foreground(lipgloss.Color(style.DarkGray))
 	var content strings.Builder
@@ -117,7 +138,6 @@ func renderBranches(source, target string) string {
 	content.WriteString(target)
 	content.WriteString(" <- ")
 	content.WriteString(source)
-	content.WriteString("\n\n")
 
 	return s.Render(content.String())
 }

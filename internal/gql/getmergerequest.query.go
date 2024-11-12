@@ -24,11 +24,15 @@ type ApprovalRule struct {
 	Name              string
 	ApprovalsRequired int
 	Approved          bool
-	ApprovedBy        struct {
-		Nodes []struct {
-			Name string
-		}
-	}
+	ApprovedBy        ApprovedBy
+}
+
+type ApprovedBy struct {
+	Nodes []ApprovedByNode
+}
+
+type ApprovedByNode struct {
+	Name string
 }
 
 type MergeRequestDiscussionsConnection struct {

@@ -83,13 +83,13 @@ func (m *Model) setStatus(mode string, content string) {
 
 // command wraper that takes care of initializing spinner
 // & setting corresponding status
-func (m *Model) startCommand(cb func() tea.Cmd) tea.Cmd {
+func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
 	// m.startTask()
 	return cb()
 }
 
-func endCommand[T any](m *Model, msg task.TaskMsg, cb func() T) T {
+func finishTask[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 	if msg.Err != nil {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 	} else {
@@ -99,7 +99,8 @@ func endCommand[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 		}
 		m.setStatus(mode, "")
 		m.setHelpKeys(mergerequests.Keybinds)
-		m.finishTask(msg)
+		m.ctx.Task = msg
+		m.ctx.Task.Status = task.TaskFinished
 	}
 	return cb()
 }
@@ -127,16 +128,6 @@ func (m *Model) toggleRightPanel() {
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
-}
-
-// FIX: not used, causing weird behavior during render
-func (m *Model) startTask() {
-	m.ctx.Task.Status = task.TaskStarted
-}
-
-func (m *Model) finishTask(taskMsg task.TaskMsg) {
-	m.ctx.Task = taskMsg
-	m.ctx.Task.Status = task.TaskFinished
 }
 
 func getFrameSize() (int, int) {
