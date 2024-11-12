@@ -66,7 +66,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.Projects.SelectProject()
 					return m.Projects.GetListCmd()
 				}
-				cmds = append(cmds, m.startCommand(cb))
+				cmds = append(cmds, m.startTask(cb))
 			}
 		}
 
@@ -85,7 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				cmds = append(cmds,
 					resizeCmd,
-					m.startCommand(mr),
+					m.startTask(mr),
 				)
 
 			case match(mpk.Merge):
@@ -93,7 +93,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.SelectMR()
 					return m.MergeRequests.AcceptMergeRequest()
 				}
-				cmds = append(cmds, m.startCommand(merge))
+				cmds = append(cmds, m.startTask(merge))
 			}
 		}
 
@@ -103,6 +103,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case match(rpk.ClosePanel):
 				m.toggleRightPanel()
 				m.MergeRequests.SetFocus()
+
+			case match(rpk.Merge):
+				merge := func() tea.Cmd {
+					m.SelectMR()
+					return m.MergeRequests.AcceptMergeRequest()
+				}
+				cmds = append(cmds, m.startTask(merge))
 			}
 		}
 
@@ -127,7 +134,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// TODO: Rethink this logic
 		if msg.SectionType == task.TaskSectionMR {
 			if msg.TaskID == task.FetchMRs {
-				t := endCommand[table.Model](
+				t := finishTask[table.Model](
 					&m,
 					msg,
 					m.GetMergeRequestModel(msg),
@@ -139,7 +146,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if msg.TaskID == task.FetchDiscussions {
-				mr := endCommand[details.MergeRequestDetails](
+				mr := finishTask[details.MergeRequestDetails](
 					&m,
 					msg,
 					m.GetMergeRequestDetails(msg),
@@ -162,7 +169,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			if msg.TaskID == task.MergeMR {
-				endCommand[any](
+				finishTask[any](
 					&m,
 					msg,
 					func() any {

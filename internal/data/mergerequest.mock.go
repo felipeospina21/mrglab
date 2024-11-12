@@ -89,12 +89,26 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				UserNotesCount:      0,
 				WebURL:              "",
 				Description:         "Dummy description",
-				ApprovalsRequired:   3,
+				ApprovalsRequired:   1,
 				DiffStatsSummary: gql.DiffStatsSummary{
 					Additions: 10,
 					Deletions: 50,
 					Changes:   100,
 					FileCount: 5,
+				},
+				ApprovalState: gql.MergeRequestApprovalState{
+					Rules: []gql.ApprovalRule{
+						{
+							Name:              "Rule 1",
+							ApprovalsRequired: 1,
+							Approved:          false,
+							ApprovedBy: gql.ApprovedBy{
+								Nodes: []gql.ApprovedByNode{
+									{Name: "user"},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -173,6 +187,28 @@ var GQLMergeRequestMock = gql.MergeRequestConnection{
 				Draft:               false,
 				Author:              gql.Author{Name: "Mock User"},
 				DetailedMergeStatus: "checking",
+				Conflicts:           false,
+				UserNotesCount:      0,
+				WebURL:              "",
+				Description:         "Dummy description",
+				ApprovalsRequired:   3,
+				DiffStatsSummary: gql.DiffStatsSummary{
+					Additions: 10,
+					Deletions: 50,
+					Changes:   100,
+					FileCount: 5,
+				},
+			},
+		},
+		{
+			Node: gql.MergeRequestNode{
+				IID:                 "9",
+				Title:               "Mocked Title 9",
+				CreatedAt:           time.Now(),
+				UpdatedAt:           time.Now(),
+				Draft:               false,
+				Author:              gql.Author{Name: "Mock User"},
+				DetailedMergeStatus: "external_status_checks",
 				Conflicts:           false,
 				UserNotesCount:      0,
 				WebURL:              "",

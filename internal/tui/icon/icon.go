@@ -19,6 +19,7 @@ const (
 	Time         = " "
 	Rebase       = " "
 	Merge        = " "
+	Mergeable    = " "
 	Edit         = " "
 	User         = " "
 	UserApproval = " "

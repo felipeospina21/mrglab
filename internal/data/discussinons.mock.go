@@ -8,6 +8,34 @@ import (
 
 var GQLDiscussionsMock = gql.MergeRequestResponse{
 	Id: "1",
+
+	ApprovalState: gql.MergeRequestApprovalState{
+		Rules: []gql.ApprovalRule{
+			{
+				Name:              "Rule 1",
+				ApprovalsRequired: 1,
+				Approved:          false,
+				ApprovedBy: gql.ApprovedBy{
+					Nodes: []gql.ApprovedByNode{
+						{Name: "user"},
+					},
+				},
+			},
+		},
+	},
+	SourceBranch: "feature/mock-branch",
+	TargetBranch: "develop",
+	HeadPipeline: gql.MergeRequestHeadPipelineConnection{
+		Stages: gql.CiStageConnection{
+			Nodes: []gql.CiStageNode{
+				{Name: "stage1", Status: "success", Jobs: gql.JobsConnection{
+					Nodes: []gql.JobsNode{
+						{Name: "job1", Status: "success"},
+					},
+				}},
+			},
+		},
+	},
 	Discussions: gql.MergeRequestDiscussionsConnection{
 		Nodes: []gql.DiscussionNode{
 			{
