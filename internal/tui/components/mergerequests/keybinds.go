@@ -1,6 +1,8 @@
 package mergerequests
 
 import (
+	"slices"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
@@ -16,12 +18,15 @@ type MergeReqsKeyMap struct {
 }
 
 func (k MergeReqsKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Discussions, k.Pipelines, k.Details, k.OpenInBrowser, k.Merge, k.Help, k.Quit}
+	return slices.Concat(
+		[]key.Binding{k.Discussions, k.Pipelines, k.Details, k.OpenInBrowser, k.Merge},
+		tui.CommonKeys,
+	)
 }
 
 func (k MergeReqsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		tui.CommonKeys(), // first column
+		tui.CommonKeys, // first column
 		{k.Discussions, k.Pipelines, k.Details, k.OpenInBrowser, k.Merge, k.Refetch}, // second column
 	}
 }

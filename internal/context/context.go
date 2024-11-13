@@ -12,6 +12,7 @@ const (
 	LeftPanel focusedPanel = iota
 	MainPanel
 	RightPanel
+	Modal
 )
 
 type AppContext struct {
@@ -29,6 +30,7 @@ type AppContext struct {
 	Task             task.TaskMsg
 	IsLeftPanelOpen  bool
 	IsRightPanelOpen bool
+	IsModalOpen      bool
 	FocusedPanel     focusedPanel
 	PanelHeight      int
 }

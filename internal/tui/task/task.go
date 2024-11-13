@@ -23,6 +23,7 @@ const (
 	FetchDiscussions
 	FetchPipeline
 	MergeMR
+	CloseModal
 )
 
 const (
@@ -33,4 +34,5 @@ const (
 
 const (
 	TaskSectionMR TaskSection = iota
+	TaskSectionModal
 )
