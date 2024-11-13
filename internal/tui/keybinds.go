@@ -1,38 +1,29 @@
 package tui
 
-import "github.com/charmbracelet/bubbles/key"
+import (
+	"github.com/charmbracelet/bubbles/key"
+	tea "github.com/charmbracelet/bubbletea"
+)
 
 type GlobalKeyMap struct {
-	Help       key.Binding
-	Quit       key.Binding
-	ThrowError key.Binding
-	// NextTab         key.Binding
-	// PrevTab         key.Binding
-	// NextPage        key.Binding
-	// PrevPage        key.Binding
-	// NavigateBack    key.Binding
+	Help            key.Binding
+	Quit            key.Binding
+	ThrowError      key.Binding
 	ToggleLeftPanel key.Binding
+	OpenModal       key.Binding
 }
 
-func CommonKeys() []key.Binding {
-	var k GlobalKeyMap
-	return []key.Binding{
-		k.Help, k.ToggleLeftPanel, k.Quit,
-		// k.NextTab, k.PrevTab, k.NextPage, k.PrevPage
-	}
+var CommonKeys = []key.Binding{
+	GlobalKeys.ToggleLeftPanel, GlobalKeys.OpenModal, GlobalKeys.Help, GlobalKeys.Quit,
 }
 
 func (k GlobalKeyMap) ShortHelp() []key.Binding {
-	// return CommonKeys()
-	return []key.Binding{
-		k.Help, k.ToggleLeftPanel, k.Quit,
-		// k.NextTab, k.PrevTab, k.NextPage, k.PrevPage
-	}
+	return CommonKeys
 }
 
 func (k GlobalKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		CommonKeys(),
+		CommonKeys,
 	}
 }
 
@@ -45,25 +36,13 @@ var GlobalKeys = GlobalKeyMap{
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
 	),
-	// NextTab: key.NewBinding(
-	// 	key.WithKeys("tab"),
-	// 	key.WithHelp("tab", "next tab"),
-	// ),
-	// PrevTab: key.NewBinding(
-	// 	key.WithKeys("shift+tab"),
-	// 	key.WithHelp("shift+tab", "prev tab"),
-	// ),
-	// NextPage: key.NewBinding(
-	// 	key.WithKeys("right"),
-	// 	key.WithHelp("->", "next page"),
-	// ),
-	// PrevPage: key.NewBinding(
-	// 	key.WithKeys("left"),
-	// 	key.WithHelp("<-", "prev page"),
-	// ),
 	ToggleLeftPanel: key.NewBinding(
 		key.WithKeys("ctrl+o"),
 		key.WithHelp("ctrl+o", "toggle side panel"),
+	),
+	OpenModal: key.NewBinding(
+		key.WithKeys("@"),
+		key.WithHelp("@", "open full message modal"),
 	),
 
 	// TODO: make this available only when program is run whith certain cmd
@@ -71,4 +50,10 @@ var GlobalKeys = GlobalKeyMap{
 		key.WithKeys("E"),
 		key.WithHelp("E", "throw error"),
 	),
+}
+
+func KeyMatcher(msg tea.KeyMsg) func(key.Binding) bool {
+	return func(k key.Binding) bool {
+		return key.Matches(msg, k)
+	}
 }

@@ -6,15 +6,17 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/message"
+	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
+	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
@@ -25,6 +27,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	isLeftPanelFocused := m.ctx.FocusedPanel == context.LeftPanel
 	isMainPanelFocused := m.ctx.FocusedPanel == context.MainPanel
 	isRightPanelFocused := m.ctx.FocusedPanel == context.RightPanel
+	isModalFocused := m.ctx.FocusedPanel == context.Modal
 
 	switch msg := msg.(type) {
 
@@ -34,7 +37,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	case tea.KeyMsg:
-		match := keyMatcher(msg)
+		match := tui.KeyMatcher(msg)
 		gk := tui.GlobalKeys
 		lpk := projects.Keybinds
 		mpk := mergerequests.Keybinds
@@ -49,12 +52,47 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case match(gk.Quit):
 			return m, tea.Quit
 
+		case match(gk.OpenModal):
+			m.ctx.IsModalOpen = true
+			if m.ctx.Task.Err != nil {
+				m.Modal.Header = "Error"
+				m.Modal.Content = m.ctx.Task.Err.Error()
+			}
+			m.Modal.SetFocus()
+
 		case match(gk.ToggleLeftPanel):
 			m.toggleLeftPanel()
+			if m.ctx.IsRightPanelOpen {
+				m.toggleRightPanel()
+			}
+
 			if m.ctx.IsLeftPanelOpen {
 				m.Projects.SetFocus()
+				m.setHelpKeys(projects.Keybinds)
 			} else {
 				m.MergeRequests.SetFocus()
+				m.setHelpKeys(mergerequests.Keybinds)
+			}
+		}
+
+		if isModalFocused {
+			if match(modal.Keybinds.Close) {
+				if m.ctx.Task.Err != nil {
+					mode := statusline.ModesEnum.Normal
+					if config.GlobalConfig.DevMode {
+						mode = statusline.ModesEnum.Dev
+					}
+					m.setStatus(mode, "")
+
+				}
+				m.ctx.IsModalOpen = false
+				if m.ctx.IsRightPanelOpen {
+					m.Details.SetFocus()
+					m.setHelpKeys(details.Keybinds)
+				} else {
+					m.MergeRequests.SetFocus()
+					m.setHelpKeys(mergerequests.Keybinds)
+				}
 			}
 		}
 
@@ -94,6 +132,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m.MergeRequests.AcceptMergeRequest()
 				}
 				cmds = append(cmds, m.startTask(merge))
+
 			}
 		}
 
@@ -103,6 +142,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case match(rpk.ClosePanel):
 				m.toggleRightPanel()
 				m.MergeRequests.SetFocus()
+				m.setHelpKeys(mergerequests.Keybinds)
 
 			case match(rpk.Merge):
 				merge := func() tea.Cmd {
@@ -137,6 +177,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				t := finishTask[table.Model](
 					&m,
 					msg,
+					mergerequests.Keybinds,
 					m.GetMergeRequestModel(msg),
 				)
 
@@ -152,6 +193,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				mr := finishTask[details.MergeRequestDetails](
 					&m,
 					msg,
+					details.Keybinds,
 					m.GetMergeRequestDetails(msg),
 				)
 
@@ -175,6 +217,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				finishTask[any](
 					&m,
 					msg,
+					mergerequests.Keybinds,
 					func() any {
 						// TODO: implement some kind of success notification
 						return nil
@@ -194,12 +237,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.Modal, cmd = m.Modal.Update(msg)
 	return m, tea.Batch(cmds...)
-}
-
-func keyMatcher(msg tea.KeyMsg) func(key.Binding) bool {
-	return func(k key.Binding) bool {
-		return key.Matches(msg, k)
-	}
 }

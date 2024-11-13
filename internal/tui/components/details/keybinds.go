@@ -1,6 +1,8 @@
 package details
 
 import (
+	"slices"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
@@ -12,7 +14,10 @@ type DetailsKeyMap struct {
 }
 
 func (k DetailsKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.ClosePanel, k.Help, k.Quit}
+	return slices.Concat(
+		[]key.Binding{k.ClosePanel, k.Merge},
+		tui.CommonKeys,
+	)
 }
 
 func (k DetailsKeyMap) FullHelp() [][]key.Binding {

@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
-	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
@@ -27,8 +26,7 @@ type Model struct {
 }
 
 func InitMainModel(ctx *context.AppContext) Model {
-	// Sets global keybinds by default
-	ctx.Keybinds = tui.GlobalKeys
+	ctx.Keybinds = projects.Keybinds
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.Task = task.TaskMsg{Status: task.TaskIdle}
 
@@ -39,26 +37,6 @@ func InitMainModel(ctx *context.AppContext) Model {
 		Statusline:    statusline.New(ctx),
 		Modal:         modal.New(ctx),
 		ctx:           ctx,
-		// 	isSidePanelOpen: false,
-		// 	CurrView:      HomeView,
-		// 	Help:          components.Help{Model: help.New()},
-		// 	MergeRequests: MergeRequestsModel{},
-		// 	Toast: toast.New(toast.Model{
-		// 		Progress: progress.New(
-		// 			progress.WithDefaultGradient(),
-		// 			progress.WithFillCharacters('-', ' '),
-		// 			progress.WithoutPercentage(),
-		// 		),
-		// 		Interval: 10,
-		// 		// Type:     toast.Info,
-		// 		// Show:     true,
-		// 		// Message:  "Info msg",
-		// 	}),
-		// 	Tabs: tabs.Model{
-		// 		Tabs: []string{"Merge Requests", "Issues", "Pipelines"},
-		// 	},
-		// 	Statusline:      statusline.Model{Status: statusline.Modes.Normal},
-		// 	Paginator:       p,
 	}
 }
 
@@ -92,7 +70,7 @@ func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
 	return cb()
 }
 
-func finishTask[T any](m *Model, msg task.TaskMsg, cb func() T) T {
+func finishTask[T any](m *Model, msg task.TaskMsg, kb help.KeyMap, cb func() T) T {
 	if msg.Err != nil {
 		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
 		m.ctx.Task.Err = msg.Err
@@ -102,7 +80,7 @@ func finishTask[T any](m *Model, msg task.TaskMsg, cb func() T) T {
 			mode = statusline.ModesEnum.Dev
 		}
 		m.setStatus(mode, "")
-		m.setHelpKeys(mergerequests.Keybinds)
+		m.setHelpKeys(kb)
 		m.ctx.Task = msg
 	}
 	m.ctx.Task.Status = task.TaskFinished

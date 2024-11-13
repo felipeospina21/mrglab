@@ -11,6 +11,10 @@ var headerStyle = table.TitleStyle.
 	Background(lipgloss.Color(style.Red[600])).
 	Padding(0, 1)
 
+var helpStyle = lipgloss.NewStyle().
+	Foreground(lipgloss.Color(style.DarkGray)).
+	MarginTop(1)
+
 var bodyStyle = func(h int) lipgloss.Style {
 	return lipgloss.NewStyle().Padding(1).Height(h)
 }

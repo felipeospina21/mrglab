@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
@@ -25,6 +26,12 @@ func (m Model) View() string {
 
 		m.MergeRequests.Table.W, m.MergeRequests.Table.H = m.getEmptyTableSize()
 		body := lipgloss.JoinHorizontal(0, left, table.DocStyle.Render(m.MergeRequests.Table.View()))
+		sl := m.Statusline.View()
+		return render(lipgloss.JoinVertical(0, body, sl))
+
+	} else if m.ctx.IsModalOpen {
+		m.setHelpKeys(modal.Keybinds)
+		body := m.Modal.View()
 		sl := m.Statusline.View()
 		return render(lipgloss.JoinVertical(0, body, sl))
 
@@ -55,12 +62,6 @@ func (m Model) getMainPanelComponents() (string, string) {
 	body := lipgloss.JoinVertical(0, header, table.DocStyle.Render(m.MergeRequests.Table.View()))
 	h := m.ctx.Window.Height - lipgloss.Height(body) - style.MainFrameStyle.GetVerticalFrameSize()
 	statusline := lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
-
-	if m.ctx.Task.Err != nil {
-		m.Modal.Header = "Error"
-		body = m.Modal.View()
-		statusline = m.Statusline.View()
-	}
 
 	return body, statusline
 }
