@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
@@ -76,7 +77,7 @@ func (m Model) View() string {
 	w := lipgloss.Width
 
 	statusKey := statusStyle.Render(m.Status)
-	statusVal := statusText.Render(m.Content)
+	statusVal := statusText.Render(tui.Truncate(m.Content, width/4))
 	encoding := encodingStyle.Render("UTF-8")
 	projectName := projectStyle.Render(fmt.Sprintf("%s %s", icon.Gitlab, m.ctx.SelectedProject.Name))
 
