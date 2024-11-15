@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	// TODO: update colors with tokens
 	StatusBarStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
 			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"}).
@@ -32,5 +33,5 @@ var (
 
 	projectStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
 
-	spinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[400]))
+	SpinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[400]))
 )
