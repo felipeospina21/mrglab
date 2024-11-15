@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/mattn/go-runewidth"
 )
 
@@ -282,11 +283,11 @@ func (m *Model) UpdateViewport() {
 	// Constant runtime, independent of number of rows in a table.
 	// Limits the number of renderedRows to a maximum of 2*m.viewport.Height
 	if m.cursor >= 0 {
-		m.start = clamp(m.cursor-m.viewport.Height, 0, m.cursor)
+		m.start = tui.Clamp(m.cursor-m.viewport.Height, 0, m.cursor)
 	} else {
 		m.start = 0
 	}
-	m.end = clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
+	m.end = tui.Clamp(m.cursor+m.viewport.Height, m.cursor, len(m.rows))
 	for i := m.start; i < m.end; i++ {
 		renderedRows = append(renderedRows, m.renderRow(i))
 	}
@@ -357,21 +358,21 @@ func (m Model) Cursor() int {
 
 // SetCursor sets the cursor position in the table.
 func (m *Model) SetCursor(n int) {
-	m.cursor = clamp(n, 0, len(m.rows)-1)
+	m.cursor = tui.Clamp(n, 0, len(m.rows)-1)
 	m.UpdateViewport()
 }
 
 // MoveUp moves the selection up by any number of rows.
 // It can not go above the first row.
 func (m *Model) MoveUp(n int) {
-	m.cursor = clamp(m.cursor-n, 0, len(m.rows)-1)
+	m.cursor = tui.Clamp(m.cursor-n, 0, len(m.rows)-1)
 	switch {
 	case m.start == 0:
-		m.viewport.SetYOffset(clamp(m.viewport.YOffset, 0, m.cursor))
+		m.viewport.SetYOffset(tui.Clamp(m.viewport.YOffset, 0, m.cursor))
 	case m.start < m.viewport.Height:
-		m.viewport.YOffset = (clamp(clamp(m.viewport.YOffset+n, 0, m.cursor), 0, m.viewport.Height))
+		m.viewport.YOffset = (tui.Clamp(tui.Clamp(m.viewport.YOffset+n, 0, m.cursor), 0, m.viewport.Height))
 	case m.viewport.YOffset >= 1:
-		m.viewport.YOffset = clamp(m.viewport.YOffset+n, 1, m.viewport.Height)
+		m.viewport.YOffset = tui.Clamp(m.viewport.YOffset+n, 1, m.viewport.Height)
 	}
 	m.UpdateViewport()
 }
@@ -379,17 +380,17 @@ func (m *Model) MoveUp(n int) {
 // MoveDown moves the selection down by any number of rows.
 // It can not go below the last row.
 func (m *Model) MoveDown(n int) {
-	m.cursor = clamp(m.cursor+n, 0, len(m.rows)-1)
+	m.cursor = tui.Clamp(m.cursor+n, 0, len(m.rows)-1)
 	m.UpdateViewport()
 
 	switch {
 	case m.end == len(m.rows) && m.viewport.YOffset > 0:
-		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
+		m.viewport.SetYOffset(tui.Clamp(m.viewport.YOffset-n, 1, m.viewport.Height))
 	case m.cursor > (m.end-m.start)/2 && m.viewport.YOffset > 0:
-		m.viewport.SetYOffset(clamp(m.viewport.YOffset-n, 1, m.cursor))
+		m.viewport.SetYOffset(tui.Clamp(m.viewport.YOffset-n, 1, m.cursor))
 	case m.viewport.YOffset > 1:
 	case m.cursor > m.viewport.YOffset+m.viewport.Height-1:
-		m.viewport.SetYOffset(clamp(m.viewport.YOffset+1, 0, 1))
+		m.viewport.SetYOffset(tui.Clamp(m.viewport.YOffset+1, 0, 1))
 	}
 }
 
@@ -478,24 +479,4 @@ func (m *Model) renderRow(r int) string {
 	}
 
 	return lipgloss.NewStyle().MarginBottom(rowBottomMargin).Render(row)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-
-	return b
-}
-
-func clamp(v, low, high int) int {
-	return min(max(v, low), high)
 }

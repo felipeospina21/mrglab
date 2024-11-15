@@ -12,6 +12,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/logger"
+	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
@@ -75,13 +76,13 @@ func (m Model) View() string {
 
 func (m *Model) HeaderView() string {
 	title := MdTitle.Render(m.Content.Title)
-	line := strings.Repeat("─", max(0, m.Viewport.Width-lipgloss.Width(title)))
+	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width-lipgloss.Width(title)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
 func (m *Model) FooterView() string {
 	info := MdInfo.Render(fmt.Sprintf("%3.f%%", m.Viewport.ScrollPercent()*100))
-	line := strings.Repeat("─", max(0, m.Viewport.Width-lipgloss.Width(info)))
+	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width-lipgloss.Width(info)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
@@ -373,13 +374,6 @@ func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	}
 
 	return nil
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
 
 type styledIcon struct {
