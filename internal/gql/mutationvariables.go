@@ -10,6 +10,12 @@ type MergeRequestAcceptInput struct {
 	Squash                   bool
 }
 
+type CreateNoteInput struct {
+	NoteableId   string
+	DiscussionId string
+	Body         string
+}
+
 func AcceptMergeRequestVariables(input MergeRequestAcceptInput) map[string]any {
 	return map[string]any{
 		"sha":                      input.Sha,
@@ -17,5 +23,13 @@ func AcceptMergeRequestVariables(input MergeRequestAcceptInput) map[string]any {
 		"projectPath":              input.ProjectPath,
 		"shouldRemoveSourceBranch": input.ShouldRemoveSourceBranch,
 		"squash":                   input.Squash,
+	}
+}
+
+func CreateNoteVariables(input CreateNoteInput) map[string]any {
+	return map[string]any{
+		"noteableId":   input.NoteableId,
+		"discussionId": input.DiscussionId,
+		"body":         input.Body,
 	}
 }
