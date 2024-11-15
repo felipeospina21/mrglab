@@ -44,6 +44,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		rpk := details.Keybinds
 
 		switch {
+		case match(gk.MockFetch):
+			if m.ctx.Task.Status == task.TaskStarted {
+				m.ctx.Task.Status = task.TaskFinished
+			} else if m.ctx.Task.Status == task.TaskFinished || m.ctx.Task.Status == task.TaskIdle {
+				m.ctx.Task.Status = task.TaskStarted
+			}
 		case match(gk.ThrowError):
 			cmds = append(cmds, func() tea.Msg {
 				return errors.New("mocked")
@@ -154,8 +160,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case spinner.TickMsg:
+		var spin tea.Cmd
 		cmd = m.updateSpinnerViewCommand(msg)
-		cmds = append(cmds, cmd)
+		m.Spinner, spin = m.Spinner.Update(msg)
+		cmds = append(cmds, cmd, spin)
 
 	case tea.WindowSizeMsg:
 		// Sets window in context

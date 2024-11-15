@@ -9,6 +9,7 @@ type GlobalKeyMap struct {
 	Help            key.Binding
 	Quit            key.Binding
 	ThrowError      key.Binding
+	MockFetch       key.Binding
 	ToggleLeftPanel key.Binding
 	OpenModal       key.Binding
 }
@@ -49,6 +50,10 @@ var GlobalKeys = GlobalKeyMap{
 	ThrowError: key.NewBinding(
 		key.WithKeys("E"),
 		key.WithHelp("E", "throw error"),
+	),
+	MockFetch: key.NewBinding(
+		key.WithKeys("F"),
+		key.WithHelp("F", "mock fetching"),
 	),
 }
 

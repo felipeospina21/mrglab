@@ -47,7 +47,7 @@ func New(ctx *context.AppContext) Model {
 		Status: status,
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Dot),
-			spinner.WithStyle(spinnerStyle),
+			spinner.WithStyle(SpinnerStyle),
 		),
 		ctx:  ctx,
 		Help: help.New(),

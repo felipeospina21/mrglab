@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/config"
@@ -22,6 +24,8 @@ type Model struct {
 	Details       details.Model
 	Statusline    statusline.Model
 	Modal         modal.Model
+	Spinner       spinner.Model
+	Input         textarea.Model
 	ctx           *context.AppContext
 }
 
@@ -36,12 +40,16 @@ func InitMainModel(ctx *context.AppContext) Model {
 		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx),
 		Modal:         modal.New(ctx),
-		ctx:           ctx,
+		Spinner: spinner.New(
+			spinner.WithSpinner(spinner.Line),
+			spinner.WithStyle(statusline.SpinnerStyle),
+		),
+		ctx: ctx,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return m.Statusline.Init()
+	return tea.Batch(m.Statusline.Init(), m.Spinner.Tick)
 }
 
 func (m *Model) setStatus(mode string, content string) {
@@ -65,6 +73,7 @@ func (m *Model) setStatus(mode string, content string) {
 // command wraper that takes care of initializing spinner
 // & setting corresponding status
 func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
+	m.ctx.Task.Status = task.TaskStarted
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
 	// m.startTask()
 	return cb()
