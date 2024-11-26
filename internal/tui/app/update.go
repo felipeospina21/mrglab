@@ -126,6 +126,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case match(mpk.Merge):
 				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
 
+			case match(mpk.OpenInBrowser):
+				m.openInBrowser()
 			}
 		}
 
@@ -139,6 +141,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case match(rpk.Merge):
 				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
+
+			case match(rpk.OpenInBrowser):
+				m.openInBrowser()
 			}
 		}
 
