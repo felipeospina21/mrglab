@@ -8,8 +8,9 @@ import (
 )
 
 type DetailsKeyMap struct {
-	ClosePanel key.Binding
-	Merge      key.Binding
+	ClosePanel     key.Binding
+	Merge          key.Binding
+	RespondComment key.Binding
 	tui.GlobalKeyMap
 }
 
@@ -34,7 +35,11 @@ var Keybinds = DetailsKeyMap{
 	),
 	Merge: key.NewBinding(
 		key.WithKeys("M"),
-		key.WithHelp("M", "merge MR"),
+		key.WithHelp("M", "merge mr"),
+	),
+	RespondComment: key.NewBinding(
+		key.WithKeys("C"),
+		key.WithHelp("C", "respond comment"),
 	),
 	GlobalKeyMap: tui.GlobalKeys,
 }
