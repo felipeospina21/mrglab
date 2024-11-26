@@ -60,3 +60,18 @@ func (m *Model) openInBrowser() {
 	url := m.MergeRequests.Table.SelectedRow()[colIdx]
 	exec.Openbrowser(url)
 }
+
+func (m *Model) resizeTable(msg tea.WindowSizeMsg) table.Model {
+	m.MergeRequests.Table.SetWidth(msg.Width)
+	mainPanelHeaderHeight := 1
+
+	return table.InitModel(table.InitModelParams{
+		Rows:   m.MergeRequests.Table.Rows(),
+		Colums: mergerequests.GetTableColums(m.ctx.Window.Width),
+		StyleFunc: table.StyleIconsColumns(
+			table.Styles(table.DefaultStyle()),
+			mergerequests.IconCols(),
+		),
+		Height: m.ctx.PanelHeight - mainPanelHeaderHeight,
+	})
+}
