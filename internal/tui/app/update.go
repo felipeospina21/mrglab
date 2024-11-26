@@ -38,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		match := tui.KeyMatcher(msg)
-		gk := tui.GlobalKeys
+		gk := tui.GlobalKeys()
 		lpk := projects.Keybinds
 		mpk := mergerequests.Keybinds
 		rpk := details.Keybinds
@@ -82,6 +82,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isModalFocused {
+
+			if !m.Input.Focused() {
+				cmd = m.Input.Focus()
+				cmds = append(cmds, cmd)
+			}
+			if match(modal.Keybinds.Tab) {
+				logger.Debug(m.Input.Focused())
+				fc := m.Input.Focus()
+				cmds = append(cmds, fc)
+			}
 			if match(modal.Keybinds.Close) {
 				if m.ctx.Task.Err != nil {
 					mode := statusline.ModesEnum.Normal
@@ -144,6 +154,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case match(rpk.OpenInBrowser):
 				m.openInBrowser()
+
+			case match(rpk.RespondComment):
+				m.ctx.IsModalOpen = true
+				m.ctx.FocusedPanel = context.Modal
+				m.Modal.Header = "Respond to thread"
+				m.Modal.Content = m.Input.View()
+				cmds = append(cmds, m.Input.Focus())
 			}
 		}
 
@@ -244,6 +261,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
+	m.Input, cmd = m.Input.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }

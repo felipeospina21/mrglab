@@ -83,7 +83,6 @@ func loadEnvVars(config *Config) error {
 	token := viper.Get("token")
 
 	if token == nil {
-		// TODO: report in statusline this error
 		err := errors.New("api-token not set")
 		l.Error(err)
 		config.APIToken = ""

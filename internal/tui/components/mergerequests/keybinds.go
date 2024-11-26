@@ -56,5 +56,5 @@ var Keybinds = MergeReqsKeyMap{
 		key.WithKeys("M"),
 		key.WithHelp("M", "merge MR"),
 	),
-	GlobalKeyMap: tui.GlobalKeys,
+	GlobalKeyMap: tui.GlobalKeys(),
 }
