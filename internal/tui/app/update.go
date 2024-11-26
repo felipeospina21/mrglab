@@ -87,11 +87,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmd = m.Input.Focus()
 				cmds = append(cmds, cmd)
 			}
-			if match(modal.Keybinds.Tab) {
-				logger.Debug(m.Input.Focused())
-				fc := m.Input.Focus()
-				cmds = append(cmds, fc)
-			}
+			// if match(modal.Keybinds.Tab) {
+			// 	logger.Debug(m.Input.Focused())
+			// 	fc := m.Input.Focus()
+			// 	cmds = append(cmds, fc)
+			// }
 			if match(modal.Keybinds.Close) {
 				if m.ctx.Task.Err != nil {
 					mode := statusline.ModesEnum.Normal
@@ -176,6 +176,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.setLeftPanelHeight()
 		m.setStatuslineWidth()
+
+		if len(m.MergeRequests.Table.Rows()) > 0 {
+			m.MergeRequests.Table = m.resizeTable(msg)
+		}
 
 	case task.TaskMsg:
 		if msg.Err != nil {
