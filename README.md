@@ -16,12 +16,18 @@ config file is read from `~/.config/mrglab/mrglab.toml` by default
 
 ### config properties
 
-| Option        | Description               | Example                                | Default                |
-| ------------- | ------------------------- | -------------------------------------- | ---------------------- |
-| `base_url`    | base api url              | `"https://gitlab.com"`                 | `"https://gitlab.com"` |
-| `token`       | gitlab access token       | `""`                                   |                        |
-| `api_version` | gitlab api version        | `"v4"`                                 |                        |
-| `projects`    | list of `project` objects | `[{name="Gitlab Cli", id="34675721"}]` |                        |
+| Option             | Description               | Example                | Default                |
+| ------------------ | ------------------------- | ---------------------- | ---------------------- |
+| `base_url`         | base api url              | `"https://gitlab.com"` | `"https://gitlab.com"` |
+| `filters.projects` | list of `project` objects | ```                    |
+
+                                                      [
+                                                        {
+                                                          name="Gitlab Cli",
+                                                          id="34675721",
+                                                          fullPath="gitlab-org/cli"
+                                                        }]
+                                                    ```                   |                                       |
 
 `project` is an object with a `name` and `id` properties.
 
@@ -33,3 +39,7 @@ config file is read from `~/.config/mrglab/mrglab.toml` by default
 ## commands
 
 // TODO
+
+```
+
+```

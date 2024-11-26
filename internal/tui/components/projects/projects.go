@@ -23,7 +23,7 @@ type Model struct {
 }
 
 func New(ctx *context.AppContext) Model {
-	projects := config.GlobalConfig.Projects
+	projects := config.GlobalConfig.Filters.Projects
 
 	var li []list.Item
 	var i Item
