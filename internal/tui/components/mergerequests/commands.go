@@ -38,7 +38,7 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 }
 
 func (m *Model) AcceptMergeRequest() tea.Cmd {
-	if m.ctx.SelectedMR.Status != strings.ToLower("mergeable") {
+	if strings.ToLower(m.ctx.SelectedMR.Status) != "mergeable" {
 		return func() tea.Msg {
 			return task.TaskMsg{
 				TaskID:      task.MergeMR,

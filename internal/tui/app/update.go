@@ -106,11 +106,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Projects.List, cmd = m.Projects.List.Update(msg)
 			switch {
 			case match(lpk.MRList):
-				cb := func() tea.Cmd {
-					m.Projects.SelectProject()
-					return m.Projects.GetListCmd()
-				}
-				cmds = append(cmds, m.startTask(cb))
+				cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
 			}
 		}
 
@@ -122,22 +118,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.PanelHeight},
 				)
 
-				mr := func() tea.Cmd {
-					m.SelectMR()
-					return m.MergeRequests.FetchMergeRequest()
-				}
-
 				cmds = append(cmds,
 					resizeCmd,
-					m.startTask(mr),
+					m.startTask(m.fetchSingleMergeRequest),
 				)
 
 			case match(mpk.Merge):
-				merge := func() tea.Cmd {
-					m.SelectMR()
-					return m.MergeRequests.AcceptMergeRequest()
-				}
-				cmds = append(cmds, m.startTask(merge))
+				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
 
 			}
 		}
@@ -151,11 +138,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.setHelpKeys(mergerequests.Keybinds)
 
 			case match(rpk.Merge):
-				merge := func() tea.Cmd {
-					m.SelectMR()
-					return m.MergeRequests.AcceptMergeRequest()
-				}
-				cmds = append(cmds, m.startTask(merge))
+				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
 			}
 		}
 
@@ -186,12 +169,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					&m,
 					msg,
 					mergerequests.Keybinds,
-					m.GetMergeRequestModel(msg),
+					m.getMergeRequestModel(msg),
 				)
 
 				if msg.Err == nil {
-					m.toggleLeftPanel()
-					m.MergeRequests.SetFocus()
+					if m.ctx.IsLeftPanelOpen {
+						m.toggleLeftPanel()
+						m.MergeRequests.SetFocus()
+					}
 					m.MergeRequests.Table = t
 				}
 
@@ -202,7 +187,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					&m,
 					msg,
 					details.Keybinds,
-					m.GetMergeRequestDetails(msg),
+					m.getMergeRequestDetails(msg),
 				)
 
 				// get title
@@ -216,8 +201,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
 				m.Details.Viewport.SetContent(c)
 
-				m.toggleRightPanel()
-				m.Details.SetFocus()
+				if !m.ctx.IsRightPanelOpen {
+					m.toggleRightPanel()
+					m.Details.SetFocus()
+				}
 
 			}
 
@@ -239,8 +226,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					cmd = func() tea.Msg {
 						return errors.New(e)
 					}
-					cmds = append(cmds, cmd)
+				} else {
+					if m.ctx.FocusedPanel == context.MainPanel {
+						cmd = m.startTask(m.fetchMergeRequestsList)
+					}
+
+					if m.ctx.FocusedPanel == context.RightPanel {
+						cmd = m.startTask(m.fetchSingleMergeRequest)
+					}
 				}
+				cmds = append(cmds, cmd)
 			}
 		}
 	}
