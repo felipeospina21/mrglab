@@ -31,5 +31,5 @@ func newClient() *graphql.Client {
 }
 
 func buildURL(config *config.Config) string {
-	return fmt.Sprintf("%s/api/%s", config.BaseURL, config.APIVersion)
+	return fmt.Sprintf("%s/api/graphql", config.BaseURL)
 }
