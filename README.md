@@ -14,7 +14,13 @@ go install github.com/felipeospina21/mrglab@latest
 
 ## Config
 
-config file is read from `~/.config/mrglab/mrglab.toml` by default
+config file is read from `~/.config/mrglab/mrglab.toml` by default.
+
+**To access private repos, you will need to set an env variable with a [gitlab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html). This can be set in your shell config file (to persist it) or in your terminal (for the session).**
+
+```bash
+export MRGLAB_TOKEN="YOUR_GITLAB_TOKEN"
+```
 
 ### config properties
 
@@ -74,7 +80,7 @@ mrglab
 
 ## Disclaimer
 
-The purpose of this project was to learn more about `go` and `bubbletea`. It is by no mean a full replacement of Gitlab UI (and it is not planned to be), but more like a complementary tool that would fit in some workflows heavily based in the terminal.
+The purpose of this project was to learn more about `go` and `bubbletea`. It is by no mean a full replacement of Gitlab UI (and it is not planned to be), but a complementary tool that would fit in some terminal workflows.
 
 ## Inspiration
 
