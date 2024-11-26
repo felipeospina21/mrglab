@@ -6,13 +6,13 @@ mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
 - Nerd Font (Symbols) v3.2.1 or higher [ download ](https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/NerdFontsSymbolsOnly.zip)
 
-## install
+## Install
 
 ```bash
 go install github.com/felipeospina21/mrglab@latest
 ```
 
-## config
+## Config
 
 config file is read from `~/.config/mrglab/mrglab.toml` by default
 
@@ -55,16 +55,27 @@ config file is read from `~/.config/mrglab/mrglab.toml` by default
 - `id` - `string` is the `gitlab project id` used to fetch selected project `merge requests` & `issues`
 - `fullPath` - `string` is the url path to the project after the base_url
 
-## commands
+#### config example
+
+```toml
+base_url = "https://gitlab.com"
+
+[filters]
+projects = [
+	{ name = "Gitlab Cli", id = "34675721", fullPath = "gitlab-org/cli" },
+]
+```
+
+## Commands
 
 ```bash
 mrglab
 ```
 
-## disclaimer
+## Disclaimer
 
 The purpose of this project was to learn more about `go` and `bubbletea`. It is by no mean a full replacement of Gitlab UI (and it is not planned to be), but more like a complementary tool that would fit in some workflows heavily based in the terminal.
 
-## inspiration
+## Inspiration
 
 this project is inspired by tools like [gh-dash](https://github.com/dlvhdr/gh-dash).
