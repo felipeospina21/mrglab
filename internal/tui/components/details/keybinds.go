@@ -46,5 +46,5 @@ var Keybinds = DetailsKeyMap{
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
 	),
-	GlobalKeyMap: tui.GlobalKeys,
+	GlobalKeyMap: tui.GlobalKeys(),
 }

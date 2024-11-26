@@ -15,8 +15,8 @@ func main() {
 
 	err := config.Load(&config.GlobalConfig)
 	if err != nil {
-		// TODO: handle this error
-		// ctx.WarningMsg = err
+		fmt.Println("Error loading api token", err)
+		os.Exit(1)
 	}
 
 	m := app.InitMainModel(ctx)

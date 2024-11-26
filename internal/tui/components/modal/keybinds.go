@@ -27,5 +27,5 @@ var Keybinds = KeyMap{
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "close modal"),
 	),
-	GlobalKeyMap: tui.GlobalKeys,
+	GlobalKeyMap: tui.GlobalKeys(),
 }

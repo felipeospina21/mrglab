@@ -3,7 +3,7 @@ package projects
 import (
 	"fmt"
 	"io"
-	"log"
+	"os"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -29,10 +29,10 @@ func New(ctx *context.AppContext) Model {
 	var i Item
 
 	for _, val := range projects {
-		e := mapstructure.Decode(val, &i)
-		if e != nil {
-			// TODO: handle this error
-			log.Print(e)
+		err := mapstructure.Decode(val, &i)
+		if err != nil {
+			fmt.Println("Error loading projects", err)
+			os.Exit(1)
 		}
 		li = append(li, i)
 

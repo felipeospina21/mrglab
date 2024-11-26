@@ -26,5 +26,5 @@ var Keybinds = ProjectsKeyMap{
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "view merge requests"),
 	),
-	GlobalKeyMap: tui.GlobalKeys,
+	GlobalKeyMap: tui.GlobalKeys(),
 }
