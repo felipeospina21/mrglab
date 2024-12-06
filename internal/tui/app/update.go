@@ -51,9 +51,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.ctx.Task.Status = task.TaskStarted
 			}
 		case match(gk.ThrowError):
-			cmds = append(cmds, func() tea.Msg {
-				return errors.New("mocked")
-			})
+			finishTask[any](
+				&m,
+				task.TaskMsg{Err: errors.New("Mocked Error")},
+				gk,
+				func() any {
+					return nil
+				},
+			)
 
 		case match(gk.Quit):
 			return m, tea.Quit
@@ -247,12 +252,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				res := msg.Msg.(message.MergeRequestMergedMsg)
 				if len(res.Errors) > 0 {
-					// TODO: show errors in statusline
+					// NOTE: Only happens when can be merged and get a network error
 					e := strings.Join(res.Errors, ", ")
 					cmd = func() tea.Msg {
 						return errors.New(e)
 					}
-				} else {
+				} else if msg.Err == nil {
 					if m.ctx.FocusedPanel == context.MainPanel {
 						cmd = m.startTask(m.fetchMergeRequestsList)
 					}

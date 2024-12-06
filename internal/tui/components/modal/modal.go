@@ -36,3 +36,8 @@ func (m Model) View() string {
 func (m *Model) SetFocus() {
 	m.ctx.FocusedPanel = context.Modal
 }
+
+func (m *Model) ResetContent() {
+	m.Content = ""
+	m.Header = ""
+}

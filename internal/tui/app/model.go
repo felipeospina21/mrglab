@@ -93,6 +93,7 @@ func finishTask[T any](m *Model, msg task.TaskMsg, kb help.KeyMap, cb func() T) 
 		m.ctx.Task = msg
 	}
 	m.ctx.Task.Status = task.TaskFinished
+	m.Modal.ResetContent()
 	return cb()
 }
 
