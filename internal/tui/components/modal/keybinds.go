@@ -7,6 +7,7 @@ import (
 
 type KeyMap struct {
 	Close key.Binding
+	Tab   key.Binding
 	tui.GlobalKeyMap
 }
 
@@ -26,6 +27,10 @@ var Keybinds = KeyMap{
 	Close: key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "close modal"),
+	),
+	Tab: key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", ""),
 	),
 	GlobalKeyMap: tui.GlobalKeys(),
 }

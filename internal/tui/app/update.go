@@ -66,8 +66,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case match(gk.OpenModal):
 			m.ctx.IsModalOpen = true
 			if m.ctx.Task.Err != nil {
-				m.Modal.Header = "Error"
-				m.Modal.Content = m.ctx.Task.Err.Error()
+				m.Modal.Content.Header = "Error"
+				m.Modal.Content.Body = m.ctx.Task.Err.Error()
 			}
 			m.Modal.SetFocus()
 
@@ -87,16 +87,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isModalFocused {
-
 			if !m.Input.Focused() {
 				cmd = m.Input.Focus()
 				cmds = append(cmds, cmd)
 			}
-			// if match(modal.Keybinds.Tab) {
-			// 	logger.Debug(m.Input.Focused())
-			// 	fc := m.Input.Focus()
-			// 	cmds = append(cmds, fc)
-			// }
+
 			if match(modal.Keybinds.Close) {
 				if m.ctx.Task.Err != nil {
 					mode := statusline.ModesEnum.Normal
@@ -115,6 +110,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.setHelpKeys(mergerequests.Keybinds)
 				}
 			}
+			m.Modal, cmd = m.Modal.Update(msg)
+			cmds = append(cmds, cmd)
 		}
 
 		if isLeftPanelFocused {
@@ -162,9 +159,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case match(rpk.RespondComment):
 				m.ctx.IsModalOpen = true
+				m.Modal.Editable = true
 				m.ctx.FocusedPanel = context.Modal
-				m.Modal.Header = "Respond to thread"
-				m.Modal.Content = m.Input.View()
+				m.Modal.Content.Header = "Respond to thread"
 				cmds = append(cmds, m.Input.Focus())
 			}
 		}
@@ -270,7 +267,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-	m.Input, cmd = m.Input.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)

@@ -34,6 +34,8 @@ func InitMainModel(ctx *context.AppContext) Model {
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.Task = task.TaskMsg{Status: task.TaskIdle}
 
+	ti := textarea.New()
+	ti.Focus()
 	return Model{
 		Projects:      projects.New(ctx),
 		MergeRequests: mergerequests.New(ctx),
@@ -44,12 +46,17 @@ func InitMainModel(ctx *context.AppContext) Model {
 			spinner.WithSpinner(spinner.Line),
 			spinner.WithStyle(statusline.SpinnerStyle),
 		),
-		ctx: ctx,
+		Input: ti,
+		ctx:   ctx,
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.Statusline.Init(), m.Spinner.Tick)
+	return tea.Batch(
+		m.Statusline.Init(),
+		m.Spinner.Tick,
+		textarea.Blink,
+	)
 }
 
 func (m *Model) setStatus(mode string, content string) {
