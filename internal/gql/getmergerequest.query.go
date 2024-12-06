@@ -43,6 +43,7 @@ type DiscussionNode struct {
 	Resolvable bool
 	Resolved   bool
 	ResolvedAt time.Time
+	ResolvedBy Author
 	Notes      NoteConnection
 }
 

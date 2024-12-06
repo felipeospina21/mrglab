@@ -227,51 +227,62 @@ func renderDiscussions(discussions []gql.DiscussionNode, m Model) string {
 	if !hasDiscussions {
 		bdy.WriteString("... *No Discussions*")
 	} else {
+		discussionIdx := 0
 		for _, discussion := range discussions {
 			if !discussion.Resolvable {
 				continue
 			}
+			discussionIdx += 1
 
+			bdy.WriteString(fmt.Sprintf("%v. ", discussionIdx))
 			bdy.WriteString(separator)
 			if discussion.Resolved {
 				resolvedAt := table.FormatTime(discussion.ResolvedAt)
-				bdy.WriteString(fmt.Sprintf(" **%s %s** ", icon.Check, timeAgo(resolvedAt)))
-			} else {
-				bdy.WriteString(fmt.Sprintf(" %s ", icon.Dash))
-			}
-			bdy.WriteString(separator)
-			bdy.WriteString("\n\n")
+				bdy.WriteString(
+					fmt.Sprintf(" **%s resolved by %s %s** ",
+						icon.Check, discussion.ResolvedBy.Name,
+						timeAgo(resolvedAt),
+					))
 
-			for _, note := range discussion.Notes.Nodes {
-				author := note.Author.Name
-				body := note.Body
-				createdAt := table.FormatTime(note.CreatedAt)
-
-				if !note.Resolvable {
-					before, _, found := strings.Cut(body, "(")
-					if found {
-						bdy.WriteString(
-							fmt.Sprintf(
-								"*%s %s %s %s* ",
-								icon.Dot,
-								author,
-								before,
-								timeAgo(createdAt),
-							),
-						)
-						bdy.WriteString("\n\n")
-					}
-					continue
-				}
-
-				bdy.WriteString(fmt.Sprintf("`%s` ", author))
-				bdy.WriteString(timeAgo(createdAt))
-				bdy.WriteString("\n")
-
-				bdy.WriteString(body)
+				bdy.WriteString(separator)
 				bdy.WriteString("\n\n")
 
+			} else {
+				bdy.WriteString(fmt.Sprintf(" %s started a thread ", discussion.Notes.Nodes[0].Author.Name))
+				bdy.WriteString(separator)
+				bdy.WriteString("\n\n")
+				for _, note := range discussion.Notes.Nodes {
+					author := note.Author.Name
+					body := note.Body
+					createdAt := table.FormatTime(note.CreatedAt)
+
+					if !note.Resolvable {
+						before, _, found := strings.Cut(body, "(")
+						if found {
+							bdy.WriteString(
+								fmt.Sprintf(
+									"*%s %s %s %s* ",
+									icon.Dot,
+									author,
+									before,
+									timeAgo(createdAt),
+								),
+							)
+							bdy.WriteString("\n\n")
+						}
+						continue
+					}
+
+					bdy.WriteString(fmt.Sprintf("`%s` ", author))
+					bdy.WriteString(timeAgo(createdAt))
+					bdy.WriteString("\n")
+
+					bdy.WriteString(body)
+					bdy.WriteString("\n\n")
+
+				}
 			}
+
 			bdy.WriteString("\n\n")
 
 		}
