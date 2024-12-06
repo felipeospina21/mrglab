@@ -18,7 +18,7 @@ func GetProjectMergeRequestsGQL(
 	cfg := &config.GlobalConfig
 
 	if cfg.DevMode {
-		return data.GQLMergeRequestMock, nil
+		return data.GQLMergeRequestMock(), nil
 	}
 
 	var query gql.GetProjectMrs
@@ -49,7 +49,7 @@ func GetMergeRequest(
 	cfg := &config.GlobalConfig
 
 	if cfg.DevMode {
-		return data.GQLDiscussionsMock, nil
+		return data.GQLDiscussionsMock(), nil
 	}
 
 	var query gql.GetMergeRequest
