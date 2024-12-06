@@ -58,7 +58,6 @@ func (m Model) View() string {
 
 		if m.ctx.IsRightPanelOpen {
 			right := m.Details.View()
-			// right := m.Input.View()
 			main := lipgloss.JoinHorizontal(0, body, right)
 			return render(lipgloss.JoinVertical(0, main, sl))
 		}

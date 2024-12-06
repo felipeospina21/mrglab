@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/gql"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
@@ -87,9 +88,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isModalFocused {
-			if !m.Input.Focused() {
-				cmd = m.Input.Focus()
-				cmds = append(cmds, cmd)
+			if m.Modal.Editable {
+				if match(modal.Keybinds.Tab) {
+					m.Modal.CycleFocus()
+				}
+
+				if match(modal.Keybinds.SubmitForm) {
+					input := gql.CreateNoteInput{
+						NoteableId:   m.ctx.SelectedMR.NotableID,
+						DiscussionId: "",
+						Body:         m.Modal.DiscussionForm.Response.Value(),
+					}
+					logger.Debug(input)
+				}
 			}
 
 			if match(modal.Keybinds.Close) {
@@ -144,7 +155,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		if isRightPanelFocused {
-			m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
 			switch {
 			case match(rpk.ClosePanel):
 				m.toggleRightPanel()
@@ -162,8 +172,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Modal.Editable = true
 				m.ctx.FocusedPanel = context.Modal
 				m.Modal.Content.Header = "Respond to thread"
-				cmds = append(cmds, m.Input.Focus())
+				m.Modal.DiscussionForm.Discussions = m.Details.Content.Discussions
 			}
+			m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
+			cmds = append(cmds, cmd)
 		}
 
 	case spinner.TickMsg:
@@ -226,8 +238,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// get description
 				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
 				d := m.MergeRequests.Table.SelectedRow()[idx]
-				c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
+				c := m.Details.GetViewportContent(d, mr)
+
 				m.Details.Viewport.SetContent(c)
+
+				discussions := m.Details.GetDiscussionsContent(mr)
+				m.Details.Content.Discussions = discussions
 
 				if !m.ctx.IsRightPanelOpen {
 					m.toggleRightPanel()

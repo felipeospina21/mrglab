@@ -45,6 +45,7 @@ type DiscussionNode struct {
 	ResolvedAt time.Time
 	ResolvedBy Author
 	Notes      NoteConnection
+	ID         string
 }
 
 type NoteConnection struct {

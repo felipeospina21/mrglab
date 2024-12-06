@@ -31,7 +31,8 @@ type ColName struct {
 	UpdatedAt   string
 	URL         string
 	Description string
-	ID          string
+	IID         string
+	NotableID   string
 	Sha         string
 }
 
@@ -48,8 +49,9 @@ var ColNames = ColName{
 	UpdatedAt:   "updated_at",
 	URL:         "url",
 	Description: "description",
-	ID:          "id",
+	IID:         "iid",
 	Sha:         "sha",
+	NotableID:   "notableID",
 }
 
 var Cols = []table.Column{
@@ -120,13 +122,18 @@ var Cols = []table.Column{
 		Width: 0,
 	},
 	{
-		Name:  ColNames.ID,
-		Title: "Id",
+		Name:  ColNames.IID,
+		Title: "Iid",
 		Width: 0,
 	},
 	{
 		Name:  ColNames.Sha,
 		Title: "Sha",
+		Width: 0,
+	},
+	{
+		Name:  ColNames.NotableID,
+		Title: "Id",
 		Width: 0,
 	},
 }
@@ -185,6 +192,7 @@ func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
 			node.Description,
 			node.IID,
 			node.DiffHeadSha,
+			node.ID,
 		}
 
 		rows = append(rows, r)

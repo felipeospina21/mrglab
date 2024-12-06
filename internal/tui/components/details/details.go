@@ -32,9 +32,7 @@ type MergeRequestDetails struct {
 
 type DetailsContent struct {
 	Title       string
-	Body        string
 	Discussions string
-	Pipelines   string
 }
 
 type Model struct {
@@ -57,6 +55,12 @@ func New(ctx *context.AppContext) Model {
 		Viewport: viewport.New(10, 10),
 		ctx:      ctx,
 	}
+}
+
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var updateViewport, updateInput tea.Cmd
+	m.Viewport, updateViewport = m.Viewport.Update(msg)
+	return m, tea.Batch(updateInput, updateViewport)
 }
 
 func (m *Model) SetFocus() {
@@ -105,8 +109,13 @@ func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 	content.WriteString(renderApprovals(mr.Approvals))
 	content.WriteString("\n\n")
 	content.WriteString(renderDiscussions(mr.Discussions, m))
+	content.WriteString("\n\n")
 
 	return content.String()
+}
+
+func (m Model) GetDiscussionsContent(mr MergeRequestDetails) string {
+	return renderDiscussions(mr.Discussions, m)
 }
 
 func renderIndentedText(content *strings.Builder, i styledIcon, text string) {
@@ -227,14 +236,21 @@ func renderDiscussions(discussions []gql.DiscussionNode, m Model) string {
 	if !hasDiscussions {
 		bdy.WriteString("... *No Discussions*")
 	} else {
-		discussionIdx := 0
+		type discussionIdMap struct {
+			id    string
+			index int
+		}
+		discussionMap := discussionIdMap{
+			index: 0,
+		}
 		for _, discussion := range discussions {
 			if !discussion.Resolvable {
 				continue
 			}
-			discussionIdx += 1
+			discussionMap.id = discussion.ID
+			discussionMap.index += 1
 
-			bdy.WriteString(fmt.Sprintf("%v. ", discussionIdx))
+			bdy.WriteString(fmt.Sprintf("%v. ", discussionMap.index))
 			bdy.WriteString(separator)
 			if discussion.Resolved {
 				resolvedAt := table.FormatTime(discussion.ResolvedAt)
@@ -291,7 +307,9 @@ func renderDiscussions(discussions []gql.DiscussionNode, m Model) string {
 	content.WriteString(sectionTitleStyle.Render(title.String()))
 	content.WriteString(sectionTextStyle.Render(m.renderWithStyle(bdy.String())))
 
-	return contentStyle.Render(content.String())
+	res := contentStyle.Render(content.String())
+	m.Content.Discussions = res
+	return res
 }
 
 func (m Model) renderWithStyle(s string) string {

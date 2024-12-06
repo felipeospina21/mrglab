@@ -37,6 +37,7 @@ type MergeRequestNode struct {
 	DiffStatsSummary    DiffStatsSummary
 	Draft               bool
 	IID                 string
+	ID                  string
 	Labels              Labels
 	Title               string
 	UserNotesCount      int

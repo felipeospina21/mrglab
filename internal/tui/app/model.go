@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/config"
@@ -25,7 +24,6 @@ type Model struct {
 	Statusline    statusline.Model
 	Modal         modal.Model
 	Spinner       spinner.Model
-	Input         textarea.Model
 	ctx           *context.AppContext
 }
 
@@ -34,8 +32,6 @@ func InitMainModel(ctx *context.AppContext) Model {
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.Task = task.TaskMsg{Status: task.TaskIdle}
 
-	ti := textarea.New()
-	ti.Focus()
 	return Model{
 		Projects:      projects.New(ctx),
 		MergeRequests: mergerequests.New(ctx),
@@ -46,8 +42,7 @@ func InitMainModel(ctx *context.AppContext) Model {
 			spinner.WithSpinner(spinner.Line),
 			spinner.WithStyle(statusline.SpinnerStyle),
 		),
-		Input: ti,
-		ctx:   ctx,
+		ctx: ctx,
 	}
 }
 
@@ -55,7 +50,7 @@ func (m Model) Init() tea.Cmd {
 	return tea.Batch(
 		m.Statusline.Init(),
 		m.Spinner.Tick,
-		textarea.Blink,
+		m.Modal.Init(),
 	)
 }
 
@@ -172,7 +167,7 @@ func (m Model) getViewportViewWidth() int {
 }
 
 func (m *Model) SelectMR() {
-	idColIdx := mergerequests.GetColIndex(mergerequests.ColNames.ID)
+	idColIdx := mergerequests.GetColIndex(mergerequests.ColNames.IID)
 	m.ctx.SelectedMR.IID = m.MergeRequests.Table.SelectedRow()[idColIdx]
 
 	shaColIdx := mergerequests.GetColIndex(mergerequests.ColNames.Sha)
@@ -180,4 +175,7 @@ func (m *Model) SelectMR() {
 
 	statusColIdx := mergerequests.GetColIndex(mergerequests.ColNames.Status)
 	m.ctx.SelectedMR.Status = m.MergeRequests.Table.SelectedRow()[statusColIdx]
+
+	notabliIdIdx := mergerequests.GetColIndex(mergerequests.ColNames.NotableID)
+	m.ctx.SelectedMR.NotableID = m.MergeRequests.Table.SelectedRow()[notabliIdIdx]
 }

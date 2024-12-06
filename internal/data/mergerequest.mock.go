@@ -13,6 +13,7 @@ func GQLMergeRequestMock() gql.MergeRequestConnection {
 			{
 				Node: gql.MergeRequestNode{
 					IID:                 "1",
+					ID:                  "gid://gitlab/MergeRequest/1",
 					DiffHeadSha:         "some-sha",
 					Title:               "Mocked Title 1",
 					CreatedAt:           time.Now(),

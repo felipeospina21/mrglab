@@ -6,14 +6,15 @@ import (
 )
 
 type KeyMap struct {
-	Close key.Binding
-	Tab   key.Binding
+	Close      key.Binding
+	Tab        key.Binding
+	SubmitForm key.Binding
 	tui.GlobalKeyMap
 }
 
 // ShortHelp implements the KeyMap interface.
 func (k KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Close, k.Quit}
+	return []key.Binding{k.Close, k.Tab, k.SubmitForm, k.Quit}
 }
 
 // FullHelp implements the KeyMap interface.
@@ -30,7 +31,11 @@ var Keybinds = KeyMap{
 	),
 	Tab: key.NewBinding(
 		key.WithKeys("tab"),
-		key.WithHelp("tab", ""),
+		key.WithHelp("tab", "focus next input"),
+	),
+	SubmitForm: key.NewBinding(
+		key.WithKeys("ctrl+s"),
+		key.WithHelp("ctrl+s", "submit comment"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(),
 }
