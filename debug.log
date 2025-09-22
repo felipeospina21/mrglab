@@ -33,3 +33,4 @@
 2024/12/06 17:38:46 INFO <logger/logger.go:58> [true]
 2024/12/06 18:27:34 INFO <logger/logger.go:58> [{gid://gitlab/MergeRequest/1  some comment
 }]
+2024/12/09 16:01:41 INFO <logger/logger.go:58> [{gid://gitlab/MergeRequest/1  }]

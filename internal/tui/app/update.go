@@ -190,6 +190,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.setLeftPanelHeight()
 		m.setStatuslineWidth()
+		m.Modal.SetDimensions()
 
 		if len(m.MergeRequests.Table.Rows()) > 0 {
 			m.MergeRequests.Table = m.resizeTable(msg)

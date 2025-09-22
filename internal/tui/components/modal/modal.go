@@ -33,7 +33,6 @@ func New(ctx *context.AppContext) Model {
 	ti.Focus()
 
 	ta := textarea.New()
-	// TODO: set this height dinamic
 	ta.SetHeight(10)
 	ta.SetWidth(50)
 
@@ -64,24 +63,19 @@ func (m Model) View() string {
 		helpStyle.Render("Press esc to close modal"),
 	)
 	content := lipgloss.JoinVertical(0,
-		headerStyle.Render(m.Content.Header),
+		headerStyle(m.ctx.Task.Err != nil).Render(m.Content.Header),
 		bodyStyle(h).Render(body),
 	)
 
 	if m.Editable {
-		// TODO: Set dinamic width & height for both panels
-		// Make discussions a scrollable viewport (render only open discussions)
-		formStyle := lipgloss.NewStyle().Border(lipgloss.NormalBorder())
 		form := formStyle.Render(lipgloss.JoinVertical(0,
-			"Discussion Number",
-			m.DiscussionForm.Number.View(),
-			"\n\n",
-			"Comment",
-			m.DiscussionForm.Response.View(),
+			getInputWithLabel("Discussion Number", m.DiscussionForm.Number.View()),
+			"\n",
+			getInputWithLabel("Comment\n", m.DiscussionForm.Response.View()),
 		))
 		body := lipgloss.JoinHorizontal(0, form, m.DiscussionForm.Discussions)
 		content = lipgloss.JoinVertical(0,
-			headerStyle.Render(m.Content.Header),
+			headerStyle(m.ctx.Task.Err != nil).Render(m.Content.Header),
 			bodyStyle(h).Render(body),
 		)
 	}
@@ -106,4 +100,19 @@ func (m *Model) SetFocus() {
 func (m *Model) ResetContent() {
 	m.Content.Body = ""
 	m.Content.Header = ""
+}
+
+func (m *Model) SetDimensions() {
+	w := m.ctx.Window.Width
+	h := m.ctx.Window.Height
+	m.DiscussionForm.Number.Width = w / 3
+	m.DiscussionForm.Response.SetWidth(w / 3)
+	m.DiscussionForm.Response.SetHeight(int(float64(h) / 1.5))
+}
+
+func getInputWithLabel(label string, input string) string {
+	return lipgloss.JoinVertical(0,
+		inputLabel.Render(label),
+		input,
+	)
 }

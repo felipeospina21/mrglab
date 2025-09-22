@@ -6,15 +6,33 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
-var headerStyle = table.TitleStyle.
-	Foreground(lipgloss.Color(style.White)).
-	Background(lipgloss.Color(style.Red[600])).
-	Padding(0, 1)
+var (
+	headerStyle = func(isError bool) lipgloss.Style {
+		s := table.TitleStyle.
+			Foreground(lipgloss.Color(style.White)).
+			Padding(0, 1).
+			Background(lipgloss.Color(style.Violet[600]))
 
-var helpStyle = lipgloss.NewStyle().
-	Foreground(lipgloss.Color(style.DarkGray)).
-	MarginTop(1)
+		if isError {
+			s = s.Background(lipgloss.Color(style.Red[600]))
+		}
 
-var bodyStyle = func(h int) lipgloss.Style {
-	return lipgloss.NewStyle().Padding(1).Height(h)
-}
+		return s
+	}
+
+	helpStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(style.DarkGray)).
+			MarginTop(1)
+
+	bodyStyle = func(h int) lipgloss.Style {
+		return lipgloss.NewStyle().Padding(1).Height(h)
+	}
+
+	formStyle = lipgloss.NewStyle().
+			BorderStyle(lipgloss.NormalBorder()).
+			BorderRight(true)
+
+	inputLabel = lipgloss.NewStyle().
+			Foreground(lipgloss.Color(style.Violet[400])).
+			Bold(true)
+)
