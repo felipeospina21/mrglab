@@ -12,7 +12,6 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
 type Model struct {
@@ -30,7 +29,7 @@ type Model struct {
 func InitMainModel(ctx *context.AppContext) Model {
 	ctx.Keybinds = projects.Keybinds
 	ctx.FocusedPanel = context.LeftPanel
-	ctx.Task = task.TaskMsg{Status: task.TaskIdle}
+	ctx.TaskStatus = context.TaskIdle
 
 	return Model{
 		Projects:      projects.New(ctx),
@@ -68,18 +67,16 @@ func (m *Model) setStatus(mode string, content string) {
 	}
 }
 
-// command wraper that takes care of initializing spinner
-// & setting corresponding status
 func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
-	m.ctx.Task.Status = task.TaskStarted
+	m.ctx.TaskStatus = context.TaskStarted
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
 	return cb()
 }
 
-func finishTask[T any](m *Model, msg task.TaskMsg, kb help.KeyMap, cb func() T) T {
-	if msg.Err != nil {
-		m.setStatus(statusline.ModesEnum.Error, msg.Err.Error())
-		m.ctx.Task.Err = msg.Err
+func (m *Model) finishTask(err error, kb help.KeyMap) {
+	if err != nil {
+		m.setStatus(statusline.ModesEnum.Error, err.Error())
+		m.ctx.TaskErr = err
 	} else {
 		mode := statusline.ModesEnum.Normal
 		if config.GlobalConfig.DevMode {
@@ -87,10 +84,9 @@ func finishTask[T any](m *Model, msg task.TaskMsg, kb help.KeyMap, cb func() T) 
 		}
 		m.setStatus(mode, "")
 		m.setHelpKeys(kb)
-		m.ctx.Task = msg
+		m.ctx.TaskErr = nil
 	}
-	m.ctx.Task.Status = task.TaskFinished
-	return cb()
+	m.ctx.TaskStatus = context.TaskFinished
 }
 
 func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {

@@ -1,15 +1,13 @@
 package mergerequests
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/api"
 	"github.com/felipeospina21/mrglab/internal/gql"
-	"github.com/felipeospina21/mrglab/internal/tui/components/message"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
+	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
 func (m *Model) FetchMergeRequest() tea.Cmd {
@@ -23,16 +21,12 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 			discussions = append(discussions, item)
 		}
 
-		return task.TaskMsg{
-			TaskID:      task.FetchDiscussions,
-			SectionType: task.TaskSectionMR,
+		return tui.MRDetailsFetchedMsg{
+			Discussions: discussions,
+			Stages:      mr.HeadPipeline.Stages.Nodes,
+			Branches:    [2]string{mr.SourceBranch, mr.TargetBranch},
+			Approvals:   mr.ApprovalState.Rules,
 			Err:         err,
-			Msg: message.MergeRequestFetchedMsg{
-				Discussions: discussions,
-				Stages:      mr.HeadPipeline.Stages.Nodes,
-				Branches:    [2]string{mr.SourceBranch, mr.TargetBranch},
-				Approvals:   mr.ApprovalState.Rules,
-			},
 		}
 	}
 }
@@ -40,14 +34,11 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 func (m *Model) AcceptMergeRequest() tea.Cmd {
 	if strings.ToLower(m.ctx.SelectedMR.Status) != "mergeable" {
 		return func() tea.Msg {
-			return task.TaskMsg{
-				TaskID:      task.MergeMR,
-				SectionType: task.TaskSectionMR,
-				Msg:         gql.AcceptMergeRequestResponse{},
-				Err: errors.New(fmt.Sprintf(
+			return tui.MRMergedMsg{
+				Err: fmt.Errorf(
 					"Mr can't be merged, its current status is: %s",
 					m.ctx.SelectedMR.Status,
-				)),
+				),
 			}
 		}
 	}
@@ -60,11 +51,9 @@ func (m *Model) AcceptMergeRequest() tea.Cmd {
 			ShouldRemoveSourceBranch: true,
 		})
 
-		return task.TaskMsg{
-			TaskID:      task.MergeMR,
-			SectionType: task.TaskSectionMR,
-			Err:         err,
-			Msg:         res,
+		return tui.MRMergedMsg{
+			Errors: res.Errors,
+			Err:    err,
 		}
 	}
 }
