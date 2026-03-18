@@ -67,7 +67,7 @@ var Cols = []table.Column{
 	{
 		Name:  ColNames.Title,
 		Title: "Title",
-		Width: 25,
+		Width: 64,
 	},
 	{
 		Name:  ColNames.Author,
@@ -157,9 +157,26 @@ func (m *Model) SetFocus() {
 func GetTableColums(width int) []table.Column {
 	w := table.ColWidth
 	columns := []table.Column{}
+	visibleCount := 0
 	for _, col := range Cols {
-		col.Width = w(width, col.Width)
+		if col.Width > 0 {
+			visibleCount++
+		}
+	}
+	// Each visible cell has Padding(0,1) = 2 chars not included in col.Width
+	contentWidth := width - visibleCount*2
+	used := 0
+	titleIdx := -1
+	for i, col := range Cols {
+		col.Width = w(contentWidth, col.Width)
+		if col.Name == ColNames.Title {
+			titleIdx = i
+		}
+		used += col.Width
 		columns = append(columns, table.Column(col))
+	}
+	if titleIdx >= 0 {
+		columns[titleIdx].Width += contentWidth - used
 	}
 	return columns
 }
