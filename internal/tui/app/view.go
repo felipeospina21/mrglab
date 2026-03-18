@@ -23,11 +23,12 @@ func (m Model) View() string {
 			body := lipgloss.JoinHorizontal(0, left, m.ctx.Task.Err.Error())
 			sl := m.Statusline.View()
 			return render(lipgloss.JoinVertical(0, body, sl))
-
 		}
 
-		m.MergeRequests.Table.W, m.MergeRequests.Table.H = m.getEmptyTableSize()
-		body := lipgloss.JoinHorizontal(0, left, table.DocStyle.Render(m.MergeRequests.Table.View()))
+		m.MergeRequests.Table.W = m.layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
+		m.MergeRequests.Table.H = m.layout.MainPanel.Height - tableBorderY
+		tbl := table.DocStyle.Render(m.MergeRequests.Table.View())
+		body := lipgloss.JoinHorizontal(0, left, tbl)
 		sl := m.Statusline.View()
 		return render(lipgloss.JoinVertical(0, body, sl))
 
@@ -52,7 +53,6 @@ func (m Model) View() string {
 			main := lipgloss.JoinHorizontal(0, left, body)
 			sl := m.Statusline.View()
 			return render(lipgloss.JoinVertical(0, main, sl))
-
 		}
 
 		if m.ctx.IsRightPanelOpen {
@@ -70,8 +70,14 @@ func (m Model) getMainPanelComponents() (string, string) {
 		fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Merge Requests"),
 	)
 	body := lipgloss.JoinVertical(0, header, table.DocStyle.Render(m.MergeRequests.Table.View()))
-	h := m.ctx.Window.Height - lipgloss.Height(body) - style.MainFrameStyle.GetVerticalFrameSize()
-	statusline := lipgloss.PlaceVertical(h, lipgloss.Bottom, m.Statusline.View())
+
+	bodyHeight := lipgloss.Height(body)
+	innerH := m.ctx.Window.Height - style.MainFrameStyle.GetVerticalFrameSize()
+	remainingH := innerH - bodyHeight
+	if remainingH < m.layout.Statusline.Height {
+		remainingH = m.layout.Statusline.Height
+	}
+	statusline := lipgloss.PlaceVertical(remainingH, lipgloss.Bottom, m.Statusline.View())
 
 	return body, statusline
 }

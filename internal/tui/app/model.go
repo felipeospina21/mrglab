@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
@@ -13,8 +12,6 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
-	"github.com/felipeospina21/mrglab/internal/tui/components/table"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
@@ -26,6 +23,7 @@ type Model struct {
 	Modal         modal.Model
 	Spinner       spinner.Model
 	Input         textarea.Model
+	layout        Layout
 	ctx           *context.AppContext
 }
 
@@ -75,7 +73,6 @@ func (m *Model) setStatus(mode string, content string) {
 func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
 	m.ctx.Task.Status = task.TaskStarted
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
-	// m.startTask()
 	return cb()
 }
 
@@ -108,59 +105,21 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 
 func (m *Model) toggleLeftPanel() {
 	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
-	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
+	m.recomputeLayout()
 }
 
 func (m *Model) toggleRightPanel() {
 	m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
-	m.MergeRequests.Table.SetWidth(lipgloss.Width(m.MergeRequests.Table.View()))
-	m.MergeRequests.Table.UpdateViewport()
+	m.recomputeLayout()
+}
+
+func (m *Model) recomputeLayout() {
+	m.layout = computeLayout(m.ctx.Window, m.ctx.IsLeftPanelOpen, m.ctx.IsRightPanelOpen)
+	m.applyLayout()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.ctx.Keybinds = kb
-}
-
-func getFrameSize() (int, int) {
-	xMain, yMain := style.MainFrameStyle.GetFrameSize()
-	xProjects, yProjects := projects.GetFrameSize()
-	xStatus, yStatus := statusline.GetFrameSize()
-
-	return xMain + xProjects + xStatus, yMain + yProjects + yStatus
-}
-
-func (m Model) getEmptyTableSize() (int, int) {
-	w, h := m.ctx.Window.Width, m.ctx.Window.Height
-	leftPanX, leftPanY := projects.GetFrameSize()
-	leftPanW := m.Projects.List.Width()
-	tableX := table.TitleStyle.GetHorizontalFrameSize()
-	statusHeight := lipgloss.Height(m.Statusline.View())
-
-	width := w - leftPanX - leftPanW - tableX
-	height := h - leftPanY - statusHeight - style.MainFrameStyle.GetVerticalFrameSize()
-
-	return width, height
-}
-
-func (m *Model) setLeftPanelHeight() {
-	_, y := getFrameSize()
-	yStatus := lipgloss.Height(m.Statusline.View())
-	height := m.ctx.Window.Height - y - yStatus - 3 // FIX: find how to replace this magic num
-
-	m.Projects.List.SetHeight(height)
-	m.ctx.PanelHeight = height
-}
-
-func (m *Model) setStatuslineWidth() {
-	windowW := m.ctx.Window.Width
-	xStatus, _ := statusline.GetFrameSize()
-	m.Statusline.Width = windowW - xStatus
-}
-
-func (m Model) getViewportViewWidth() int {
-	_, xFrame := getFrameSize()
-	panelFrame := details.PanelStyle.GetHorizontalFrameSize()
-	return m.ctx.Window.Width - lipgloss.Width(m.MergeRequests.Table.View()) - xFrame - panelFrame
 }
 
 func (m *Model) SelectMR() {
