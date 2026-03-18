@@ -14,15 +14,15 @@ func (m Model) getMergeRequestModel(msg task.TaskMsg) func() table.Model {
 	return func() table.Model {
 		mrMsg := msg.Msg.(message.MergeRequestsListFetchedMsg)
 		rows := mergerequests.GetTableRows(mrMsg)
-		mainPanelHeaderHeight := 1
+		tableW := m.layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
 		return table.InitModel(table.InitModelParams{
 			Rows:   rows,
-			Colums: mergerequests.GetTableColums(m.ctx.Window.Width),
+			Colums: mergerequests.GetTableColums(tableW),
 			StyleFunc: table.StyleIconsColumns(
 				table.Styles(table.DefaultStyle()),
 				mergerequests.IconCols(),
 			),
-			Height: m.ctx.PanelHeight - mainPanelHeaderHeight,
+			Height: m.layout.ContentH - mainPanelHeaderLines - tableBorderY - tableViewOverhead,
 		})
 	}
 }
@@ -59,19 +59,4 @@ func (m *Model) openInBrowser() {
 	colIdx := mergerequests.GetColIndex(mergerequests.ColNames.URL)
 	url := m.MergeRequests.Table.SelectedRow()[colIdx]
 	exec.Openbrowser(url)
-}
-
-func (m *Model) resizeTable(msg tea.WindowSizeMsg) table.Model {
-	m.MergeRequests.Table.SetWidth(msg.Width)
-	mainPanelHeaderHeight := 1
-
-	return table.InitModel(table.InitModelParams{
-		Rows:   m.MergeRequests.Table.Rows(),
-		Colums: mergerequests.GetTableColums(m.ctx.Window.Width),
-		StyleFunc: table.StyleIconsColumns(
-			table.Styles(table.DefaultStyle()),
-			mergerequests.IconCols(),
-		),
-		Height: m.ctx.PanelHeight - mainPanelHeaderHeight,
-	})
 }

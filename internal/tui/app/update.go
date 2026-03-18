@@ -124,12 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
 			switch {
 			case match(mpk.Details):
-				resizeCmd := m.Details.SetViewportViewSize(
-					tea.WindowSizeMsg{Width: m.getViewportViewWidth(), Height: m.ctx.PanelHeight},
-				)
-
 				cmds = append(cmds,
-					resizeCmd,
 					m.startTask(m.fetchSingleMergeRequest),
 				)
 
@@ -171,15 +166,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd, spin)
 
 	case tea.WindowSizeMsg:
-		// Sets window in context
 		m.ctx.Window = msg
-
-		m.setLeftPanelHeight()
-		m.setStatuslineWidth()
-
-		if len(m.MergeRequests.Table.Rows()) > 0 {
-			m.MergeRequests.Table = m.resizeTable(msg)
-		}
+		m.recomputeLayout()
 
 	case task.TaskMsg:
 		if msg.Err != nil {
@@ -224,6 +212,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// get description
 				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
 				d := m.MergeRequests.Table.SelectedRow()[idx]
+				// Size viewport before setting content so glamour uses correct width
+				rl := computeLayout(m.ctx.Window, false, true)
+				m.Details.SetViewportViewSize(
+					tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
+				)
+
 				c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
 				m.Details.Viewport.SetContent(c)
 
