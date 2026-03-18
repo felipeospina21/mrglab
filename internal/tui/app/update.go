@@ -24,10 +24,6 @@ import (
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
-	isLeftPanelFocused := m.ctx.FocusedPanel == context.LeftPanel
-	isMainPanelFocused := m.ctx.FocusedPanel == context.MainPanel
-	isRightPanelFocused := m.ctx.FocusedPanel == context.RightPanel
-	isModalFocused := m.ctx.FocusedPanel == context.Modal
 
 	switch msg := msg.(type) {
 
@@ -37,126 +33,72 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	case tea.KeyMsg:
-		match := tui.KeyMatcher(msg)
-		gk := tui.GlobalKeys()
-		lpk := projects.Keybinds
-		mpk := mergerequests.Keybinds
-		rpk := details.Keybinds
-
-		switch {
-		case match(gk.MockFetch):
-			if m.ctx.Task.Status == task.TaskStarted {
-				m.ctx.Task.Status = task.TaskFinished
-			} else if m.ctx.Task.Status == task.TaskFinished || m.ctx.Task.Status == task.TaskIdle {
-				m.ctx.Task.Status = task.TaskStarted
-			}
-		case match(gk.ThrowError):
-			cmds = append(cmds, func() tea.Msg {
-				return errors.New("mocked")
-			})
-
-		case match(gk.Quit):
-			return m, tea.Quit
-
-		case match(gk.OpenModal):
-			m.ctx.IsModalOpen = true
-			if m.ctx.Task.Err != nil {
-				m.Modal.Header = "Error"
-				m.Modal.Content = m.ctx.Task.Err.Error()
-			}
-			m.Modal.SetFocus()
-
-		case match(gk.ToggleLeftPanel):
-			m.toggleLeftPanel()
-			if m.ctx.IsRightPanelOpen {
-				m.toggleRightPanel()
-			}
-
-			if m.ctx.IsLeftPanelOpen {
-				m.Projects.SetFocus()
-				m.setHelpKeys(projects.Keybinds)
-			} else {
-				m.MergeRequests.SetFocus()
-				m.setHelpKeys(mergerequests.Keybinds)
-			}
+		cmd = m.handleGlobalKeys(msg)
+		if cmd != nil {
+			cmds = append(cmds, cmd)
 		}
 
-		if isModalFocused {
-
+		switch m.ctx.FocusedPanel {
+		case context.Modal:
 			if !m.Input.Focused() {
-				cmd = m.Input.Focus()
-				cmds = append(cmds, cmd)
-			}
-			// if match(modal.Keybinds.Tab) {
-			// 	logger.Debug(m.Input.Focused())
-			// 	fc := m.Input.Focus()
-			// 	cmds = append(cmds, fc)
-			// }
-			if match(modal.Keybinds.Close) {
-				if m.ctx.Task.Err != nil {
-					mode := statusline.ModesEnum.Normal
-					if config.GlobalConfig.DevMode {
-						mode = statusline.ModesEnum.Dev
-					}
-					m.setStatus(mode, "")
-
-				}
-				m.ctx.IsModalOpen = false
-				if m.ctx.IsRightPanelOpen {
-					m.Details.SetFocus()
-					m.setHelpKeys(details.Keybinds)
-				} else {
-					m.MergeRequests.SetFocus()
-					m.setHelpKeys(mergerequests.Keybinds)
-				}
-			}
-		}
-
-		if isLeftPanelFocused {
-			m.Projects.List, cmd = m.Projects.List.Update(msg)
-			switch {
-			case match(lpk.MRList):
-				cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
-			}
-		}
-
-		if isMainPanelFocused {
-			m.MergeRequests.Table, cmd = m.MergeRequests.Table.Update(msg)
-			switch {
-			case match(mpk.Details):
-				cmds = append(cmds,
-					m.startTask(m.fetchSingleMergeRequest),
-				)
-
-			case match(mpk.Merge):
-				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
-
-			case match(mpk.OpenInBrowser):
-				m.openInBrowser()
-			}
-		}
-
-		if isRightPanelFocused {
-			m.Details.Viewport, cmd = m.Details.Viewport.Update(msg)
-			switch {
-			case match(rpk.ClosePanel):
-				m.toggleRightPanel()
-				m.MergeRequests.SetFocus()
-				m.setHelpKeys(mergerequests.Keybinds)
-
-			case match(rpk.Merge):
-				cmds = append(cmds, m.startTask(m.acceptMergeRequest))
-
-			case match(rpk.OpenInBrowser):
-				m.openInBrowser()
-
-			case match(rpk.RespondComment):
-				m.ctx.IsModalOpen = true
-				m.ctx.FocusedPanel = context.Modal
-				m.Modal.Header = "Respond to thread"
-				m.Modal.Content = m.Input.View()
 				cmds = append(cmds, m.Input.Focus())
 			}
+			m.Modal, cmd = m.Modal.Update(msg)
+			cmds = append(cmds, cmd)
+
+		case context.LeftPanel:
+			m.Projects, cmd = m.Projects.Update(msg)
+			cmds = append(cmds, cmd)
+
+		case context.MainPanel:
+			m.MergeRequests, cmd = m.MergeRequests.Update(msg)
+			cmds = append(cmds, cmd)
+
+		case context.RightPanel:
+			m.Details, cmd = m.Details.Update(msg)
+			cmds = append(cmds, cmd)
+		}
+
+	// Component action messages
+	case projects.FetchMRListMsg:
+		cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
+
+	case mergerequests.ViewDetailsMsg:
+		cmds = append(cmds, m.startTask(m.fetchSingleMergeRequest))
+
+	case mergerequests.MergeMRMsg, details.MergeMRMsg:
+		cmds = append(cmds, m.startTask(m.acceptMergeRequest))
+
+	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
+		m.openInBrowser()
+
+	case details.ClosePanelMsg:
+		m.toggleRightPanel()
+		m.MergeRequests.SetFocus()
+		m.setHelpKeys(mergerequests.Keybinds)
+
+	case details.RespondCommentMsg:
+		m.ctx.IsModalOpen = true
+		m.ctx.FocusedPanel = context.Modal
+		m.Modal.Header = "Respond to thread"
+		m.Modal.Content = m.Input.View()
+		cmds = append(cmds, m.Input.Focus())
+
+	case modal.CloseModalMsg:
+		if m.ctx.Task.Err != nil {
+			mode := statusline.ModesEnum.Normal
+			if config.GlobalConfig.DevMode {
+				mode = statusline.ModesEnum.Dev
+			}
+			m.setStatus(mode, "")
+		}
+		m.ctx.IsModalOpen = false
+		if m.ctx.IsRightPanelOpen {
+			m.Details.SetFocus()
+			m.setHelpKeys(details.Keybinds)
+		} else {
+			m.MergeRequests.SetFocus()
+			m.setHelpKeys(mergerequests.Keybinds)
 		}
 
 	case spinner.TickMsg:
@@ -170,98 +112,126 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.recomputeLayout()
 
 	case task.TaskMsg:
-		if msg.Err != nil {
-			l, f := logger.New(logger.NewLogger{})
-			defer f.Close()
-			l.Error(msg.Err)
-
-		}
-		// TODO: Rethink this logic
-		if msg.SectionType == task.TaskSectionMR {
-			if msg.TaskID == task.FetchMRs {
-				t := finishTask[table.Model](
-					&m,
-					msg,
-					mergerequests.Keybinds,
-					m.getMergeRequestModel(msg),
-				)
-
-				if msg.Err == nil {
-					if m.ctx.IsLeftPanelOpen {
-						m.toggleLeftPanel()
-						m.MergeRequests.SetFocus()
-					}
-					m.MergeRequests.Table = t
-					m.recomputeLayout()
-				}
-
-			}
-
-			if msg.TaskID == task.FetchDiscussions {
-				mr := finishTask[details.MergeRequestDetails](
-					&m,
-					msg,
-					details.Keybinds,
-					m.getMergeRequestDetails(msg),
-				)
-
-				// get title
-				titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
-				t := m.MergeRequests.Table.SelectedRow()[titleIdx]
-				m.Details.Content.Title = t
-
-				// get description
-				idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
-				d := m.MergeRequests.Table.SelectedRow()[idx]
-				// Size viewport before setting content so glamour uses correct width
-				rl := computeLayout(m.ctx.Window, false, true)
-				m.Details.SetViewportViewSize(
-					tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
-				)
-
-				c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
-				m.Details.Viewport.SetContent(c)
-
-				if !m.ctx.IsRightPanelOpen {
-					m.toggleRightPanel()
-					m.Details.SetFocus()
-				}
-
-			}
-
-			if msg.TaskID == task.MergeMR {
-				finishTask[any](
-					&m,
-					msg,
-					mergerequests.Keybinds,
-					func() any {
-						// TODO: implement some kind of success notification
-						return nil
-					},
-				)
-
-				res := msg.Msg.(message.MergeRequestMergedMsg)
-				if len(res.Errors) > 0 {
-					// TODO: show errors in statusline
-					e := strings.Join(res.Errors, ", ")
-					cmd = func() tea.Msg {
-						return errors.New(e)
-					}
-				} else {
-					if m.ctx.FocusedPanel == context.MainPanel {
-						cmd = m.startTask(m.fetchMergeRequestsList)
-					}
-
-					if m.ctx.FocusedPanel == context.RightPanel {
-						cmd = m.startTask(m.fetchSingleMergeRequest)
-					}
-				}
-				cmds = append(cmds, cmd)
-			}
-		}
+		cmd = m.handleTaskMsg(msg)
+		cmds = append(cmds, cmd)
 	}
+
 	m.Input, cmd = m.Input.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
+}
+
+func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
+	match := tui.KeyMatcher(msg)
+	gk := tui.GlobalKeys()
+
+	switch {
+	case match(gk.MockFetch):
+		if m.ctx.Task.Status == task.TaskStarted {
+			m.ctx.Task.Status = task.TaskFinished
+		} else if m.ctx.Task.Status == task.TaskFinished || m.ctx.Task.Status == task.TaskIdle {
+			m.ctx.Task.Status = task.TaskStarted
+		}
+
+	case match(gk.ThrowError):
+		return func() tea.Msg { return errors.New("mocked") }
+
+	case match(gk.Quit):
+		return tea.Quit
+
+	case match(gk.OpenModal):
+		m.ctx.IsModalOpen = true
+		if m.ctx.Task.Err != nil {
+			m.Modal.Header = "Error"
+			m.Modal.Content = m.ctx.Task.Err.Error()
+		}
+		m.Modal.SetFocus()
+
+	case match(gk.ToggleLeftPanel):
+		m.toggleLeftPanel()
+		if m.ctx.IsRightPanelOpen {
+			m.toggleRightPanel()
+		}
+		if m.ctx.IsLeftPanelOpen {
+			m.Projects.SetFocus()
+			m.setHelpKeys(projects.Keybinds)
+		} else {
+			m.MergeRequests.SetFocus()
+			m.setHelpKeys(mergerequests.Keybinds)
+		}
+	}
+
+	return nil
+}
+
+func (m *Model) handleTaskMsg(msg task.TaskMsg) tea.Cmd {
+	if msg.Err != nil {
+		l, f := logger.New(logger.NewLogger{})
+		defer f.Close()
+		l.Error(msg.Err)
+	}
+
+	if msg.SectionType != task.TaskSectionMR {
+		return nil
+	}
+
+	switch msg.TaskID {
+	case task.FetchMRs:
+		t := finishTask[table.Model](
+			m, msg, mergerequests.Keybinds, m.getMergeRequestModel(msg),
+		)
+		if msg.Err == nil {
+			if m.ctx.IsLeftPanelOpen {
+				m.toggleLeftPanel()
+				m.MergeRequests.SetFocus()
+			}
+			m.MergeRequests.Table = t
+			m.recomputeLayout()
+		}
+
+	case task.FetchDiscussions:
+		mr := finishTask[details.MergeRequestDetails](
+			m, msg, details.Keybinds, m.getMergeRequestDetails(msg),
+		)
+
+		titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
+		m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
+
+		idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
+		d := m.MergeRequests.Table.SelectedRow()[idx]
+
+		rl := computeLayout(m.ctx.Window, false, true)
+		m.Details.SetViewportViewSize(
+			tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
+		)
+
+		c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
+		m.Details.Viewport.SetContent(c)
+
+		if !m.ctx.IsRightPanelOpen {
+			m.toggleRightPanel()
+			m.Details.SetFocus()
+		}
+
+	case task.MergeMR:
+		finishTask[any](
+			m, msg, mergerequests.Keybinds,
+			func() any { return nil },
+		)
+
+		res := msg.Msg.(message.MergeRequestMergedMsg)
+		if len(res.Errors) > 0 {
+			e := strings.Join(res.Errors, ", ")
+			return func() tea.Msg { return errors.New(e) }
+		}
+		if m.ctx.FocusedPanel == context.MainPanel {
+			return m.startTask(m.fetchMergeRequestsList)
+		}
+		if m.ctx.FocusedPanel == context.RightPanel {
+			return m.startTask(m.fetchSingleMergeRequest)
+		}
+	}
+
+	return nil
 }
