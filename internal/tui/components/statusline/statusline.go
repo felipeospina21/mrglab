@@ -82,8 +82,13 @@ func (m Model) View() string {
 	encoding := encodingStyle.Render("UTF-8")
 	projectName := projectStyle.Render(fmt.Sprintf("%s %s", icon.Gitlab, m.ctx.SelectedProject.Name))
 
+	helpWidth := width - w(statusKey) - w(statusVal) - w(encoding) - w(projectName) - 2
+	if helpWidth < 0 {
+		helpWidth = 0
+	}
+	m.Help.Width = helpWidth
 	help := helpText.
-		Width(width - w(statusKey) - w(statusVal) - w(encoding) - w(projectName)).
+		Width(helpWidth + 2).
 		Render(" " + m.Help.View(m.Keybinds) + " ")
 
 	bar := lipgloss.JoinHorizontal(lipgloss.Top,
