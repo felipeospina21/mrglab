@@ -44,8 +44,6 @@ func New(ctx *context.AppContext, client *gitlab.Client, projectList []config.Pr
 	// l.Styles.PaginationStyle = PaginationStyle
 	l.SetShowHelp(false)
 
-	ctx.IsLeftPanelOpen = true
-
 	return Model{
 		List:   l,
 		ctx:    ctx,
