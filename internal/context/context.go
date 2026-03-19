@@ -39,6 +39,7 @@ type AppContext struct {
 	IsLeftPanelOpen  bool
 	IsRightPanelOpen bool
 	IsModalOpen      bool
+	DevMode          bool
 	FocusedPanel     focusedPanel
 	PanelHeight      int
 }

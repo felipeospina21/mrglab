@@ -24,13 +24,11 @@ type Model struct {
 	client *gitlab.Client
 }
 
-func New(ctx *context.AppContext, client *gitlab.Client) Model {
-	projects := config.GlobalConfig.Filters.Projects
-
+func New(ctx *context.AppContext, client *gitlab.Client, projectList []config.Project) Model {
 	var li []list.Item
 	var i Item
 
-	for _, val := range projects {
+	for _, val := range projectList {
 		err := mapstructure.Decode(val, &i)
 		if err != nil {
 			fmt.Println("Error loading projects", err)
