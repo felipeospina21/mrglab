@@ -7,7 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/charmbracelet/bubbles/spinner"
-	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
@@ -82,7 +81,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Input.Blur()
 		if m.ctx.TaskErr != nil {
 			mode := statusline.ModesEnum.Normal
-			if config.GlobalConfig.DevMode {
+			if m.ctx.DevMode {
 				mode = statusline.ModesEnum.Dev
 			}
 			m.setStatus(mode, "")
@@ -168,7 +167,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 	match := tui.KeyMatcher(msg)
-	gk := tui.GlobalKeys()
+	gk := tui.GlobalKeys(m.ctx.DevMode)
 
 	switch {
 	case match(gk.MockFetch):
