@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.setHelpKeys(mergerequests.Keybinds)
 
 	case details.RespondCommentMsg:
-		m.ctx.IsModalOpen = true
+		m.isModalOpen = true
 		m.ctx.FocusedPanel = context.Modal
 		m.Modal.Header = "Respond to thread"
 		m.Modal.Content = m.Input.View()
@@ -79,15 +79,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case modal.CloseModalMsg:
 		m.Input.Blur()
-		if m.ctx.TaskErr != nil {
+		if m.taskErr != nil {
 			mode := statusline.ModesEnum.Normal
 			if m.ctx.DevMode {
 				mode = statusline.ModesEnum.Dev
 			}
 			m.setStatus(mode, "")
 		}
-		m.ctx.IsModalOpen = false
-		if m.ctx.IsRightPanelOpen {
+		m.isModalOpen = false
+		if m.isRightOpen {
 			m.Details.SetFocus()
 			m.setHelpKeys(details.Keybinds)
 		} else {
@@ -100,7 +100,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.finishTask(msg.Err, mergerequests.Keybinds)
 		if msg.Err == nil {
 			t := m.getMergeRequestModel(msg)()
-			if m.ctx.IsLeftPanelOpen {
+			if m.isLeftOpen {
 				m.toggleLeftPanel()
 				m.MergeRequests.SetFocus()
 			}
@@ -127,7 +127,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
 			m.Details.Viewport.SetContent(c)
 
-			if !m.ctx.IsRightPanelOpen {
+			if !m.isRightOpen {
 				m.toggleRightPanel()
 				m.Details.SetFocus()
 			}
@@ -171,10 +171,10 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 
 	switch {
 	case match(gk.MockFetch):
-		if m.ctx.TaskStatus == context.TaskStarted {
-			m.ctx.TaskStatus = context.TaskFinished
-		} else if m.ctx.TaskStatus == context.TaskFinished || m.ctx.TaskStatus == context.TaskIdle {
-			m.ctx.TaskStatus = context.TaskStarted
+		if m.taskStatus == taskStarted {
+			m.taskStatus = taskFinished
+		} else if m.taskStatus == taskFinished || m.taskStatus == taskIdle {
+			m.taskStatus = taskStarted
 		}
 
 	case match(gk.ThrowError):
@@ -185,19 +185,19 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		return tea.Quit
 
 	case match(gk.OpenModal):
-		if m.ctx.TaskErr != nil {
-			m.ctx.IsModalOpen = true
+		if m.taskErr != nil {
+			m.isModalOpen = true
 			m.Modal.Header = "Error"
-			m.Modal.Content = m.ctx.TaskErr.Error()
+			m.Modal.Content = m.taskErr.Error()
 			m.Modal.SetFocus()
 		}
 
 	case match(gk.ToggleLeftPanel):
 		m.toggleLeftPanel()
-		if m.ctx.IsRightPanelOpen {
+		if m.isRightOpen {
 			m.toggleRightPanel()
 		}
-		if m.ctx.IsLeftPanelOpen {
+		if m.isLeftOpen {
 			m.Projects.SetFocus()
 			m.setHelpKeys(projects.Keybinds)
 		} else {

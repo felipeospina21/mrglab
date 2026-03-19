@@ -1,9 +1,6 @@
 package context
 
-import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/felipeospina21/mrglab/internal/tui/components/help"
-)
+import tea "github.com/charmbracelet/bubbletea"
 
 type focusedPanel uint
 
@@ -12,14 +9,6 @@ const (
 	MainPanel
 	RightPanel
 	Modal
-)
-
-type TaskStatus uint
-
-const (
-	TaskIdle TaskStatus = iota
-	TaskStarted
-	TaskFinished
 )
 
 type AppContext struct {
@@ -32,14 +21,8 @@ type AppContext struct {
 		Sha    string
 		Status string
 	}
-	Window           tea.WindowSizeMsg
-	Keybinds         help.KeyMap
-	TaskStatus       TaskStatus
-	TaskErr          error
-	IsLeftPanelOpen  bool
-	IsRightPanelOpen bool
-	IsModalOpen      bool
-	DevMode          bool
-	FocusedPanel     focusedPanel
-	PanelHeight      int
+	Window       tea.WindowSizeMsg
+	DevMode      bool
+	FocusedPanel focusedPanel
+	PanelHeight  int
 }
