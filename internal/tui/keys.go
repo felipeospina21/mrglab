@@ -3,7 +3,6 @@ package tui
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/felipeospina21/mrglab/internal/config"
 )
 
 type GlobalKeyMap struct {
@@ -16,7 +15,7 @@ type GlobalKeyMap struct {
 }
 
 var CommonKeys = []key.Binding{
-	GlobalKeys().ToggleLeftPanel, GlobalKeys().OpenModal, GlobalKeys().Help, GlobalKeys().Quit,
+	GlobalKeys(false).ToggleLeftPanel, GlobalKeys(false).OpenModal, GlobalKeys(false).Help, GlobalKeys(false).Quit,
 }
 
 func (k GlobalKeyMap) ShortHelp() []key.Binding {
@@ -29,8 +28,7 @@ func (k GlobalKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-func GlobalKeys() GlobalKeyMap {
-	cfg := &config.GlobalConfig
+func GlobalKeys(devMode bool) GlobalKeyMap {
 	keymap := GlobalKeyMap{
 		Help: key.NewBinding(
 			key.WithKeys("?"),
@@ -50,7 +48,7 @@ func GlobalKeys() GlobalKeyMap {
 		),
 	}
 
-	if cfg.DevMode {
+	if devMode {
 		keymap.ThrowError = key.NewBinding(
 			key.WithKeys("E"),
 			key.WithHelp("E", "throw error"),

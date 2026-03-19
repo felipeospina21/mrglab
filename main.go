@@ -21,7 +21,7 @@ func main() {
 	}
 
 	client := gitlab.NewClient(&config.GlobalConfig)
-	m := app.InitMainModel(ctx, client)
+	m := app.InitMainModel(ctx, &config.GlobalConfig, client)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

@@ -27,13 +27,14 @@ type Model struct {
 	ctx           *context.AppContext
 }
 
-func InitMainModel(ctx *context.AppContext, client *gitlab.Client) Model {
+func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
 	ctx.Keybinds = projects.Keybinds
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.TaskStatus = context.TaskIdle
+	ctx.DevMode = cfg.DevMode
 
 	return Model{
-		Projects:      projects.New(ctx, client),
+		Projects:      projects.New(ctx, client, cfg.Filters.Projects),
 		MergeRequests: mergerequests.New(ctx, client),
 		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx),
@@ -80,7 +81,7 @@ func (m *Model) finishTask(err error, kb help.KeyMap) {
 		m.ctx.TaskErr = err
 	} else {
 		mode := statusline.ModesEnum.Normal
-		if config.GlobalConfig.DevMode {
+		if m.ctx.DevMode {
 			mode = statusline.ModesEnum.Dev
 		}
 		m.setStatus(mode, "")
