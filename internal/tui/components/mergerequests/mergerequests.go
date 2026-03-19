@@ -8,7 +8,6 @@ import (
 
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gql"
-	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
@@ -181,10 +180,10 @@ func GetTableColums(width int) []table.Column {
 	return columns
 }
 
-func GetTableRows(msg message.MergeRequestsListFetchedMsg) []table.Row {
+func GetTableRows(mrs gql.MergeRequestConnection) []table.Row {
 	var rows []table.Row
 
-	for _, edge := range msg.Mrs.Edges {
+	for _, edge := range mrs.Edges {
 		node := edge.Node
 		r := table.Row{
 			table.FormatTime(node.CreatedAt),

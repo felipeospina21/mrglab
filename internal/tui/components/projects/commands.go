@@ -4,8 +4,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/api"
 	"github.com/felipeospina21/mrglab/internal/gql"
-	"github.com/felipeospina21/mrglab/internal/tui/components/message"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
+	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
 func (m *Model) GetListCmd() tea.Cmd {
@@ -14,13 +13,9 @@ func (m *Model) GetListCmd() tea.Cmd {
 			State: "opened",
 		})
 
-		return task.TaskMsg{
-			TaskID:      task.FetchMRs,
-			SectionType: task.TaskSectionMR,
-			Err:         err,
-			Msg: message.MergeRequestsListFetchedMsg{
-				Mrs: mrs,
-			},
+		return tui.MRListFetchedMsg{
+			Mrs: mrs,
+			Err: err,
 		}
 	}
 }

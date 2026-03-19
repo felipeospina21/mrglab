@@ -3,17 +3,15 @@ package app
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/exec"
+	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
-	"github.com/felipeospina21/mrglab/internal/tui/components/message"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
-func (m Model) getMergeRequestModel(msg task.TaskMsg) func() table.Model {
+func (m Model) getMergeRequestModel(msg tui.MRListFetchedMsg) func() table.Model {
 	return func() table.Model {
-		mrMsg := msg.Msg.(message.MergeRequestsListFetchedMsg)
-		rows := mergerequests.GetTableRows(mrMsg)
+		rows := mergerequests.GetTableRows(msg.Mrs)
 		tableW := m.layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
 		return table.InitModel(table.InitModelParams{
 			Rows:   rows,
@@ -27,15 +25,13 @@ func (m Model) getMergeRequestModel(msg task.TaskMsg) func() table.Model {
 	}
 }
 
-func (m Model) getMergeRequestDetails(msg task.TaskMsg) func() details.MergeRequestDetails {
+func (m Model) getMergeRequestDetails(msg tui.MRDetailsFetchedMsg) func() details.MergeRequestDetails {
 	return func() details.MergeRequestDetails {
-		mrMsg := msg.Msg.(message.MergeRequestFetchedMsg)
-
 		return details.MergeRequestDetails{
-			Pipelines:   mrMsg.Stages,
-			Discussions: mrMsg.Discussions,
-			Branches:    mrMsg.Branches,
-			Approvals:   mrMsg.Approvals,
+			Pipelines:   msg.Stages,
+			Discussions: msg.Discussions,
+			Branches:    msg.Branches,
+			Approvals:   msg.Approvals,
 		}
 	}
 }
