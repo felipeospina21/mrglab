@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -14,13 +13,13 @@ import (
 func (m Model) View() string {
 	left := projects.DocStyle.Render(m.Projects.List.View())
 	render := style.MainFrameStyle.Render
-	isInitialScreen := m.ctx.TaskStatus == context.TaskIdle
-	isFetching := m.ctx.TaskStatus == context.TaskStarted
+	isInitialScreen := m.taskStatus == taskIdle
+	isFetching := m.taskStatus == taskStarted
 
 	switch {
 	case isInitialScreen:
-		if m.ctx.TaskErr != nil {
-			body := lipgloss.JoinHorizontal(0, left, m.ctx.TaskErr.Error())
+		if m.taskErr != nil {
+			body := lipgloss.JoinHorizontal(0, left, m.taskErr.Error())
 			sl := m.Statusline.View()
 			return render(lipgloss.JoinVertical(0, body, sl))
 		}
@@ -32,7 +31,7 @@ func (m Model) View() string {
 		sl := m.Statusline.View()
 		return render(lipgloss.JoinVertical(0, body, sl))
 
-	case m.ctx.IsModalOpen:
+	case m.isModalOpen:
 		m.setHelpKeys(modal.Keybinds)
 		body := m.Modal.View()
 		sl := m.Statusline.View()
@@ -41,7 +40,7 @@ func (m Model) View() string {
 	default:
 		body, sl := m.getMainPanelComponents()
 
-		if m.ctx.IsLeftPanelOpen {
+		if m.isLeftOpen {
 			if isFetching {
 				textStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[300])).Render
 				body = fmt.Sprintf("\n %s%s%s\n\n",
@@ -55,7 +54,7 @@ func (m Model) View() string {
 			return render(lipgloss.JoinVertical(0, main, sl))
 		}
 
-		if m.ctx.IsRightPanelOpen {
+		if m.isRightOpen {
 			right := m.Details.View()
 			main := lipgloss.JoinHorizontal(0, body, right)
 			return render(lipgloss.JoinVertical(0, main, sl))

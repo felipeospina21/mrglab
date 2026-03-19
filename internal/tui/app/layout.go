@@ -104,7 +104,7 @@ func (m *Model) applyLayout() {
 	}
 
 	// Right panel (details viewport)
-	if m.ctx.IsRightPanelOpen {
+	if m.isRightOpen {
 		detailsFrameY := details.PanelStyle.GetVerticalFrameSize()
 		m.Details.SetViewportViewSize(
 			tea.WindowSizeMsg{Width: l.RightPanel.Width, Height: l.ContentH - detailsFrameY - tableViewOverhead},

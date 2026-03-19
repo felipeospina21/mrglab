@@ -15,6 +15,14 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
 )
 
+type taskStatus uint
+
+const (
+	taskIdle taskStatus = iota
+	taskStarted
+	taskFinished
+)
+
 type Model struct {
 	Projects      projects.Model
 	MergeRequests mergerequests.Model
@@ -25,25 +33,30 @@ type Model struct {
 	Input         textarea.Model
 	layout        Layout
 	ctx           *context.AppContext
+	taskStatus    taskStatus
+	taskErr       error
+	isLeftOpen    bool
+	isRightOpen   bool
+	isModalOpen   bool
 }
 
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
-	ctx.Keybinds = projects.Keybinds
 	ctx.FocusedPanel = context.LeftPanel
-	ctx.TaskStatus = context.TaskIdle
 	ctx.DevMode = cfg.DevMode
 
 	return Model{
 		Projects:      projects.New(ctx, client, cfg.Filters.Projects),
 		MergeRequests: mergerequests.New(ctx, client),
 		Details:       details.New(ctx),
-		Statusline:    statusline.New(ctx),
+		Statusline:    statusline.New(ctx, projects.Keybinds),
 		Modal:         modal.New(ctx),
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Line),
 			spinner.WithStyle(statusline.SpinnerStyle),
 		),
-		ctx: ctx,
+		ctx:        ctx,
+		taskStatus: taskIdle,
+		isLeftOpen: true,
 	}
 }
 
@@ -70,7 +83,7 @@ func (m *Model) setStatus(mode string, content string) {
 }
 
 func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
-	m.ctx.TaskStatus = context.TaskStarted
+	m.taskStatus = taskStarted
 	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
 	return cb()
 }
@@ -78,7 +91,7 @@ func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
 func (m *Model) finishTask(err error, kb help.KeyMap) {
 	if err != nil {
 		m.setStatus(statusline.ModesEnum.Error, err.Error())
-		m.ctx.TaskErr = err
+		m.taskErr = err
 	} else {
 		mode := statusline.ModesEnum.Normal
 		if m.ctx.DevMode {
@@ -86,9 +99,9 @@ func (m *Model) finishTask(err error, kb help.KeyMap) {
 		}
 		m.setStatus(mode, "")
 		m.setHelpKeys(kb)
-		m.ctx.TaskErr = nil
+		m.taskErr = nil
 	}
-	m.ctx.TaskStatus = context.TaskFinished
+	m.taskStatus = taskFinished
 }
 
 func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
@@ -102,22 +115,22 @@ func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
 }
 
 func (m *Model) toggleLeftPanel() {
-	m.ctx.IsLeftPanelOpen = !m.ctx.IsLeftPanelOpen
+	m.isLeftOpen = !m.isLeftOpen
 	m.recomputeLayout()
 }
 
 func (m *Model) toggleRightPanel() {
-	m.ctx.IsRightPanelOpen = !m.ctx.IsRightPanelOpen
+	m.isRightOpen = !m.isRightOpen
 	m.recomputeLayout()
 }
 
 func (m *Model) recomputeLayout() {
-	m.layout = computeLayout(m.ctx.Window, m.ctx.IsLeftPanelOpen, m.ctx.IsRightPanelOpen)
+	m.layout = computeLayout(m.ctx.Window, m.isLeftOpen, m.isRightOpen)
 	m.applyLayout()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
-	m.ctx.Keybinds = kb
+	m.Statusline.Keybinds = kb
 }
 
 func (m *Model) SelectMR() {
