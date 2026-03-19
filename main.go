@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui/app"
 )
 
@@ -19,7 +20,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	m := app.InitMainModel(ctx)
+	client := gitlab.NewClient(&config.GlobalConfig)
+	m := app.InitMainModel(ctx, client)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
