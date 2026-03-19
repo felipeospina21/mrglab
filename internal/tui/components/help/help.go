@@ -102,9 +102,6 @@ func (m Model) Update(_ tea.Msg) (Model, tea.Cmd) {
 
 // View renders the help view's current state.
 func (m Model) View(k KeyMap) string {
-	if m.ShowAll {
-		return m.FullHelpView(k.FullHelp())
-	}
 	return m.ShortHelpView(k.ShortHelp())
 }
 
