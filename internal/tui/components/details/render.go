@@ -7,7 +7,7 @@ import (
 
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/felipeospina21/mrglab/internal/gql"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
@@ -76,7 +76,7 @@ func renderBranches(source, target string) string {
 	return s.Render(content.String())
 }
 
-func renderApprovals(approvals []gql.ApprovalRule) string {
+func renderApprovals(approvals []gitlab.ApprovalRule) string {
 	var content strings.Builder
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Approvals", icon.Approval)))
 	content.WriteString("\n\n")
@@ -116,7 +116,7 @@ func renderApprovals(approvals []gql.ApprovalRule) string {
 	return contentStyle.Render(content.String())
 }
 
-func renderPipelines(stages []gql.CiStageNode) string {
+func renderPipelines(stages []gitlab.CiStageNode) string {
 	var content strings.Builder
 
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Pipeline", icon.Pipeline)))
@@ -146,14 +146,14 @@ func renderPipelines(stages []gql.CiStageNode) string {
 	return contentStyle.Render(content.String())
 }
 
-func renderDiscussions(discussions []gql.DiscussionNode, m Model) string {
+func renderDiscussions(discussions []gitlab.DiscussionNode, m Model) string {
 	var bdy, title, content strings.Builder
 	separator := strings.Repeat("-", 5)
 
 	title.WriteString(fmt.Sprintf("%s Discussions", icon.Discussion))
 	title.WriteString("\n\n")
 
-	hasDiscussions := slices.ContainsFunc(discussions, func(d gql.DiscussionNode) bool {
+	hasDiscussions := slices.ContainsFunc(discussions, func(d gitlab.DiscussionNode) bool {
 		return d.Resolvable
 	})
 

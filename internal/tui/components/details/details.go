@@ -8,7 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/felipeospina21/mrglab/internal/context"
-	"github.com/felipeospina21/mrglab/internal/gql"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
@@ -18,9 +18,9 @@ const (
 )
 
 type MergeRequestDetails struct {
-	Pipelines   []gql.CiStageNode
-	Discussions []gql.DiscussionNode
-	Approvals   []gql.ApprovalRule
+	Pipelines   []gitlab.CiStageNode
+	Discussions []gitlab.DiscussionNode
+	Approvals   []gitlab.ApprovalRule
 	Branches    [2]string
 }
 

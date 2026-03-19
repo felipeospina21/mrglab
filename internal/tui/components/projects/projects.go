@@ -12,17 +12,19 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/mitchellh/mapstructure"
 )
 
 const ellipsis = "…"
 
 type Model struct {
-	List list.Model
-	ctx  *context.AppContext
+	List   list.Model
+	ctx    *context.AppContext
+	client *gitlab.Client
 }
 
-func New(ctx *context.AppContext) Model {
+func New(ctx *context.AppContext, client *gitlab.Client) Model {
 	projects := config.GlobalConfig.Filters.Projects
 
 	var li []list.Item
@@ -47,8 +49,9 @@ func New(ctx *context.AppContext) Model {
 	ctx.IsLeftPanelOpen = true
 
 	return Model{
-		List: l,
-		ctx:  ctx,
+		List:   l,
+		ctx:    ctx,
+		client: client,
 	}
 }
 
