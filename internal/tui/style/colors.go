@@ -87,7 +87,9 @@ var Orange = colorShades{
 }
 
 var (
-	DarkGray = "#3f4145"
-	White    = "#C4C4C4"
-	Black    = "#111"
+	DarkGray   = "#3f4145"
+	DarkerGray = "#1e1e24"
+	MediumGray = "#999999"
+	White      = "#C4C4C4"
+	Black      = "#111"
 )

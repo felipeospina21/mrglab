@@ -87,10 +87,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.setStatus(mode, "")
 		}
 		m.isModalOpen = false
-		if m.isRightOpen {
+		switch {
+		case m.isRightOpen:
 			m.Details.SetFocus()
 			m.setHelpKeys(details.Keybinds)
-		} else {
+		case m.isLeftOpen:
+			m.Projects.SetFocus()
+			m.setHelpKeys(projects.Keybinds)
+		default:
 			m.MergeRequests.SetFocus()
 			m.setHelpKeys(mergerequests.Keybinds)
 		}
@@ -195,7 +199,7 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 	case match(gk.Help):
 		m.isModalOpen = true
 		m.Modal.Header = "Keybindings"
-		m.Modal.Content = m.Statusline.Help.FullHelpView(m.Statusline.Keybinds.FullHelp())
+		m.Modal.Content = m.Modal.RenderHelp(m.Statusline.Keybinds)
 		m.Modal.SetFocus()
 
 	case match(gk.ToggleLeftPanel):
