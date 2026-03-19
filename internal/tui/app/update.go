@@ -37,9 +37,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch m.ctx.FocusedPanel {
 		case context.Modal:
-			if !m.Input.Focused() {
-				cmds = append(cmds, m.Input.Focus())
-			}
 			m.Modal, cmd = m.Modal.Update(msg)
 			cmds = append(cmds, cmd)
 
@@ -82,6 +79,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.Input.Focus())
 
 	case modal.CloseModalMsg:
+		m.Input.Blur()
 		if m.ctx.TaskErr != nil {
 			mode := statusline.ModesEnum.Normal
 			if config.GlobalConfig.DevMode {
@@ -160,8 +158,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.recomputeLayout()
 	}
 
-	m.Input, cmd = m.Input.Update(msg)
-	cmds = append(cmds, cmd)
+	if m.Input.Focused() {
+		m.Input, cmd = m.Input.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }
@@ -179,18 +179,19 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		}
 
 	case match(gk.ThrowError):
-		return func() tea.Msg { return errors.New("mocked") }
+		m.finishTask(errors.New("mocked task error"), mergerequests.Keybinds)
+		return nil
 
 	case match(gk.Quit):
 		return tea.Quit
 
 	case match(gk.OpenModal):
-		m.ctx.IsModalOpen = true
 		if m.ctx.TaskErr != nil {
+			m.ctx.IsModalOpen = true
 			m.Modal.Header = "Error"
 			m.Modal.Content = m.ctx.TaskErr.Error()
+			m.Modal.SetFocus()
 		}
-		m.Modal.SetFocus()
 
 	case match(gk.ToggleLeftPanel):
 		m.toggleLeftPanel()
