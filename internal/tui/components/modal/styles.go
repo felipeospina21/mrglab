@@ -9,12 +9,17 @@ import (
 var headerStyle = table.TitleStyle.
 	Foreground(lipgloss.Color(style.White)).
 	Background(lipgloss.Color(style.Red[600])).
-	Padding(0, 1)
+	Padding(0, 1).
+	MarginBottom(1)
 
 var helpStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color(style.DarkGray)).
 	MarginTop(1)
 
-var bodyStyle = func(h int) lipgloss.Style {
-	return lipgloss.NewStyle().Padding(1).Height(h)
-}
+var boxStyle = lipgloss.NewStyle().
+	Border(lipgloss.RoundedBorder()).
+	BorderForeground(lipgloss.Color("#666666")).
+	Padding(1)
+
+var dimStyle = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#444444"))
