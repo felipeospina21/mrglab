@@ -5,18 +5,17 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/felipeospina21/mrglab/internal/api"
-	"github.com/felipeospina21/mrglab/internal/gql"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
 func (m *Model) FetchMergeRequest() tea.Cmd {
 	return func() tea.Msg {
-		mr, err := api.GetMergeRequest(m.ctx.SelectedProject.ID, gql.MergeRequestQueryVariables{
+		mr, err := m.client.GetMergeRequest(m.ctx.SelectedProject.ID, gitlab.MergeRequestQueryVariables{
 			MRIID: m.ctx.SelectedMR.IID,
 		})
 
-		var discussions []gql.DiscussionNode
+		var discussions []gitlab.DiscussionNode
 		for _, item := range mr.Discussions.Nodes {
 			discussions = append(discussions, item)
 		}
@@ -44,7 +43,7 @@ func (m *Model) AcceptMergeRequest() tea.Cmd {
 	}
 
 	return func() tea.Msg {
-		res, err := api.AcceptMergeRequest(m.ctx.SelectedProject.ID, gql.MergeRequestAcceptInput{
+		res, err := m.client.AcceptMergeRequest(m.ctx.SelectedProject.ID, gitlab.MergeRequestAcceptInput{
 			Sha:                      m.ctx.SelectedMR.Sha,
 			IID:                      m.ctx.SelectedMR.IID,
 			Squash:                   true,

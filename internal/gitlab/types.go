@@ -1,11 +1,63 @@
-package gql
+package gitlab
 
 import "time"
 
-type GetMergeRequest struct {
-	Project struct {
-		MergeRequest MergeRequestResponse `graphql:"mergeRequest(iid: $mrIID)"`
-	} `graphql:"project(fullPath: $fullPath)"`
+type Author struct {
+	Name string
+}
+
+type Labels struct {
+	Count int
+	Edges []struct {
+		Node struct {
+			Color     string
+			Title     string
+			TextColor string
+			ID        string
+		}
+	}
+}
+
+type MergeRequestConnection struct {
+	Count int
+	Edges []MergeRequestEdge
+}
+
+type MergeRequestEdge struct {
+	Cursor string
+	Node   MergeRequestNode
+}
+
+type MergeRequestNode struct {
+	ApprovalsRequired   int
+	ApprovalState       MergeRequestApprovalState
+	Author              Author
+	Conflicts           bool
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+	DiffHeadSha         string
+	Description         string
+	DetailedMergeStatus string
+	DiffStatsSummary    DiffStatsSummary
+	Draft               bool
+	IID                 string
+	Labels              Labels
+	Title               string
+	UserNotesCount      int
+	WebURL              string
+}
+
+type DiffStatsSummary struct {
+	Additions int
+	Changes   int
+	Deletions int
+	FileCount int
+}
+
+type PageInfo struct {
+	StartCursor string
+	EndCursor   string
+	HasNextPage bool
 }
 
 type MergeRequestResponse struct {
@@ -16,6 +68,7 @@ type MergeRequestResponse struct {
 	Discussions   MergeRequestDiscussionsConnection
 	HeadPipeline  MergeRequestHeadPipelineConnection
 }
+
 type MergeRequestApprovalState struct {
 	Rules []ApprovalRule
 }
@@ -57,7 +110,6 @@ type Note struct {
 	Resolvable bool
 }
 
-// Pipelines
 type MergeRequestHeadPipelineConnection struct {
 	Stages CiStageConnection
 }
@@ -80,4 +132,13 @@ type JobsNode struct {
 	Name     string
 	Status   string
 	Duration int
+}
+
+type AcceptMergeRequestResponse struct {
+	ClientMutationId string
+	Errors           []string
+}
+
+type CreateNoteResponse struct {
+	Errors []string
 }
