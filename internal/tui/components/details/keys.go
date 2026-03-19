@@ -17,15 +17,15 @@ type DetailsKeyMap struct {
 
 func (k DetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Merge},
+		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment},
 		tui.CommonKeys,
 	)
 }
 
 func (k DetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.ClosePanel, k.OpenInBrowser, k.Merge}, // first column
-		// {k.ShowFullHelp, k.Quit, k.Filter, k.ReloadConfig}, // second column
+		tui.CommonKeys,
+		{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment},
 	}
 }
 

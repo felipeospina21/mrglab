@@ -192,6 +192,12 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 			m.Modal.SetFocus()
 		}
 
+	case match(gk.Help):
+		m.isModalOpen = true
+		m.Modal.Header = "Keybindings"
+		m.Modal.Content = m.Statusline.Help.FullHelpView(m.Statusline.Keybinds.FullHelp())
+		m.Modal.SetFocus()
+
 	case match(gk.ToggleLeftPanel):
 		m.toggleLeftPanel()
 		if m.isRightOpen {
