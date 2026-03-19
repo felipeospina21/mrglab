@@ -1,6 +1,6 @@
 package tui
 
-import "github.com/felipeospina21/mrglab/internal/gql"
+import "github.com/felipeospina21/mrglab/internal/gitlab"
 
 // Task state tracking
 type TaskStatus uint
@@ -14,15 +14,15 @@ const (
 // Typed messages — replace the generic TaskMsg wrapper
 
 type MRListFetchedMsg struct {
-	Mrs gql.MergeRequestConnection
+	Mrs gitlab.MergeRequestConnection
 	Err error
 }
 
 type MRDetailsFetchedMsg struct {
-	Discussions []gql.DiscussionNode
-	Stages      []gql.CiStageNode
+	Discussions []gitlab.DiscussionNode
+	Stages      []gitlab.CiStageNode
 	Branches    [2]string
-	Approvals   []gql.ApprovalRule
+	Approvals   []gitlab.ApprovalRule
 	Err         error
 }
 

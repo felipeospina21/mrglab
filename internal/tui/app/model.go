@@ -6,6 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
@@ -26,14 +27,14 @@ type Model struct {
 	ctx           *context.AppContext
 }
 
-func InitMainModel(ctx *context.AppContext) Model {
+func InitMainModel(ctx *context.AppContext, client *gitlab.Client) Model {
 	ctx.Keybinds = projects.Keybinds
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.TaskStatus = context.TaskIdle
 
 	return Model{
-		Projects:      projects.New(ctx),
-		MergeRequests: mergerequests.New(ctx),
+		Projects:      projects.New(ctx, client),
+		MergeRequests: mergerequests.New(ctx, client),
 		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx),
 		Modal:         modal.New(ctx),

@@ -7,14 +7,15 @@ import (
 	"strings"
 
 	"github.com/felipeospina21/mrglab/internal/context"
-	"github.com/felipeospina21/mrglab/internal/gql"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
 type Model struct {
-	Table table.Model
-	ctx   *context.AppContext
+	Table  table.Model
+	ctx    *context.AppContext
+	client *gitlab.Client
 }
 
 type ColName struct {
@@ -140,12 +141,13 @@ var IconCols = func() []int {
 	}
 }
 
-func New(ctx *context.AppContext) Model {
+func New(ctx *context.AppContext, client *gitlab.Client) Model {
 	return Model{
 		Table: table.Model{
 			EmptyMessage: "Select A Project",
 		},
-		ctx: ctx,
+		ctx:    ctx,
+		client: client,
 	}
 }
 
@@ -180,7 +182,7 @@ func GetTableColums(width int) []table.Column {
 	return columns
 }
 
-func GetTableRows(mrs gql.MergeRequestConnection) []table.Row {
+func GetTableRows(mrs gitlab.MergeRequestConnection) []table.Row {
 	var rows []table.Row
 
 	for _, edge := range mrs.Edges {
@@ -260,7 +262,7 @@ func isMergeable(status string, hasConflicts bool) string {
 	return icon.Dash
 }
 
-func approvals(rules []gql.ApprovalRule, total int) string {
+func approvals(rules []gitlab.ApprovalRule, total int) string {
 	count := 0
 	for _, rule := range rules {
 		req := rule.ApprovalsRequired
