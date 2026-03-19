@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
-	"github.com/felipeospina21/mrglab/internal/tui/task"
 )
 
 func (m Model) View() string {
 	left := projects.DocStyle.Render(m.Projects.List.View())
 	render := style.MainFrameStyle.Render
-	isInitialScreen := m.ctx.Task.Status == task.TaskIdle
-	isFetching := m.ctx.Task.Status == task.TaskStarted
+	isInitialScreen := m.ctx.TaskStatus == context.TaskIdle
+	isFetching := m.ctx.TaskStatus == context.TaskStarted
 
 	switch {
 	case isInitialScreen:
-		if m.ctx.Task.Err != nil {
-			body := lipgloss.JoinHorizontal(0, left, m.ctx.Task.Err.Error())
+		if m.ctx.TaskErr != nil {
+			body := lipgloss.JoinHorizontal(0, left, m.ctx.TaskErr.Error())
 			sl := m.Statusline.View()
 			return render(lipgloss.JoinVertical(0, body, sl))
 		}
