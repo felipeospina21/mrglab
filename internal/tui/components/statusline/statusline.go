@@ -29,21 +29,23 @@ var ModesEnum = Modes{
 }
 
 type Model struct {
-	Status  string
-	Content string
-	Width   int
-	Spinner spinner.Model
-	Help    help.Model
-	ctx     *context.AppContext
+	Status   string
+	Content  string
+	Width    int
+	Spinner  spinner.Model
+	Help     help.Model
+	Keybinds help.KeyMap
+	ctx      *context.AppContext
 }
 
-func New(ctx *context.AppContext) Model {
+func New(ctx *context.AppContext, keybinds help.KeyMap) Model {
 	status := ModesEnum.Normal
 	if ctx.DevMode {
 		status = ModesEnum.Dev
 	}
 	return Model{
-		Status: status,
+		Status:   status,
+		Keybinds: keybinds,
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Dot),
 			spinner.WithStyle(SpinnerStyle),
@@ -82,7 +84,7 @@ func (m Model) View() string {
 
 	help := helpText.
 		Width(width - w(statusKey) - w(statusVal) - w(encoding) - w(projectName)).
-		Render(" " + m.Help.View(m.ctx.Keybinds) + " ")
+		Render(" " + m.Help.View(m.Keybinds) + " ")
 
 	bar := lipgloss.JoinHorizontal(lipgloss.Top,
 		statusKey,
