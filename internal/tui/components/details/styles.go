@@ -32,4 +32,9 @@ var (
 	sectionTextStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color(style.White)).MarginLeft(1)
 	sectionTitleStyle        = sectionTextStyle.Bold(true).MarginLeft(0)
 	sectionIndentedTextStyle = sectionTextStyle.MarginLeft(LeftMargin).Foreground(lipgloss.Color(style.DarkGray))
+
+	selectedDiscussionStyle = lipgloss.NewStyle().
+				Border(lipgloss.ThickBorder(), false, false, false, true).
+				BorderForeground(lipgloss.Color(style.Violet[400])).
+				PaddingLeft(1)
 )

@@ -19,7 +19,12 @@ type styledIcon struct {
 	color string
 }
 
-func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
+type viewportContent struct {
+	content                string
+	selectedDiscLineOffset int
+}
+
+func (m Model) getViewportContent(b string, mr MergeRequestDetails) viewportContent {
 	var content strings.Builder
 	mergeStatus := strings.ToLower(m.ctx.SelectedMR.Status)
 
@@ -37,9 +42,19 @@ func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 	content.WriteString("\n\n")
 	content.WriteString(renderApprovals(mr.Approvals))
 	content.WriteString("\n\n")
-	content.WriteString(renderDiscussions(mr.Discussions, m))
 
-	return content.String()
+	linesBefore := strings.Count(content.String(), "\n")
+	disc := renderDiscussions(mr.Discussions, m)
+	content.WriteString(disc.content)
+
+	return viewportContent{
+		content:                content.String(),
+		selectedDiscLineOffset: linesBefore + disc.selectedLineOffset,
+	}
+}
+
+func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
+	return m.getViewportContent(b, mr).content
 }
 
 func renderIndentedText(content *strings.Builder, i styledIcon, text string) {
@@ -146,9 +161,15 @@ func renderPipelines(stages []gitlab.CiStageNode) string {
 	return contentStyle.Render(content.String())
 }
 
-func renderDiscussions(discussions []gitlab.DiscussionNode, m Model) string {
-	var bdy, title, content strings.Builder
-	separator := strings.Repeat("-", 5)
+type discussionsResult struct {
+	content            string
+	selectedLineOffset int
+}
+
+func renderDiscussions(discussions []gitlab.DiscussionNode, m Model) discussionsResult {
+	var title, content strings.Builder
+	separator := strings.Repeat("─", 5)
+	selectedLineOffset := 0
 
 	title.WriteString(fmt.Sprintf("%s Discussions", icon.Discussion))
 	title.WriteString("\n\n")
@@ -158,66 +179,99 @@ func renderDiscussions(discussions []gitlab.DiscussionNode, m Model) string {
 	})
 
 	if !hasDiscussions {
-		bdy.WriteString("... *No Discussions*")
-	} else {
-		for _, discussion := range discussions {
-			if !discussion.Resolvable {
-				continue
-			}
-
-			bdy.WriteString(separator)
-			if discussion.Resolved {
-				resolvedAt := table.FormatTime(discussion.ResolvedAt)
-				bdy.WriteString(fmt.Sprintf(" **%s %s** ", icon.Check, timeAgo(resolvedAt)))
-			} else {
-				bdy.WriteString(fmt.Sprintf(" %s ", icon.Dash))
-			}
-			bdy.WriteString(separator)
-			bdy.WriteString("\n\n")
-
-			for _, note := range discussion.Notes.Nodes {
-				author := note.Author.Name
-				body := note.Body
-				createdAt := table.FormatTime(note.CreatedAt)
-
-				if !note.Resolvable {
-					before, _, found := strings.Cut(body, "(")
-					if found {
-						bdy.WriteString(
-							fmt.Sprintf(
-								"*%s %s %s %s* ",
-								icon.Dot,
-								author,
-								before,
-								timeAgo(createdAt),
-							),
-						)
-						bdy.WriteString("\n\n")
-					}
-					continue
-				}
-
-				bdy.WriteString(fmt.Sprintf("`%s` ", author))
-				bdy.WriteString(timeAgo(createdAt))
-				bdy.WriteString("\n")
-
-				bdy.WriteString(body)
-				bdy.WriteString("\n\n")
-
-			}
-			bdy.WriteString("\n\n")
-
-		}
+		content.WriteString(sectionTitleStyle.Render(title.String()))
+		content.WriteString(sectionTextStyle.Render(m.renderWithStyle("... *No Discussions*")))
+		return discussionsResult{content: contentStyle.Render(content.String())}
 	}
 
 	content.WriteString(sectionTitleStyle.Render(title.String()))
-	content.WriteString(sectionTextStyle.Render(m.renderWithStyle(bdy.String())))
+	content.WriteString("\n")
 
-	return contentStyle.Render(content.String())
+	borderWidth := selectedDiscussionStyle.GetHorizontalFrameSize()
+
+	resolvableIdx := 0
+	for _, discussion := range discussions {
+		if !discussion.Resolvable {
+			continue
+		}
+
+		selected := resolvableIdx == m.DiscussionIdx
+
+		if selected {
+			selectedLineOffset = strings.Count(content.String(), "\n")
+		}
+
+		var bdy strings.Builder
+
+		var header strings.Builder
+		header.WriteString(separator)
+		if discussion.Resolved {
+			resolvedAt := table.FormatTime(discussion.ResolvedAt)
+			header.WriteString(fmt.Sprintf(" %s Closed %s (%s)", icon.Check, timeAgo(resolvedAt), ShortID(discussion.Id)))
+		} else {
+			header.WriteString(fmt.Sprintf(" %s Open (%s)", icon.CircleDot, ShortID(discussion.Id)))
+		}
+		header.WriteString(separator)
+
+		for _, note := range discussion.Notes.Nodes {
+			author := note.Author.Name
+			body := note.Body
+			createdAt := table.FormatTime(note.CreatedAt)
+
+			if !note.Resolvable {
+				before, _, found := strings.Cut(body, "(")
+				if found {
+					bdy.WriteString(
+						fmt.Sprintf(
+							"*%s %s %s %s* ",
+							icon.Dot,
+							author,
+							before,
+							timeAgo(createdAt),
+						),
+					)
+					bdy.WriteString("\n\n")
+				}
+				continue
+			}
+
+			bdy.WriteString(fmt.Sprintf("`%s` ", author))
+			bdy.WriteString(timeAgo(createdAt))
+			bdy.WriteString("\n")
+
+			bdy.WriteString(body)
+			bdy.WriteString("\n\n")
+		}
+
+		headerLine := sectionTextStyle.MarginLeft(0).Render(header.String())
+
+		var rendered string
+		if selected {
+			body := sectionTextStyle.Render(m.renderWithWidth(bdy.String(), m.mdWidth()-borderWidth))
+			rendered = headerLine + "\n" + selectedDiscussionStyle.Render(body)
+		} else {
+			body := sectionTextStyle.Render(m.renderWithStyle(bdy.String()))
+			rendered = headerLine + "\n" + body
+		}
+
+		content.WriteString(rendered)
+		content.WriteString("\n")
+
+		resolvableIdx++
+	}
+
+	return discussionsResult{
+		content:            contentStyle.Render(content.String()),
+		selectedLineOffset: selectedLineOffset,
+	}
 }
 
 func (m Model) renderWithStyle(s string) string {
-	d, err := glamourRender(m, s)
+	return m.renderWithWidth(s, m.mdWidth())
+}
+
+func (m Model) renderWithWidth(s string, width int) string {
+	d, err := glamourRender(s, width)
 	if err != nil {
 		l, f := logger.New(logger.NewLogger{})
 		defer f.Close()
@@ -228,9 +282,12 @@ func (m Model) renderWithStyle(s string) string {
 	return d
 }
 
-func getMdRenderer(m Model) *glamour.TermRenderer {
+func (m Model) mdWidth() int {
 	magicnumber := 4 // FIX: find where this comes from
-	width := m.Viewport.Width - magicnumber - LeftMargin
+	return m.Viewport.Width - magicnumber - LeftMargin
+}
+
+func getMdRenderer(width int) *glamour.TermRenderer {
 	r, err := glamour.NewTermRenderer(
 		glamour.WithStandardStyle("dark"),
 		glamour.WithWordWrap(width),
@@ -248,8 +305,8 @@ func getMdRenderer(m Model) *glamour.TermRenderer {
 	return r
 }
 
-func glamourRender(m Model, markdown string) (string, error) {
-	r := getMdRenderer(m)
+func glamourRender(markdown string, width int) (string, error) {
+	r := getMdRenderer(width)
 	out, err := r.Render(markdown)
 	if err != nil {
 		return "", err
@@ -295,5 +352,15 @@ func getStageIconStatus(s string) styledIcon {
 }
 
 func timeAgo(time string) string {
-	return fmt.Sprintf("_%s ago_", time)
+	return fmt.Sprintf("%s ago", time)
+}
+
+func ShortID(id string) string {
+	if i := strings.LastIndex(id, "/"); i >= 0 {
+		id = id[i+1:]
+	}
+	if len(id) <= 6 {
+		return id
+	}
+	return id[len(id)-6:]
 }

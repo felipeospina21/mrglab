@@ -2,12 +2,15 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/context"
+	execPkg "github.com/felipeospina21/mrglab/internal/exec"
+	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
@@ -73,12 +76,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case details.RespondCommentMsg:
 		m.isModalOpen = true
 		m.ctx.FocusedPanel = context.Modal
-		m.Modal.Header = "Respond to thread"
+		m.Modal.Header = fmt.Sprintf("Responding to discussion (%s)", details.ShortID(msg.DiscussionId))
 		m.Modal.Content = m.Input.View()
+		m.pendingNote.DiscussionId = msg.DiscussionId
+		m.pendingNote.NoteableId = msg.NoteableId
 		cmds = append(cmds, m.Input.Focus())
 
 	case modal.CloseModalMsg:
 		m.Input.Blur()
+		m.Input.Reset()
+		m.Modal.IsError = false
 		if m.taskErr != nil {
 			mode := statusline.ModesEnum.Normal
 			if m.ctx.DevMode {
@@ -95,6 +102,34 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Projects.SetFocus()
 			m.setHelpKeys(projects.Keybinds)
 		default:
+			m.MergeRequests.SetFocus()
+			m.setHelpKeys(mergerequests.Keybinds)
+		}
+
+	case modal.CopyModalMsg:
+		execPkg.CopyToClipboard(m.Modal.Content)
+
+	case modal.ResetHighlightMsg:
+		m.Modal.Highlight = false
+
+	case modal.SubmitModalMsg:
+		body := m.Input.Value()
+		if body != "" && m.pendingNote.NoteableId != "" {
+			cmds = append(cmds, m.startTask(func() tea.Cmd {
+				return m.MergeRequests.CreateNote(gitlab.CreateNoteInput{
+					NoteableId:   gitlab.NoteableID(m.pendingNote.NoteableId),
+					DiscussionId: gitlab.DiscussionID(m.pendingNote.DiscussionId),
+					Body:         body,
+				})
+			}))
+		}
+		m.Input.Blur()
+		m.Input.Reset()
+		m.isModalOpen = false
+		if m.isRightOpen {
+			m.Details.SetFocus()
+			m.setHelpKeys(details.Keybinds)
+		} else {
 			m.MergeRequests.SetFocus()
 			m.setHelpKeys(mergerequests.Keybinds)
 		}
@@ -117,18 +152,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err == nil {
 			mr := m.getMergeRequestDetails(msg)()
 
+			m.Details.MRId = msg.MRId
+			m.Details.Discussions = msg.Discussions
+			m.Details.DiscussionIdx = 0
+			m.Details.MRDetails = mr
+			m.Details.MRDescription = m.MergeRequests.Table.SelectedRow()[mergerequests.GetColIndex(mergerequests.ColNames.Description)]
+
 			titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
 			m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
-
-			idx := mergerequests.GetColIndex(mergerequests.ColNames.Description)
-			d := m.MergeRequests.Table.SelectedRow()[idx]
 
 			rl := computeLayout(m.ctx.Window, false, true)
 			m.Details.SetViewportViewSize(
 				tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
 			)
 
-			c := m.Details.GetViewportContent(d, details.MergeRequestDetails(mr))
+			c := m.Details.GetViewportContent(m.Details.MRDescription, mr)
 			m.Details.Viewport.SetContent(c)
 
 			if !m.isRightOpen {
@@ -150,6 +188,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case tui.NoteCreatedMsg:
+		m.finishTask(msg.Err, details.Keybinds)
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				m.Statusline.Content = "✓ Comment sent"
+			}
+		}
+
 	case spinner.TickMsg:
 		var spin tea.Cmd
 		cmd = m.updateSpinnerViewCommand(msg)
@@ -163,6 +212,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	if m.Input.Focused() {
 		m.Input, cmd = m.Input.Update(msg)
+		m.Modal.Content = m.Input.View()
 		cmds = append(cmds, cmd)
 	}
 
@@ -182,7 +232,8 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		}
 
 	case match(gk.ThrowError):
-		m.finishTask(errors.New("mocked task error"), mergerequests.Keybinds)
+		txt := "# github.com/felipeospina21/mrglab/internal/tui/app internal/tui/app/update.go:246:12: m.Modal.IsEror undefined (type modal.Model has no field or method IsEror)"
+		m.finishTask(errors.New(txt), mergerequests.Keybinds)
 		return nil
 
 	case match(gk.Quit):
@@ -192,6 +243,7 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		if m.taskErr != nil {
 			m.isModalOpen = true
 			m.Modal.Header = "Error"
+			m.Modal.IsError = true
 			m.Modal.Content = m.taskErr.Error()
 			m.Modal.SetFocus()
 		}

@@ -21,6 +21,7 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 		}
 
 		return tui.MRDetailsFetchedMsg{
+			MRId:        mr.Id,
 			Discussions: discussions,
 			Stages:      mr.HeadPipeline.Stages.Nodes,
 			Branches:    [2]string{mr.SourceBranch, mr.TargetBranch},
@@ -51,6 +52,16 @@ func (m *Model) AcceptMergeRequest() tea.Cmd {
 		})
 
 		return tui.MRMergedMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}
+
+func (m *Model) CreateNote(input gitlab.CreateNoteInput) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.CreateNote(input)
+		return tui.NoteCreatedMsg{
 			Errors: res.Errors,
 			Err:    err,
 		}

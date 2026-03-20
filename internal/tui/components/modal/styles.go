@@ -8,7 +8,7 @@ import (
 
 var headerStyle = table.TitleStyle.
 	Foreground(lipgloss.Color(style.White)).
-	Background(lipgloss.Color(style.Red[600])).
+	Background(lipgloss.Color(style.Violet[700])).
 	Padding(0, 1).
 	MarginBottom(1)
 
