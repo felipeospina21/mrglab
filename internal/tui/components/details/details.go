@@ -32,11 +32,16 @@ type DetailsContent struct {
 }
 
 type Model struct {
-	Viewport viewport.Model
-	Ready    IsDetailsResponseReady
-	Content  DetailsContent
-	Err      error
-	ctx      *context.AppContext
+	Viewport       viewport.Model
+	Ready          IsDetailsResponseReady
+	Content        DetailsContent
+	Discussions    []gitlab.DiscussionNode
+	MRDetails      MergeRequestDetails
+	MRId           string
+	MRDescription  string
+	DiscussionIdx  int
+	Err            error
+	ctx            *context.AppContext
 }
 
 type (

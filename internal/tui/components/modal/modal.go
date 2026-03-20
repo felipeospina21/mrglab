@@ -30,7 +30,7 @@ func (m Model) View(background string) string {
 	modalH := modalSize(h)
 
 	header := headerStyle.Width(modalW).Render(m.Header)
-	footer := helpStyle.Render("Press esc to close")
+	footer := helpStyle.Render("esc close · ctrl+s submit")
 	contentH := modalH - lipgloss.Height(header) - lipgloss.Height(footer) - boxStyle.GetVerticalFrameSize()
 	if contentH < 1 {
 		contentH = 1

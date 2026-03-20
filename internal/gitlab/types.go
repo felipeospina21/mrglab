@@ -93,6 +93,7 @@ type MergeRequestDiscussionsConnection struct {
 }
 
 type DiscussionNode struct {
+	Id         string
 	Resolvable bool
 	Resolved   bool
 	ResolvedAt time.Time

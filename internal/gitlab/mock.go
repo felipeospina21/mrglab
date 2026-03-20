@@ -253,6 +253,7 @@ var mergeRequestResponseMock = MergeRequestResponse{
 	Discussions: MergeRequestDiscussionsConnection{
 		Nodes: []DiscussionNode{
 			{
+				Id:         "gid://gitlab/Discussion/mock-1",
 				Resolvable: true,
 				Resolved:   false,
 				Notes: NoteConnection{
@@ -279,6 +280,7 @@ var mergeRequestResponseMock = MergeRequestResponse{
 				},
 			},
 			{
+				Id:         "gid://gitlab/Discussion/mock-2",
 				Resolvable: true,
 				Resolved:   true,
 				Notes: NoteConnection{

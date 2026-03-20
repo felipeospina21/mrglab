@@ -19,6 +19,7 @@ type MRListFetchedMsg struct {
 }
 
 type MRDetailsFetchedMsg struct {
+	MRId        string
 	Discussions []gitlab.DiscussionNode
 	Stages      []gitlab.CiStageNode
 	Branches    [2]string
@@ -27,6 +28,11 @@ type MRDetailsFetchedMsg struct {
 }
 
 type MRMergedMsg struct {
+	Errors []string
+	Err    error
+}
+
+type NoteCreatedMsg struct {
 	Errors []string
 	Err    error
 }

@@ -38,11 +38,19 @@ type Model struct {
 	isLeftOpen    bool
 	isRightOpen   bool
 	isModalOpen   bool
+	pendingNote   struct {
+		DiscussionId string
+		NoteableId   string
+	}
 }
 
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.DevMode = cfg.DevMode
+
+	ti := textarea.New()
+	ti.Placeholder = "Write your reply..."
+	ti.CharLimit = 0
 
 	return Model{
 		Projects:      projects.New(ctx, client, cfg.Filters.Projects),
@@ -50,6 +58,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Details:       details.New(ctx),
 		Statusline:    statusline.New(ctx, projects.Keybinds),
 		Modal:         modal.New(ctx),
+		Input:         ti,
 		Spinner: spinner.New(
 			spinner.WithSpinner(spinner.Line),
 			spinner.WithStyle(statusline.SpinnerStyle),

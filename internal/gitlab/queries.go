@@ -50,9 +50,17 @@ type MergeRequestAcceptInput struct {
 	Squash                   bool
 }
 
+type NoteableID string
+
+func (NoteableID) GetGraphQLType() string { return "NoteableID" }
+
+type DiscussionID string
+
+func (DiscussionID) GetGraphQLType() string { return "DiscussionID" }
+
 type CreateNoteInput struct {
-	NoteableId   string
-	DiscussionId string
+	NoteableId   NoteableID
+	DiscussionId DiscussionID
 	Body         string
 }
 
