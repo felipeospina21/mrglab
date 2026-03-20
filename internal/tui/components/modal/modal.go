@@ -10,9 +10,10 @@ import (
 )
 
 type Model struct {
-	Header  string
-	Content string
-	ctx     *context.AppContext
+	Header    string
+	Content   string
+	Highlight bool
+	ctx       *context.AppContext
 }
 
 func New(ctx *context.AppContext) Model {
@@ -30,16 +31,21 @@ func (m Model) View(background string) string {
 	modalH := modalSize(h)
 
 	header := headerStyle.Width(modalW).Render(m.Header)
-	footer := helpStyle.Render("esc close · ctrl+s submit")
-	contentH := modalH - lipgloss.Height(header) - lipgloss.Height(footer) - boxStyle.GetVerticalFrameSize()
-	if contentH < 1 {
-		contentH = 1
+	footer := helpStyle.Render("esc close · ctrl+s submit · ctrl+y copy")
+	contentH := max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
+
+	content := m.Content
+	if m.Highlight {
+		content = lipgloss.NewStyle().
+			Background(lipgloss.Color(style.Violet[400])).
+			Foreground(lipgloss.Color(style.Black)).
+			Render(content)
 	}
 
 	body := lipgloss.NewStyle().
 		Height(contentH).
 		MaxHeight(contentH).
-		Render(m.Content)
+		Render(content)
 
 	box := boxStyle.Width(modalW).Render(
 		lipgloss.JoinVertical(0, header, body, footer),

@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/felipeospina21/mrglab/internal/context"
+	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
@@ -103,6 +104,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.MergeRequests.SetFocus()
 			m.setHelpKeys(mergerequests.Keybinds)
 		}
+
+	case modal.CopyModalMsg:
+		execPkg.CopyToClipboard(m.Modal.Content)
+
+	case modal.ResetHighlightMsg:
+		m.Modal.Highlight = false
 
 	case modal.SubmitModalMsg:
 		body := m.Input.Value()
