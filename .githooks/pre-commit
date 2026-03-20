@@ -1,0 +1,6 @@
+#!/bin/sh
+EMAIL=$(git config user.email)
+if [ "$EMAIL" != "felipeospina21@hotmail.com" ]; then
+  echo "ERROR: Wrong git email: $EMAIL"
+  exit 1
+fi
