@@ -85,6 +85,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case modal.CloseModalMsg:
 		m.Input.Blur()
 		m.Input.Reset()
+		m.Modal.IsError = false
 		if m.taskErr != nil {
 			mode := statusline.ModesEnum.Normal
 			if m.ctx.DevMode {
@@ -231,7 +232,8 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		}
 
 	case match(gk.ThrowError):
-		m.finishTask(errors.New("mocked task error"), mergerequests.Keybinds)
+		txt := "# github.com/felipeospina21/mrglab/internal/tui/app internal/tui/app/update.go:246:12: m.Modal.IsEror undefined (type modal.Model has no field or method IsEror)"
+		m.finishTask(errors.New(txt), mergerequests.Keybinds)
 		return nil
 
 	case match(gk.Quit):
@@ -241,6 +243,7 @@ func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
 		if m.taskErr != nil {
 			m.isModalOpen = true
 			m.Modal.Header = "Error"
+			m.Modal.IsError = true
 			m.Modal.Content = m.taskErr.Error()
 			m.Modal.SetFocus()
 		}

@@ -13,6 +13,7 @@ type Model struct {
 	Header    string
 	Content   string
 	Highlight bool
+	IsError   bool
 	ctx       *context.AppContext
 }
 
@@ -31,9 +32,13 @@ func (m Model) View(background string) string {
 	modalH := modalSize(h)
 
 	header := headerStyle.Width(modalW).Render(m.Header)
+	if m.IsError {
+		header = headerStyle.Background(lipgloss.Color(style.Red[600])).Width(modalW).Render(m.Header)
+	}
 	footer := helpStyle.Render("esc close · ctrl+s submit · ctrl+y copy")
 	contentH := max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
 
+	contentW := modalW - boxStyle.GetHorizontalFrameSize()
 	content := m.Content
 	if m.Highlight {
 		content = lipgloss.NewStyle().
@@ -43,6 +48,7 @@ func (m Model) View(background string) string {
 	}
 
 	body := lipgloss.NewStyle().
+		Width(contentW).
 		Height(contentH).
 		MaxHeight(contentH).
 		Render(content)
