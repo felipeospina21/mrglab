@@ -8,6 +8,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/logger"
 )
 
+// Openbrowser opens the given URL in the default system browser.
 func Openbrowser(url string) {
 	var err error
 	var cmd *exec.Cmd

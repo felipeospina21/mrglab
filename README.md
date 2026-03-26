@@ -1,5 +1,7 @@
 # MR.G.Lab (mrglab)
 
+![screenshot](docs/assets/mrglab_logo.png)
+
 mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
 ## Requirements
@@ -12,9 +14,83 @@ mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 go install github.com/felipeospina21/mrglab@latest
 ```
 
+## Usage
+
+Launch the TUI:
+
+```bash
+mrglab
+```
+
+### Dev mode
+
+Run with mocked data (no API calls):
+
+```bash
+mrglab -dev
+```
+
+## Features
+
+- Browse open merge requests for your configured GitLab projects
+- View MR details: description, pipeline stages, approvals, branches, and discussions
+- Merge a merge request directly from the TUI
+- Open any MR in your browser
+- Respond to discussion threads (post comments)
+- Navigate between resolvable discussions
+- Copy modal content to clipboard
+- Toggle project list and details panels
+- Full-screen help modal with all keybindings
+
+## Keybindings
+
+### Global
+
+| Key      | Action                  |
+| -------- | ----------------------- |
+| `?`      | Toggle help             |
+| `ctrl+c` | Quit                    |
+| `ctrl+o` | Toggle side panel       |
+| `@`      | Open full message modal |
+
+### Projects panel
+
+| Key     | Action              |
+| ------- | ------------------- |
+| `enter` | View merge requests |
+
+### Merge requests panel
+
+| Key     | Action          |
+| ------- | --------------- |
+| `enter` | View details    |
+| `x`     | Open in browser |
+| `M`     | Merge MR        |
+| `↑/k`   | Move up         |
+| `↓/j`   | Move down       |
+
+### Details panel
+
+| Key   | Action                |
+| ----- | --------------------- |
+| `esc` | Close panel           |
+| `x`   | Open in browser       |
+| `M`   | Merge MR              |
+| `C`   | Respond to discussion |
+| `n`   | Next discussion       |
+| `N`   | Previous discussion   |
+
+### Modal
+
+| Key      | Action            |
+| -------- | ----------------- |
+| `esc`    | Close modal       |
+| `ctrl+s` | Submit            |
+| `ctrl+y` | Copy to clipboard |
+
 ## Config
 
-config file is read from `~/.config/mrglab/mrglab.toml` by default.
+Config file is read from `~/.config/mrglab/mrglab.toml` by default.
 
 **To access private repos, you will need to set an env variable with a [gitlab personal access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html). This can be set in your shell config file (to persist it) or in your terminal (for the session).**
 
@@ -22,46 +98,24 @@ config file is read from `~/.config/mrglab/mrglab.toml` by default.
 export MRGLAB_TOKEN="YOUR_GITLAB_TOKEN"
 ```
 
-### config properties
+### Config properties
 
-<table>
-  <thead>
-    <th>Option</th>
-    <th>Description</th>
-    <th>Default</th>
-    <th>Example</th>
-  </thead>
-  
-  <tbody>
-    <tr>
-      <td>base_url</td>
-      <td>base api url</td>
-      <td></td>
-      <td>https://gitlab.com</td>
-    </tr>
-    <tr>
-      <td>filters.projects</td>
-      <td>list of <strong>project</strong> objects</td>
-      <td></td>
-      <td>[
-        {
-          name="Gitlab Cli",
-          id="34675721", 
-          fullPath="gitlab-org/cli"
-        }
-        ]
-      </td>
-    </tr>
-  </tbody>
-</table>
+| Option             | Description             | Default              | Required |
+| ------------------ | ----------------------- | -------------------- | -------- |
+| `base_url`         | Base GitLab URL         | `https://gitlab.com` | No       |
+| `filters.projects` | List of project objects | —                    | Yes      |
 
-`project` is an object with a `name` and `id` properties.
+### Project object
 
-- `name` - `string` is rendered in the project list view
-- `id` - `string` is the `gitlab project id` used to fetch selected project `merge requests` & `issues`
-- `fullPath` - `string` is the url path to the project after the base_url
+Each project in `filters.projects` has the following fields:
 
-#### config example
+| Field      | Type     | Description                                                        |
+| ---------- | -------- | ------------------------------------------------------------------ |
+| `name`     | `string` | Display name shown in the project list                             |
+| `id`       | `string` | GitLab project ID used to fetch merge requests                     |
+| `fullPath` | `string` | URL path to the project after the base URL (e.g. `gitlab-org/cli`) |
+
+### Config example
 
 ```toml
 base_url = "https://gitlab.com"
@@ -69,19 +123,14 @@ base_url = "https://gitlab.com"
 [filters]
 projects = [
 	{ name = "Gitlab Cli", id = "34675721", fullPath = "gitlab-org/cli" },
+	{ name = "My Project", id = "12345678", fullPath = "my-group/my-project" },
 ]
-```
-
-## Commands
-
-```bash
-mrglab
 ```
 
 ## Disclaimer
 
-The purpose of this project was to learn more about `go` and `bubbletea`. It is by no mean a full replacement of Gitlab UI (and it is not planned to be), but a complementary tool that would fit in some terminal workflows.
+The purpose of this project was to learn more about `go` and `bubbletea`. It is by no means a full replacement of Gitlab UI (and it is not planned to be), but a complementary tool that would fit in some terminal workflows.
 
 ## Inspiration
 
-this project is inspired by tools like [gh-dash](https://github.com/dlvhdr/gh-dash).
+This project is inspired by tools like [gh-dash](https://github.com/dlvhdr/gh-dash).

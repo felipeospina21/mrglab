@@ -9,6 +9,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
+// FetchMergeRequest returns a command that fetches a single merge request's details.
 func (m *Model) FetchMergeRequest() tea.Cmd {
 	return func() tea.Msg {
 		mr, err := m.client.GetMergeRequest(m.ctx.SelectedProject.ID, gitlab.MergeRequestQueryVariables{
@@ -31,6 +32,7 @@ func (m *Model) FetchMergeRequest() tea.Cmd {
 	}
 }
 
+// AcceptMergeRequest returns a command that merges the selected merge request.
 func (m *Model) AcceptMergeRequest() tea.Cmd {
 	if strings.ToLower(m.ctx.SelectedMR.Status) != "mergeable" {
 		return func() tea.Msg {
@@ -58,6 +60,7 @@ func (m *Model) AcceptMergeRequest() tea.Cmd {
 	}
 }
 
+// CreateNote returns a command that posts a comment on a discussion.
 func (m *Model) CreateNote(input gitlab.CreateNoteInput) tea.Cmd {
 	return func() tea.Msg {
 		res, err := m.client.CreateNote(input)

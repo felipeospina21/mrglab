@@ -1,3 +1,4 @@
+// Package icon defines Nerd Font icon constants used throughout the TUI.
 package icon
 
 // Icons from https://www.nerdfonts.com/cheat-sheet

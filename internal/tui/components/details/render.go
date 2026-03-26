@@ -53,6 +53,7 @@ func (m Model) getViewportContent(b string, mr MergeRequestDetails) viewportCont
 	}
 }
 
+// GetViewportContent renders the full details viewport content string.
 func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 	return m.getViewportContent(b, mr).content
 }
@@ -355,6 +356,7 @@ func timeAgo(time string) string {
 	return fmt.Sprintf("%s ago", time)
 }
 
+// ShortID extracts the last 6 characters of a GitLab resource ID.
 func ShortID(id string) string {
 	if i := strings.LastIndex(id, "/"); i >= 0 {
 		id = id[i+1:]

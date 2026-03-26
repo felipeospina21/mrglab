@@ -1,3 +1,4 @@
+// Package style provides color palettes and shared lipgloss styles for the TUI.
 package style
 
 type colorShades = map[uint]string

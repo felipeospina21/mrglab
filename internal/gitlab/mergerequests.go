@@ -2,6 +2,7 @@ package gitlab
 
 import "context"
 
+// GetProjectMergeRequests fetches the open merge requests for a project.
 func (c *Client) GetProjectMergeRequests(
 	projectID string,
 	vars MergeRequestsQueryVariables,
@@ -22,6 +23,7 @@ func (c *Client) GetProjectMergeRequests(
 	return query.Project.MergeRequests, nil
 }
 
+// GetMergeRequest fetches a single merge request by IID.
 func (c *Client) GetMergeRequest(
 	projectID string,
 	vars MergeRequestQueryVariables,
@@ -42,6 +44,7 @@ func (c *Client) GetMergeRequest(
 	return query.Project.MergeRequest, nil
 }
 
+// AcceptMergeRequest merges a merge request via the GitLab API.
 func (c *Client) AcceptMergeRequest(
 	projectID string,
 	input MergeRequestAcceptInput,

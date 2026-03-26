@@ -1,3 +1,4 @@
+// Package mergerequests implements the merge request list panel component.
 package mergerequests
 
 import (
@@ -12,12 +13,14 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
+// Model holds the state for the merge requests list panel.
 type Model struct {
 	Table  table.Model
 	ctx    *context.AppContext
 	client *gitlab.Client
 }
 
+// ColName maps column identifiers to their string names.
 type ColName struct {
 	CreatedAt   string
 	IsDraft     string
@@ -35,6 +38,7 @@ type ColName struct {
 	Sha         string
 }
 
+// ColNames contains the canonical column name strings.
 var ColNames = ColName{
 	CreatedAt:   "created_at",
 	IsDraft:     "is_draft",
@@ -52,6 +56,7 @@ var ColNames = ColName{
 	Sha:         "sha",
 }
 
+// Cols defines the default column layout for the merge requests table.
 var Cols = []table.Column{
 	{
 		Name:  ColNames.CreatedAt,
@@ -141,6 +146,7 @@ var IconCols = func() []int {
 	}
 }
 
+// New creates a new merge requests list model.
 func New(ctx *context.AppContext, client *gitlab.Client) Model {
 	return Model{
 		Table: table.Model{
@@ -151,10 +157,12 @@ func New(ctx *context.AppContext, client *gitlab.Client) Model {
 	}
 }
 
+// SetFocus sets the focused panel to the main (merge requests) panel.
 func (m *Model) SetFocus() {
 	m.ctx.FocusedPanel = context.MainPanel
 }
 
+// GetTableColums computes column widths proportionally for the given terminal width.
 func GetTableColums(width int) []table.Column {
 	w := table.ColWidth
 	columns := []table.Column{}
@@ -182,6 +190,7 @@ func GetTableColums(width int) []table.Column {
 	return columns
 }
 
+// GetTableRows converts a MergeRequestConnection into table rows.
 func GetTableRows(mrs gitlab.MergeRequestConnection) []table.Row {
 	var rows []table.Row
 
@@ -210,6 +219,7 @@ func GetTableRows(mrs gitlab.MergeRequestConnection) []table.Row {
 	return rows
 }
 
+// GetColIndex returns the index of a column by name.
 func GetColIndex(colName string) int {
 	return slices.IndexFunc(Cols, func(c table.Column) bool {
 		return c.Name == colName

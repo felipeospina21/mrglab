@@ -1,3 +1,4 @@
+// Package statusline implements the bottom status bar component.
 package statusline
 
 import (
@@ -12,6 +13,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
+// Modes defines the possible status bar mode labels.
 type Modes struct {
 	Normal  string
 	Insert  string
@@ -20,6 +22,7 @@ type Modes struct {
 	Dev     string
 }
 
+// ModesEnum contains the available status bar mode values.
 var ModesEnum = Modes{
 	Normal:  "NORMAL",
 	Insert:  "INSERT",
@@ -28,6 +31,7 @@ var ModesEnum = Modes{
 	Dev:     "DEVELOP",
 }
 
+// Model holds the state for the status bar.
 type Model struct {
 	Status   string
 	Content  string
@@ -38,6 +42,7 @@ type Model struct {
 	ctx      *context.AppContext
 }
 
+// New creates a new status bar model.
 func New(ctx *context.AppContext, keybinds help.KeyMap) Model {
 	status := ModesEnum.Normal
 	if ctx.DevMode {
@@ -102,6 +107,7 @@ func (m Model) View() string {
 	return StatusBarStyle.Render(bar)
 }
 
+// GetFrameSize returns the total frame size of the status bar.
 func GetFrameSize() (int, int) {
 	x, y := StatusBarStyle.GetFrameSize()
 	xNugget, yNugget := statusNugget.GetFrameSize()

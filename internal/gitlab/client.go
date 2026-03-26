@@ -9,12 +9,14 @@ import (
 	"github.com/hasura/go-graphql-client"
 )
 
+// Client wraps the GitLab GraphQL API client.
 type Client struct {
 	gql     *graphql.Client
 	cfg     *config.Config
 	devMode bool
 }
 
+// NewClient creates a new GitLab GraphQL client from the given config.
 func NewClient(cfg *config.Config) *Client {
 	if cfg.DevMode {
 		return &Client{cfg: cfg, devMode: true}

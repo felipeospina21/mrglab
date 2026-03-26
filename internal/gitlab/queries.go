@@ -32,16 +32,19 @@ type createNoteMutation struct {
 
 // Input types
 
+// MergeRequestsQueryVariables holds the variables for the merge requests list query.
 type MergeRequestsQueryVariables struct {
 	State           string
 	ProjectFullPath graphql.ID
 }
 
+// MergeRequestQueryVariables holds the variables for a single merge request query.
 type MergeRequestQueryVariables struct {
 	MRIID string
 	MergeRequestsQueryVariables
 }
 
+// MergeRequestAcceptInput holds the input for the accept merge request mutation.
 type MergeRequestAcceptInput struct {
 	ProjectPath              graphql.ID
 	IID                      string
@@ -50,14 +53,19 @@ type MergeRequestAcceptInput struct {
 	Squash                   bool
 }
 
+// NoteableID is a typed GraphQL ID for noteable resources.
 type NoteableID string
 
+// GetGraphQLType returns the GraphQL type name for NoteableID.
 func (NoteableID) GetGraphQLType() string { return "NoteableID" }
 
+// DiscussionID is a typed GraphQL ID for discussions.
 type DiscussionID string
 
+// GetGraphQLType returns the GraphQL type name for DiscussionID.
 func (DiscussionID) GetGraphQLType() string { return "DiscussionID" }
 
+// CreateNoteInput holds the input for creating a note on a discussion.
 type CreateNoteInput struct {
 	NoteableId   NoteableID
 	DiscussionId DiscussionID

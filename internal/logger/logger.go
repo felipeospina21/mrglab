@@ -1,3 +1,4 @@
+// Package logger provides file-based logging utilities.
 package logger
 
 import (
@@ -7,6 +8,7 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+// NewLogger holds the configuration for creating a logger instance.
 type NewLogger struct {
 	opts   log.Options
 	prefix string

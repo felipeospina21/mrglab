@@ -1,9 +1,11 @@
+// Package context provides shared application state accessible by all TUI components.
 package context
 
 import tea "github.com/charmbracelet/bubbletea"
 
 type focusedPanel uint
 
+// Panel focus constants.
 const (
 	LeftPanel focusedPanel = iota
 	MainPanel
@@ -11,6 +13,7 @@ const (
 	Modal
 )
 
+// AppContext holds shared state passed to all TUI components.
 type AppContext struct {
 	SelectedProject struct {
 		Name string

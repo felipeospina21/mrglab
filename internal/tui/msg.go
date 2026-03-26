@@ -1,23 +1,25 @@
+// Package tui provides shared types, messages, keys, and utilities for the TUI layer.
 package tui
 
 import "github.com/felipeospina21/mrglab/internal/gitlab"
 
-// Task state tracking
+// TaskStatus tracks the lifecycle of an async task.
 type TaskStatus uint
 
+// Task lifecycle constants.
 const (
 	TaskIdle TaskStatus = iota
 	TaskStarted
 	TaskFinished
 )
 
-// Typed messages — replace the generic TaskMsg wrapper
-
+// MRListFetchedMsg is sent when the merge request list has been fetched.
 type MRListFetchedMsg struct {
 	Mrs gitlab.MergeRequestConnection
 	Err error
 }
 
+// MRDetailsFetchedMsg is sent when a single merge request's details have been fetched.
 type MRDetailsFetchedMsg struct {
 	MRId        string
 	Discussions []gitlab.DiscussionNode
@@ -27,11 +29,13 @@ type MRDetailsFetchedMsg struct {
 	Err         error
 }
 
+// MRMergedMsg is sent after a merge request accept mutation completes.
 type MRMergedMsg struct {
 	Errors []string
 	Err    error
 }
 
+// NoteCreatedMsg is sent after a note (comment) has been created.
 type NoteCreatedMsg struct {
 	Errors []string
 	Err    error
