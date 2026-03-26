@@ -9,7 +9,7 @@ jobs:
           fetch-depth: 0
       - name: Check commit emails
         run: |
-          ALLOWED="felipeospina21@hotmail.com|51976045+felipeospina21@users.noreply.github.com"
+          ALLOWED="felipeospina21@hotmail.com|51976045\+felipeospina21@users.noreply.github.com"
           BAD=$(git log --format='%ae' origin/main..HEAD | grep -vE "$ALLOWED" || true)
           if [ -n "$BAD" ]; then
             echo "::error::Commits from unauthorized emails: $BAD"
