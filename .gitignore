@@ -1,3 +1,6 @@
 .log
 .kiro
 mrglab
+dist/
+debug.log
+c.out
