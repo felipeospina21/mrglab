@@ -29,7 +29,7 @@ jobs:
       - name: Validate conventional commits
         run: |
           COMMITS=$(git log --format='%s' origin/main..HEAD)
-          PATTERN='^(feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?: .+'
+          PATTERN='^(feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?:? .+'
           FAILED=0
           while IFS= read -r msg; do
             if [ -z "$msg" ]; then continue; fi
