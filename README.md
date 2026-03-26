@@ -127,6 +127,14 @@ projects = [
 ]
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
 ## Disclaimer
 
 The purpose of this project was to learn more about `go` and `bubbletea`. It is by no means a full replacement of Gitlab UI (and it is not planned to be), but a complementary tool that would fit in some terminal workflows.
