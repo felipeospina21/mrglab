@@ -28,7 +28,8 @@ jobs:
 
       - name: Validate conventional commits
         run: |
-          COMMITS=$(git log --no-merges --format='%s' origin/main..HEAD)
+          BASE=${{ github.event.pull_request.base.sha }}
+          COMMITS=$(git log --no-merges --format='%s' "$BASE"..HEAD)
           PATTERN='^(feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?:? .+'
           FAILED=0
           while IFS= read -r msg; do
