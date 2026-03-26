@@ -26,6 +26,7 @@ changelog:
     exclude:
       - "^chore"
       - "^ci"
+      - "^Merge"
 
 release:
   github:
