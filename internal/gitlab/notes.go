@@ -2,6 +2,7 @@ package gitlab
 
 import "context"
 
+// CreateNote posts a new comment on a discussion thread.
 func (c *Client) CreateNote(input CreateNoteInput) (CreateNoteResponse, error) {
 	if c.devMode {
 		return CreateNoteResponse{}, nil

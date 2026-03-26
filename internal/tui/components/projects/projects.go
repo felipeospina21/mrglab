@@ -1,3 +1,4 @@
+// Package projects implements the project list side panel component.
 package projects
 
 import (
@@ -18,12 +19,14 @@ import (
 
 const ellipsis = "…"
 
+// Model holds the state for the projects list panel.
 type Model struct {
 	List   list.Model
 	ctx    *context.AppContext
 	client *gitlab.Client
 }
 
+// New creates a new projects list model from the given config projects.
 func New(ctx *context.AppContext, client *gitlab.Client, projectList []config.Project) Model {
 	var li []list.Item
 	var i Item
@@ -51,6 +54,7 @@ func New(ctx *context.AppContext, client *gitlab.Client, projectList []config.Pr
 	}
 }
 
+// SelectProject sets the selected project in the shared app context.
 func (m *Model) SelectProject() {
 	s := m.List.SelectedItem()
 	i, ok := s.(Item)
@@ -61,6 +65,7 @@ func (m *Model) SelectProject() {
 	}
 }
 
+// Item represents a project entry in the list.
 type Item struct {
 	Name, ID string
 }
@@ -153,6 +158,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fmt.Fprintf(w, "%s", title) //nolint: errcheck
 }
 
+// GetFrameSize returns the total frame size of the projects panel.
 func GetFrameSize() (int, int) {
 	x, y := DocStyle.GetFrameSize()
 	xItem, yItem := ItemStyle.GetFrameSize()
@@ -161,6 +167,7 @@ func GetFrameSize() (int, int) {
 	return x + xItem + xTitle, y + yItem + yTitle
 }
 
+// SetFocus sets the focused panel to the projects (left) panel.
 func (m *Model) SetFocus() {
 	m.ctx.FocusedPanel = context.LeftPanel
 }

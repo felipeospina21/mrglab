@@ -1,3 +1,4 @@
+// Package config handles loading and watching the mrglab TOML configuration file.
 package config
 
 import (
@@ -10,15 +11,18 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Project represents a GitLab project entry in the config file.
 type Project struct {
 	Name     string `mapstructure:"name"`
 	FullPath string `mapstructure:"fullPath"`
 	ID       string `mapstructure:"id"`
 }
 
+// Filter holds the project filter list from the config file.
 type Filter struct {
 	Projects []Project `mapstructure:"projects"`
 }
+// Config holds the application configuration loaded from the TOML file and environment.
 type Config struct {
 	BaseURL  string `mapstructure:"base_url"`
 	APIToken string `mapstructure:"token"`
@@ -26,12 +30,17 @@ type Config struct {
 	DevMode  bool
 }
 
+// GlobalConfig is the singleton config instance used throughout the application.
 var (
 	GlobalConfig Config
 	cmdName      = "mrglab"
 )
 
+// Load reads the config file, unmarshals it, and loads environment variables.
+// In dev mode, missing config file and token are tolerated and mock projects are used as fallback.
 func Load(config *Config) error {
+	config.DevMode = isDevMode()
+
 	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
 
@@ -44,6 +53,11 @@ func Load(config *Config) error {
 
 	err := viper.ReadInConfig()
 	if err != nil {
+		if config.DevMode {
+			config.BaseURL = "https://gitlab.com"
+			config.Filters.Projects = mockProjects
+			return nil
+		}
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
@@ -56,6 +70,10 @@ func Load(config *Config) error {
 		config.BaseURL = "https://gitlab.com"
 	}
 
+	if config.DevMode {
+		config.Filters.Projects = mockProjects
+	}
+
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		l.Info(fmt.Sprintf("Config file changed: %s", e.Name))
 	})
@@ -63,7 +81,7 @@ func Load(config *Config) error {
 
 	// Env vars
 	err = loadEnvVars(config)
-	if err != nil {
+	if err != nil && !config.DevMode {
 		return err
 	}
 	return nil
@@ -88,13 +106,21 @@ func loadEnvVars(config *Config) error {
 	}
 
 	config.APIToken = token.(string)
-	config.DevMode = isDevMode()
 	return nil
 }
 
-func isDevMode() bool {
-	isDevMode := flag.Bool("dev", false, "activates dev mode to use mocked data instead of calling api")
-	flag.Parse()
+var devFlag = flag.Bool("dev", false, "activates dev mode to use mocked data instead of calling api")
 
-	return *isDevMode
+func isDevMode() bool {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
+	return *devFlag
+}
+
+var mockProjects = []Project{
+	{Name: "Payments API", ID: "10234567", FullPath: "acme-corp/payments-api"},
+	{Name: "Web Dashboard", ID: "10234568", FullPath: "acme-corp/web-dashboard"},
+	{Name: "Auth Service", ID: "10234569", FullPath: "acme-corp/auth-service"},
+	{Name: "Mobile App", ID: "10234570", FullPath: "acme-corp/mobile-app"},
 }

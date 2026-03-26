@@ -1,3 +1,4 @@
+// Package exec provides OS-level utilities for clipboard and browser operations.
 package exec
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/logger"
 )
 
+// CopyToClipboard copies text to the system clipboard.
 func CopyToClipboard(text string) {
 	var cmd *exec.Cmd
 

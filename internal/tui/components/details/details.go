@@ -1,3 +1,4 @@
+// Package details implements the merge request details side panel component.
 package details
 
 import (
@@ -12,11 +13,13 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
+// LeftMargin is the horizontal margin used in the details panel.
 const (
 	useHighPerformanceRenderer = false
 	LeftMargin                 = 2
 )
 
+// MergeRequestDetails holds the fetched details for a single merge request.
 type MergeRequestDetails struct {
 	Pipelines   []gitlab.CiStageNode
 	Discussions []gitlab.DiscussionNode
@@ -24,6 +27,7 @@ type MergeRequestDetails struct {
 	Branches    [2]string
 }
 
+// DetailsContent holds the rendered content sections for the details viewport.
 type DetailsContent struct {
 	Title       string
 	Body        string
@@ -31,6 +35,7 @@ type DetailsContent struct {
 	Pipelines   string
 }
 
+// Model holds the state for the details side panel.
 type Model struct {
 	Viewport       viewport.Model
 	Ready          IsDetailsResponseReady
@@ -44,6 +49,7 @@ type Model struct {
 	ctx            *context.AppContext
 }
 
+// IsDetailsResponseReady indicates whether the details data has been loaded.
 type (
 	responseMsg            string
 	contentRenderedMsg     string
@@ -51,6 +57,7 @@ type (
 	errMsg                 struct{ err error }
 )
 
+// New creates a new details panel model.
 func New(ctx *context.AppContext) Model {
 	return Model{
 		Viewport: viewport.New(10, 10),
@@ -58,6 +65,7 @@ func New(ctx *context.AppContext) Model {
 	}
 }
 
+// SetFocus sets the focused panel to the details (right) panel.
 func (m *Model) SetFocus() {
 	m.ctx.FocusedPanel = context.RightPanel
 }
@@ -85,6 +93,7 @@ func (m *Model) FooterView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
+// SetViewportViewSize initializes or resizes the viewport to fit the given window.
 func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	w := msg.Width
 	headerHeight := lipgloss.Height(m.HeaderView())

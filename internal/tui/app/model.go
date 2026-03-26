@@ -1,3 +1,4 @@
+// Package app wires together all TUI components into the main Bubble Tea model.
 package app
 
 import (
@@ -23,6 +24,7 @@ const (
 	taskFinished
 )
 
+// Model is the top-level Bubble Tea model that composes all TUI components.
 type Model struct {
 	Projects      projects.Model
 	MergeRequests mergerequests.Model
@@ -44,6 +46,7 @@ type Model struct {
 	}
 }
 
+// InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
 	ctx.FocusedPanel = context.LeftPanel
 	ctx.DevMode = cfg.DevMode
@@ -142,6 +145,7 @@ func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.Statusline.Keybinds = kb
 }
 
+// SelectMR stores the currently selected merge request's IID, SHA, and status in the app context.
 func (m *Model) SelectMR() {
 	idColIdx := mergerequests.GetColIndex(mergerequests.ColNames.ID)
 	m.ctx.SelectedMR.IID = m.MergeRequests.Table.SelectedRow()[idColIdx]

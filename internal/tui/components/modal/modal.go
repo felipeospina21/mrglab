@@ -1,3 +1,4 @@
+// Package modal implements a centered overlay modal component.
 package modal
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
+// Model holds the state for the modal overlay.
 type Model struct {
 	Header    string
 	Content   string
@@ -17,6 +19,7 @@ type Model struct {
 	ctx       *context.AppContext
 }
 
+// New creates a new modal model.
 func New(ctx *context.AppContext) Model {
 	return Model{
 		ctx: ctx,
@@ -62,6 +65,7 @@ func (m Model) View(background string) string {
 	return placeOverlay(w, h, box, dimmed)
 }
 
+// SetFocus sets the focused panel to the modal.
 func (m *Model) SetFocus() {
 	m.ctx.FocusedPanel = context.Modal
 }
