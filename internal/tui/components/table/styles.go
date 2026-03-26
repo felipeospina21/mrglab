@@ -20,8 +20,6 @@ var (
 			Background(lipgloss.Color(style.Violet[800])).
 			Bold(false)
 
-		s.Cell = s.Cell
-
 		return s
 	}
 	TitleStyle = lipgloss.NewStyle().

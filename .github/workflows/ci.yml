@@ -1,0 +1,46 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+  commit-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate conventional commits
+        run: |
+          COMMITS=$(git log --no-merges --format='%s' origin/main..HEAD)
+          PATTERN='^(feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?:? .+'
+          FAILED=0
+          while IFS= read -r msg; do
+            if [ -z "$msg" ]; then continue; fi
+            if ! echo "$msg" | grep -qE "$PATTERN"; then
+              echo "::error::Invalid commit message: $msg"
+              FAILED=1
+            fi
+          done <<< "$COMMITS"
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "Commits must follow Conventional Commits: <type>: <description>"
+            echo "Valid types: feat, fix, refactor, chore, docs, test, ci, style, perf, build, revert"
+            exit 1
+          fi

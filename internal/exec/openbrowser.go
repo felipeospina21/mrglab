@@ -21,7 +21,7 @@ func Openbrowser(url string) {
 	case "darwin":
 		cmd = exec.Command("open", url)
 	default:
-		errors.New("unsupported platform")
+		err = errors.New("unsupported platform")
 	}
 
 	err = cmd.Start()
