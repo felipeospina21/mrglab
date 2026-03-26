@@ -1,12 +1,13 @@
 # Improvements Roadmap
 
-## 1. Fix TODO/FIX Comments
+Items are ordered by priority. Checked items are complete.
 
-- [ ] `mergerequests.go:236` — Refactor function to render Icon + Status in details view
-- [ ] `projects/styles.go:16` — Set width from config instead of hardcoded 30
-- [ ] `statusline/styles.go:9` — Update colors with design tokens
-- [ ] `table/styles.go:36` — Update border color with design tokens
-- [ ] `details/render.go:286` — Investigate magic number 4 and replace with proper calculation
+## 1. Versioning & Releases
+
+- [ ] Tag initial release as `v0.1.0`
+- [ ] Add `CHANGELOG.md`
+- [ ] Add GitHub Actions release workflow (create GitHub Release on tag push)
+- [ ] Set up `.goreleaser.yml` for cross-platform binary builds
 
 ## 2. Update Go Version & Dependencies
 
@@ -14,58 +15,56 @@
 - [ ] Update all dependencies
 - [ ] Verify build and fix any breaking changes
 
-## 3. Loading State on MR Details
-
-- [ ] Show loading modal/spinner when fetching MR details
-- [ ] Dismiss loading state when data arrives or on error
-
-## 4. Address Linter Warnings
+## 3. Address Linter Warnings
 
 - [ ] Run `golangci-lint run` and fix all warnings
-- [ ] Consider adding linter to CI workflow
+- [ ] Add linter to CI workflow
+
+## 4. Fix TODO/FIX Comments
+
+- [ ] `mergerequests.go:236` — Refactor function to render Icon + Status in details view
+- [ ] `projects/styles.go:16` — Set width from config instead of hardcoded 30
+- [ ] `statusline/styles.go:9` — Update colors with design tokens
+- [ ] `table/styles.go:36` — Update border color with design tokens
+- [ ] `details/render.go:286` — Investigate magic number 4 and replace with proper calculation
 
 ## 5. Documentation & README
 
 - [x] Add godoc comments to exported types and functions
 - [x] Update README with new features (respond to discussions, keybindings)
 - [x] Document configuration options
-- [ ] Add usage examples / screenshots
+- [ ] Record demo GIF with VHS and add to README
+- [ ] Add GitHub issue templates (bug report, feature request)
 
-## Remaining Improvements
+## 6. Loading State on MR Details
 
-These are lower-priority cleanups that weren't part of the original 9-step migration but would further improve the codebase.
+- [x] Show loading spinner when fetching MR details
+- [x] Dismiss loading state when data arrives or on error
+- [x] Unify loader into reusable component
 
-### 10. Move app-specific utilities out of `table` package
+## 7. Improve .gitignore
 
-`table/utils.go` contains `FormatTime` and `StyleIconsColumns` — these are app-specific formatting helpers that don't belong in a generic table widget.
+- [ ] Add `debug.log`, `c.out`, `*.exe`
 
-- Move `FormatTime` to a shared `tui/format.go` (used by `mergerequests/mergerequests.go` and `details/render.go`)
-- Move `StyleIconsColumns` to `mergerequests/columns.go` or `app/commands.go` (only used in `app/commands.go`)
-- `table` package becomes a pure reusable widget with no app-specific knowledge
+## 8. Move App-Specific Utilities Out of `table` Package
 
-### 11. Rename `mergerequests/` → `mrlist/`
+- [ ] Move `FormatTime` to a shared `tui/format.go`
+- [ ] Move `StyleIconsColumns` to `mergerequests/columns.go` or `app/commands.go`
+- [ ] `table` package becomes a pure reusable widget
 
-The proposed structure uses `mrlist/` which is shorter and consistent with the component's role (it's a list view, not the domain concept). This is a straightforward rename:
+## 9. Rename `mergerequests/` → `mrlist/`
 
-- `internal/tui/components/mergerequests/` → `internal/tui/components/mrlist/`
-- Update all imports across `app/`, `tui/`, and other components
+- [ ] Rename `internal/tui/components/mergerequests/` → `internal/tui/components/mrlist/`
+- [ ] Update all imports across `app/`, `tui/`, and other components
 
-### 12. Reduce `AppContext` mutations from components
+## 10. Extract `app/model.go` Helpers
 
-Components currently mutate `ctx` directly for two concerns:
+- [ ] Move `setStatus`, `startTask`, `finishTask`, `toggleLeftPanel`, `toggleRightPanel`, `SelectMR` to `app/helpers.go`
 
-**a) Focus management** — 4 components set `m.ctx.FocusedPanel`:
+## 11. Reduce `AppContext` Mutations from Components
 
-- `projects.SetFocus()`, `mergerequests.SetFocus()`, `details.SetFocus()`, `modal.SetFocus()`
+No action needed unless the codebase grows. Current `AppContext` surface (6 fields) is reasonable. Documented here for future reference:
 
-These could return a message instead (e.g., `FocusPanelMsg{Panel}`) and let `app` be the single writer. But this adds indirection for minimal gain since focus is inherently shared state. **Keep as-is unless it causes bugs.**
-
-**b) Selection state** — `projects.SelectProject()` writes `ctx.SelectedProject`, and `app.SelectMR()` writes `ctx.SelectedMR`. These are fine — they're the natural owners of that data.
-
-**c) `PanelHeight`** — set by `app/layout.go`, read by `modal`. This is legitimate shared layout state. **Keep as-is.**
-
-No action needed here unless the codebase grows. The current `AppContext` surface (6 fields) is reasonable.
-
-### 13. Extract `app/model.go` helpers
-
-`model.go` still mixes the struct definition with state mutation helpers (`setStatus`, `startTask`, `finishTask`, `toggleLeftPanel`, `toggleRightPanel`, `SelectMR`). These could move to a separate `app/helpers.go` to keep `model.go` focused on the struct + constructor. Low priority — the file is ~150 lines, not a pain point yet.
+- **Focus management** — 4 components set `ctx.FocusedPanel` directly. Could use messages instead, but adds indirection for minimal gain.
+- **Selection state** — `projects.SelectProject()` and `app.SelectMR()` are natural owners.
+- **PanelHeight** — set by `app/layout.go`, read by `modal`. Legitimate shared layout state.
