@@ -60,6 +60,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
 
 	case mergerequests.ViewDetailsMsg:
+		if !m.isRightOpen {
+			m.toggleRightPanel()
+		}
+		m.Details.SetFocus()
+		m.Details.Ready = false
+		m.Details.Viewport.SetContent("")
+		titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
+		m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
 		cmds = append(cmds, m.startTask(m.fetchSingleMergeRequest))
 
 	case mergerequests.MergeMRMsg, details.MergeMRMsg:
@@ -168,11 +176,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			c := m.Details.GetViewportContent(m.Details.MRDescription, mr)
 			m.Details.Viewport.SetContent(c)
-
-			if !m.isRightOpen {
-				m.toggleRightPanel()
-				m.Details.SetFocus()
-			}
+			m.Details.Ready = true
 		}
 
 	case tui.MRMergedMsg:
@@ -203,6 +207,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var spin tea.Cmd
 		cmd = m.updateSpinnerViewCommand(msg)
 		m.Spinner, spin = m.Spinner.Update(msg)
+		m.Details.SpinnerView = m.Spinner.View()
 		cmds = append(cmds, cmd, spin)
 
 	case tea.WindowSizeMsg:

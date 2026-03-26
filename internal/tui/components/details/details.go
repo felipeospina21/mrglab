@@ -11,6 +11,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 )
 
 // LeftMargin is the horizontal margin used in the details panel.
@@ -44,6 +45,7 @@ type Model struct {
 	MRDetails      MergeRequestDetails
 	MRId           string
 	MRDescription  string
+	SpinnerView    string
 	DiscussionIdx  int
 	Err            error
 	ctx            *context.AppContext
@@ -73,6 +75,12 @@ func (m *Model) SetFocus() {
 func (e errMsg) Error() string { return e.err.Error() }
 
 func (m Model) View() string {
+	if !m.Ready {
+		return PanelStyle.Render(fmt.Sprintf("%s\n%s",
+			m.HeaderView(),
+			loader.View(m.SpinnerView),
+		))
+	}
 	return PanelStyle.Render(fmt.Sprintf("%s\n%s\n%s",
 		m.HeaderView(),
 		m.Viewport.View(),
