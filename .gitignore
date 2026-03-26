@@ -1,6 +1,25 @@
-.log
-.kiro
+# Binary
 mrglab
+*.exe
+
+# Build
 dist/
-debug.log
+
+# Logs
+*.log
+
+# Test
 c.out
+*.test
+
+# IDE / Editor
+.kiro
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
