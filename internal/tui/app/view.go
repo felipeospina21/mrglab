@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -45,12 +46,7 @@ func (m Model) renderNormalScreen(left string, render func(...string) string) st
 
 	if m.isLeftOpen {
 		if isFetching {
-			textStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[300])).Render
-			body = fmt.Sprintf("\n %s%s%s\n\n",
-				m.Spinner.View(),
-				" ",
-				textStyle("Fetching..."),
-			)
+			body = loader.View(m.Spinner.View())
 		}
 		main := lipgloss.JoinHorizontal(0, left, body)
 		sl := m.Statusline.View()
