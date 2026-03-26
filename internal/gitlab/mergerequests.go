@@ -1,6 +1,9 @@
 package gitlab
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // GetProjectMergeRequests fetches the open merge requests for a project.
 func (c *Client) GetProjectMergeRequests(
@@ -8,6 +11,7 @@ func (c *Client) GetProjectMergeRequests(
 	vars MergeRequestsQueryVariables,
 ) (MergeRequestConnection, error) {
 	if c.devMode {
+		time.Sleep(1 * time.Second)
 		return mergeRequestConnectionMock, nil
 	}
 
@@ -29,6 +33,7 @@ func (c *Client) GetMergeRequest(
 	vars MergeRequestQueryVariables,
 ) (MergeRequestResponse, error) {
 	if c.devMode {
+		time.Sleep(800 * time.Millisecond)
 		return mergeRequestResponseMock, nil
 	}
 
@@ -50,6 +55,7 @@ func (c *Client) AcceptMergeRequest(
 	input MergeRequestAcceptInput,
 ) (AcceptMergeRequestResponse, error) {
 	if c.devMode {
+		time.Sleep(500 * time.Millisecond)
 		return AcceptMergeRequestResponse{}, nil
 	}
 
