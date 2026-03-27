@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
@@ -67,6 +68,61 @@ func (m *Model) CreateNote(input gitlab.CreateNoteInput) tea.Cmd {
 		return tui.NoteCreatedMsg{
 			Errors: res.Errors,
 			Err:    err,
+		}
+	}
+}
+
+// CreateMergeRequest returns a command that creates a new merge request.
+func (m *Model) CreateMergeRequest(input gitlab.CreateMergeRequestInput) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.CreateMergeRequest(m.ctx.SelectedProject.ID, input)
+		return tui.MRCreatedMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}
+
+// FetchMRTemplates returns a command that fetches MR description templates and branch info.
+func (m *Model) FetchMRTemplates() tea.Cmd {
+	return func() tea.Msg {
+		type tmplResult struct {
+			templates []gitlab.MRDescriptionTemplate
+			err       error
+		}
+		type infoResult struct {
+			info gitlab.ProjectInfo
+			err  error
+		}
+
+		tmplCh := make(chan tmplResult, 1)
+		infoCh := make(chan infoResult, 1)
+
+		go func() {
+			t, err := m.client.GetMRDescriptionTemplates(m.ctx.SelectedProject.ID)
+			tmplCh <- tmplResult{t, err}
+		}()
+
+		go func() {
+			i, err := m.client.GetProjectInfo(m.ctx.SelectedProject.ID)
+			infoCh <- infoResult{i, err}
+		}()
+
+		tr := <-tmplCh
+		ir := <-infoCh
+
+		sourceBranch := execPkg.CurrentGitBranch()
+
+		defaultBranch := "main"
+		if ir.err == nil && ir.info.DefaultBranch != "" {
+			defaultBranch = ir.info.DefaultBranch
+		}
+
+		return tui.MRTemplatesFetchedMsg{
+			Templates:     tr.templates,
+			DefaultBranch: defaultBranch,
+			SourceBranch:  sourceBranch,
+			Err:           tr.err,
 		}
 	}
 }

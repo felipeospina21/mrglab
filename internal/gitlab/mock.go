@@ -402,6 +402,27 @@ var mergeRequestResponseMock = MergeRequestResponse{
 	},
 }
 
+var mrDescriptionTemplatesMock = []MRDescriptionTemplate{
+	{
+		Name: "Default",
+		Content: `## Summary
+
+Add a quick summary of what this MR is addressing.
+
+### Related Issue
+
+Add a link to an existing issue or bug here.
+
+### Checklist
+
+- [ ] Code follows the project style guidelines
+- [ ] Tests have been added or updated
+- [ ] Documentation has been updated
+- [ ] Changes have been tested locally
+`,
+	},
+}
+
 const MarkdownContentMock = `
 # Today's Menu
 

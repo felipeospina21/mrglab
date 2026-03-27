@@ -44,6 +44,9 @@ type Model struct {
 		DiscussionId string
 		NoteableId   string
 	}
+	pendingCreateMR bool
+	formReady       bool
+	createForm      createMRForm
 }
 
 // InitMainModel creates and returns the initial application model.
@@ -69,6 +72,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		ctx:        ctx,
 		taskStatus: taskIdle,
 		isLeftOpen: true,
+		createForm: newCreateMRForm(),
 	}
 }
 

@@ -20,6 +20,34 @@ type getMergeRequest struct {
 	} `graphql:"project(fullPath: $fullPath)"`
 }
 
+type getRepositoryTree struct {
+	Project struct {
+		Repository struct {
+			Tree struct {
+				Blobs struct {
+					Nodes []struct {
+						Name string
+						Path string
+					}
+				}
+			} `graphql:"tree(path: $path, ref: $ref)"`
+		}
+	} `graphql:"project(fullPath: $fullPath)"`
+}
+
+type getRepositoryBlobs struct {
+	Project struct {
+		Repository struct {
+			Blobs struct {
+				Nodes []struct {
+					Name        string
+					RawTextBlob string
+				}
+			} `graphql:"blobs(paths: $paths, ref: $ref)"`
+		}
+	} `graphql:"project(fullPath: $fullPath)"`
+}
+
 // Mutation structs
 
 type acceptMergeRequestMutation struct {
@@ -102,5 +130,34 @@ func createNoteVariables(input CreateNoteInput) map[string]any {
 		"noteableId":   input.NoteableId,
 		"discussionId": input.DiscussionId,
 		"body":         input.Body,
+	}
+}
+
+// Mutation struct for creating a merge request.
+type createMergeRequestMutation struct {
+	MergeRequestCreate CreateMergeRequestResponse `graphql:"mergeRequestCreate(input:{projectPath:$projectPath,sourceBranch:$sourceBranch,targetBranch:$targetBranch,title:$title,description:$description})"`
+}
+
+// CreateMergeRequestInput holds the input for the create merge request mutation.
+type CreateMergeRequestInput struct {
+	ProjectPath  graphql.ID
+	SourceBranch string
+	TargetBranch string
+	Title        string
+	Description  string
+}
+
+// CreateMergeRequestResponse is the result of a create merge request mutation.
+type CreateMergeRequestResponse struct {
+	Errors []string
+}
+
+func createMergeRequestVariables(input CreateMergeRequestInput) map[string]any {
+	return map[string]any{
+		"projectPath":  input.ProjectPath,
+		"sourceBranch": input.SourceBranch,
+		"targetBranch": input.TargetBranch,
+		"title":        input.Title,
+		"description":  input.Description,
 	}
 }

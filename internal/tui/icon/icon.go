@@ -7,6 +7,9 @@ package icon
 const (
 	Alert      = " "
 	Approval   = "󰄴 "
+	ArrowRight = "->"
+	ArrowLeft  = "<-"
+	ArrowDown  = ""
 	Dash       = " "
 	Diff       = " "
 	Discussion = " "

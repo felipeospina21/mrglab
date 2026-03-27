@@ -92,6 +92,19 @@ func modalSize(available int) int {
 	}
 }
 
+// ContentWidth returns the usable content width inside the modal for a given window width.
+func ContentWidth(windowW int) int {
+	return modalSize(windowW) - boxStyle.GetHorizontalFrameSize()
+}
+
+// ContentHeight returns the usable content height inside the modal for a given window height.
+func ContentHeight(windowH int) int {
+	modalH := modalSize(windowH)
+	header := headerStyle.Render("X")
+	footer := helpStyle.Render("X")
+	return max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
+}
+
 // dimContent strips existing colors and applies a dim foreground.
 func dimContent(s string, w, h int) string {
 	// Ensure background fills the full screen
