@@ -86,7 +86,7 @@ func renderBranches(source, target string) string {
 	var content strings.Builder
 	content.WriteString(icon.Rebase)
 	content.WriteString(target)
-	content.WriteString(" <- ")
+	content.WriteString(fmt.Sprintf(" %s ", icon.ArrowLeft))
 	content.WriteString(source)
 
 	return s.Render(content.String())

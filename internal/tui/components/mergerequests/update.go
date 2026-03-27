@@ -10,6 +10,7 @@ type (
 	ViewDetailsMsg    struct{}
 	MergeMRMsg        struct{}
 	OpenInBrowserMsg  struct{}
+	CreateMRMsg       struct{}
 )
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -24,6 +25,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, func() tea.Msg { return MergeMRMsg{} }
 		case match(Keybinds.OpenInBrowser):
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
+		case match(Keybinds.CreateMR):
+			return m, func() tea.Msg { return CreateMRMsg{} }
 		}
 	}
 	m.Table, cmd = m.Table.Update(msg)

@@ -14,6 +14,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
+	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
@@ -76,6 +77,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
 
+	case mergerequests.CreateMRMsg:
+		m.isModalOpen = true
+		m.pendingCreateMR = true
+		m.ctx.FocusedPanel = context.Modal
+		m.Modal.Header = "New Merge Request"
+		m.Modal.Content = loader.View(m.Spinner.View())
+		cmds = append(cmds, m.MergeRequests.FetchMRTemplates())
+
+	case tui.MRTemplatesFetchedMsg:
+		if m.pendingCreateMR {
+			m.createForm.SetSize(modalContentWidth(m.ctx.Window.Width), modalContentHeight(m.ctx.Window.Height))
+			if msg.Err == nil {
+				if msg.SourceBranch != "" {
+					m.createForm.source.SetValue(msg.SourceBranch)
+				}
+				if msg.DefaultBranch != "" {
+					m.createForm.target.SetValue(msg.DefaultBranch)
+				}
+				if len(msg.Templates) > 0 {
+					m.createForm.description.SetValue(msg.Templates[0].Content)
+				}
+			}
+			m.formReady = true
+			m.Modal.Content = m.createForm.View()
+			cmds = append(cmds, m.createForm.Focus())
+		}
+
 	case details.ClosePanelMsg:
 		m.toggleRightPanel()
 		m.MergeRequests.SetFocus()
@@ -93,7 +121,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case modal.CloseModalMsg:
 		m.Input.Blur()
 		m.Input.Reset()
+		m.createForm.Blur()
+		m.createForm.Reset()
 		m.Modal.IsError = false
+		m.pendingCreateMR = false
+		m.formReady = false
 		if m.taskErr != nil {
 			mode := statusline.ModesEnum.Normal
 			if m.ctx.DevMode {
@@ -131,8 +163,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				})
 			}))
 		}
+		if m.pendingCreateMR {
+			cmds = append(cmds, m.startTask(func() tea.Cmd {
+				return m.createMergeRequest()
+			}))
+			m.pendingCreateMR = false
+		}
 		m.Input.Blur()
 		m.Input.Reset()
+		m.createForm.Blur()
+		m.createForm.Reset()
+		m.formReady = false
 		m.isModalOpen = false
 		if m.isRightOpen {
 			m.Details.SetFocus()
@@ -203,11 +244,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case tui.MRCreatedMsg:
+		m.finishTask(msg.Err, mergerequests.Keybinds)
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				m.Statusline.Content = "✓ MR created"
+				cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
+			}
+		}
+
 	case spinner.TickMsg:
 		var spin tea.Cmd
 		cmd = m.updateSpinnerViewCommand(msg)
 		m.Spinner, spin = m.Spinner.Update(msg)
 		m.Details.SpinnerView = m.Spinner.View()
+		if m.pendingCreateMR && m.isModalOpen && !m.formReady {
+			m.Modal.Content = loader.View(m.Spinner.View())
+		}
 		cmds = append(cmds, cmd, spin)
 
 	case tea.WindowSizeMsg:
@@ -219,6 +275,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Input, cmd = m.Input.Update(msg)
 		m.Modal.Content = m.Input.View()
 		cmds = append(cmds, cmd)
+	}
+
+	if m.pendingCreateMR && m.isModalOpen && m.formReady {
+		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+			switch keyMsg.String() {
+			case "tab":
+				cmds = append(cmds, m.createForm.NextField())
+			case "shift+tab":
+				cmds = append(cmds, m.createForm.PrevField())
+			default:
+				cmd = m.createForm.Update(msg)
+				cmds = append(cmds, cmd)
+			}
+		} else {
+			cmd = m.createForm.Update(msg)
+			cmds = append(cmds, cmd)
+		}
+		m.Modal.Content = m.createForm.View()
 	}
 
 	return m, tea.Batch(cmds...)

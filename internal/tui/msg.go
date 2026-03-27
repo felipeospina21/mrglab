@@ -40,3 +40,17 @@ type NoteCreatedMsg struct {
 	Errors []string
 	Err    error
 }
+
+// MRCreatedMsg is sent after a merge request has been created.
+type MRCreatedMsg struct {
+	Errors []string
+	Err    error
+}
+
+// MRTemplatesFetchedMsg is sent when MR description templates have been fetched.
+type MRTemplatesFetchedMsg struct {
+	Templates     []gitlab.MRDescriptionTemplate
+	DefaultBranch string
+	SourceBranch  string
+	Err           error
+}
