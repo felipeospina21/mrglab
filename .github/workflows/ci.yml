@@ -30,7 +30,7 @@ jobs:
         run: |
           BASE=${{ github.event.pull_request.base.sha }}
           COMMITS=$(git log --no-merges --format='%s' "$BASE"..HEAD)
-          PATTERN='^(feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?:? .+'
+          PATTERN='^(add|update|remove|feat|fix|refactor|chore|docs|test|ci|style|perf|build|revert)(\(.+\))?:? .+'
           FAILED=0
           while IFS= read -r msg; do
             if [ -z "$msg" ]; then continue; fi
