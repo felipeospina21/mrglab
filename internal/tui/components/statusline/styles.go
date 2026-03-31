@@ -6,25 +6,24 @@ import (
 )
 
 var (
-	// TODO: update colors with tokens
 	StatusBarStyle = lipgloss.NewStyle().
 			Margin(0, 0)
 
 	statusNugget = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(style.StatuslineText)).
+			Inherit(statusText).
 			Padding(0, 1)
 
 	statusStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(style.StatuslineText)).
-			Background(lipgloss.Color(style.StatuslineMode)).
+			Inherit(statusText).
 			Padding(0, 1).
 			MarginRight(1)
 
 	encodingStyle = statusNugget.
+			Inherit(statusText).
 			Background(lipgloss.Color(style.StatuslineEncoding)).
 			Align(lipgloss.Right)
 
-	statusText = lipgloss.NewStyle()
+	statusText = lipgloss.NewStyle().Foreground(lipgloss.Color(style.StatuslineText))
 
 	helpText = lipgloss.NewStyle().
 			AlignHorizontal(lipgloss.Center)

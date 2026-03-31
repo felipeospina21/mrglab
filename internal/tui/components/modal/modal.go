@@ -36,7 +36,7 @@ func (m Model) View(background string) string {
 
 	header := headerStyle.Width(modalW).Render(m.Header)
 	if m.IsError {
-		header = headerStyle.Background(lipgloss.Color(style.Red[600])).Width(modalW).Render(m.Header)
+		header = headerStyle.Background(lipgloss.Color(style.StatuslineModeError)).Width(modalW).Render(m.Header)
 	}
 	footer := helpStyle.Render("esc close · ctrl+s submit · ctrl+y copy")
 	contentH := max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)

@@ -96,7 +96,12 @@ var (
 
 	// Statusline colors
 	StatuslineText     = "#FFFDF5"
-	StatuslineMode     = "#FF5F87"
 	StatuslineEncoding = "#A550DF"
 	StatuslineProject  = "#6124DF"
+
+	// Statusline mode colors
+	StatuslineModeNormal  = Violet[600]
+	StatuslineModeLoading = "#1A7A94"
+	StatuslineModeError   = "#CE3060"
+	StatuslineModeDev     = "#4E8212"
 )
