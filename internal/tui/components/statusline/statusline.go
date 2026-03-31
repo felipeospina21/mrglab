@@ -4,12 +4,12 @@ package statusline
 import (
 	"fmt"
 
+	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/felipeospina21/mrglab/internal/tui/components/help"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
@@ -91,7 +91,7 @@ func (m Model) View() string {
 	if helpWidth < 0 {
 		helpWidth = 0
 	}
-	m.Help.Width = helpWidth
+	m.Help.SetWidth(helpWidth)
 	help := helpText.
 		Width(helpWidth + 2).
 		Render(" " + m.Help.View(m.Keybinds) + " ")

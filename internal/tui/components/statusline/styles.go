@@ -8,30 +8,28 @@ import (
 var (
 	// TODO: update colors with tokens
 	StatusBarStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#C1C6B2")).
-			Background(lipgloss.Color("#353533")).
 			Margin(0, 0)
 
 	statusNugget = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
+			Foreground(lipgloss.Color(style.StatuslineText)).
 			Padding(0, 1)
 
 	statusStyle = lipgloss.NewStyle().
-			Inherit(StatusBarStyle).
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Background(lipgloss.Color("#FF5F87")).
+			Foreground(lipgloss.Color(style.StatuslineText)).
+			Background(lipgloss.Color(style.StatuslineMode)).
 			Padding(0, 1).
 			MarginRight(1)
 
 	encodingStyle = statusNugget.
-			Background(lipgloss.Color("#A550DF")).
+			Background(lipgloss.Color(style.StatuslineEncoding)).
 			Align(lipgloss.Right)
 
-	statusText = lipgloss.NewStyle().Inherit(StatusBarStyle)
+	statusText = lipgloss.NewStyle()
 
-	helpText = lipgloss.NewStyle().Inherit(StatusBarStyle).AlignHorizontal(lipgloss.Center)
+	helpText = lipgloss.NewStyle().
+			AlignHorizontal(lipgloss.Center)
 
-	projectStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
+	projectStyle = statusNugget.Background(lipgloss.Color(style.StatuslineProject))
 
 	SpinnerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(style.Violet[400]))
 )
