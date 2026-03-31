@@ -8,7 +8,7 @@ import (
 // CreateNote posts a new comment on a discussion thread.
 func (c *Client) CreateNote(input CreateNoteInput) (CreateNoteResponse, error) {
 	if c.devMode {
-		time.Sleep(500 * time.Millisecond)
+		c.sleep(500 * time.Millisecond)
 		return CreateNoteResponse{}, nil
 	}
 

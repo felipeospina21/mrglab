@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"slices"
+	"time"
 
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/hasura/go-graphql-client"
@@ -11,9 +12,16 @@ import (
 
 // Client wraps the GitLab GraphQL API client.
 type Client struct {
-	gql     *graphql.Client
-	cfg     *config.Config
-	devMode bool
+	gql      *graphql.Client
+	cfg      *config.Config
+	devMode  bool
+	noSleep  bool // skip time.Sleep in dev mode (for tests)
+}
+
+func (c *Client) sleep(d time.Duration) {
+	if !c.noSleep {
+		time.Sleep(d)
+	}
 }
 
 // NewClient creates a new GitLab GraphQL client from the given config.

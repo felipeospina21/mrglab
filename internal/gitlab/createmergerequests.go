@@ -11,7 +11,7 @@ func (c *Client) CreateMergeRequest(
 	input CreateMergeRequestInput,
 ) (CreateMergeRequestResponse, error) {
 	if c.devMode {
-		time.Sleep(500 * time.Millisecond)
+		c.sleep(500 * time.Millisecond)
 		return CreateMergeRequestResponse{}, nil
 	}
 
