@@ -4,6 +4,8 @@ package statusline
 import (
 	"fmt"
 
+	"image/color"
+
 	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/spinner"
 	tea "charm.land/bubbletea/v2"
@@ -11,12 +13,12 @@ import (
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
 // Modes defines the possible status bar mode labels.
 type Modes struct {
 	Normal  string
-	Insert  string
 	Loading string
 	Error   string
 	Dev     string
@@ -25,7 +27,6 @@ type Modes struct {
 // ModesEnum contains the available status bar mode values.
 var ModesEnum = Modes{
 	Normal:  "NORMAL",
-	Insert:  "INSERT",
 	Loading: "LOADING",
 	Error:   "ERROR",
 	Dev:     "DEVELOP",
@@ -82,7 +83,8 @@ func (m Model) View() string {
 	width := m.Width
 	w := lipgloss.Width
 
-	statusKey := statusStyle.Render(m.Status)
+	modeColor := modeBackground(m.Status)
+	statusKey := statusStyle.Background(modeColor).Render(m.Status)
 	statusVal := statusText.Render(tui.Truncate(m.Content, width/4))
 	encoding := encodingStyle.Render("UTF-8")
 	projectName := projectStyle.Render(fmt.Sprintf("%s %s", icon.Gitlab, m.ctx.SelectedProject.Name))
@@ -105,6 +107,19 @@ func (m Model) View() string {
 	)
 
 	return StatusBarStyle.Render(bar)
+}
+
+func modeBackground(status string) color.Color {
+	switch status {
+	case ModesEnum.Loading:
+		return lipgloss.Color(style.StatuslineModeLoading)
+	case ModesEnum.Error:
+		return lipgloss.Color(style.StatuslineModeError)
+	case ModesEnum.Dev:
+		return lipgloss.Color(style.StatuslineModeDev)
+	default:
+		return lipgloss.Color(style.StatuslineModeNormal)
+	}
 }
 
 // GetFrameSize returns the total frame size of the status bar.

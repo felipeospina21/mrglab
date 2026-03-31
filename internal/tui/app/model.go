@@ -82,15 +82,10 @@ func (m Model) Init() tea.Cmd {
 
 func (m *Model) setStatus(mode string, content string) {
 	switch mode {
-	case statusline.ModesEnum.Normal:
-		fallthrough
-	case statusline.ModesEnum.Loading:
-		fallthrough
-	case statusline.ModesEnum.Insert:
-		fallthrough
-	case statusline.ModesEnum.Error:
-		fallthrough
-	case statusline.ModesEnum.Dev:
+	case statusline.ModesEnum.Normal,
+		statusline.ModesEnum.Loading,
+		statusline.ModesEnum.Error,
+		statusline.ModesEnum.Dev:
 		m.Statusline.Status = mode
 		m.Statusline.Content = content
 	default:

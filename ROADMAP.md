@@ -9,12 +9,13 @@ Items are ordered by priority.
 
 ## 2. Tests & Coverage — `high`
 
-- [ ] Add unit tests for `internal/gitlab` (client methods, variable builders)
-- [ ] Add unit tests for `internal/config` (loading, defaults, dev mode fallback)
-- [ ] Add unit tests for `internal/tui` (utility functions, message types)
-- [ ] Add unit tests for component logic (table row/column builders, details rendering)
+- [x] Add unit tests for `internal/gitlab` (client methods, variable builders)
+- [x] Add unit tests for `internal/config` (loading, defaults, dev mode fallback)
+- [x] Add unit tests for `internal/tui` (utility functions, message types)
+- [x] Add unit tests for component logic (table row/column builders, details rendering)
+- [x] Extract `GitLabAPI` interface for testable consumers
 - [ ] Add coverage threshold to CI (`go test -coverprofile`)
-- [ ] Add coverage badge to README
+- [x] Add coverage badge to README
 
 ## 3. Address Linter Warnings — `high`
 
@@ -25,7 +26,7 @@ Items are ordered by priority.
 
 - [ ] `mergerequests.go:236` — Refactor Icon + Status rendering in details view
 - [ ] `projects/styles.go:16` — Set width from config instead of hardcoded 30
-- [ ] `statusline/styles.go:9` — Update colors with design tokens
+- [x] `statusline/styles.go:9` — Update colors with design tokens
 - [ ] `table/styles.go:36` — Update border color with design tokens
 - [ ] `details/render.go:286` — Replace magic number 4 with proper calculation
 
@@ -46,7 +47,7 @@ Items are ordered by priority.
 ## 7. New Features — `low`
 
 - [x] Create new MR
-- [ ] Dynamic statusline colors per status mode (normal, loading, error, etc.)
+- [x] Dynamic statusline colors per status mode (normal, loading, error, etc.)
 - [ ] Visualize pipelines/jobs
 - [ ] Interact with pipelines/jobs
 - [ ] Visualize issues
