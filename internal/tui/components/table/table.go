@@ -7,8 +7,8 @@ import (
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/mattn/go-runewidth"
 )
 
 const (
@@ -434,7 +434,7 @@ func (m Model) headersView() string {
 		if col.Centered {
 			style = style.Align(lipgloss.Center, lipgloss.Center)
 		}
-		renderedCell := style.Render(runewidth.Truncate(col.Title, col.Width, "…"))
+		renderedCell := style.Render(ansi.Truncate(col.Title, col.Width, "…"))
 		s = append(s, m.styles.Header.Render(renderedCell))
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, s...)
@@ -467,7 +467,7 @@ func (m *Model) renderRow(r int) string {
 		}
 		renderedCell := cellStyle.
 			Height(rowHeight).
-			Render(style.Render(runewidth.Truncate(value, m.cols[i].Width, "…")))
+			Render(style.Render(ansi.Truncate(value, m.cols[i].Width, "…")))
 
 		s = append(s, renderedCell)
 	}
