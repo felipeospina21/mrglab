@@ -4,8 +4,8 @@ Items are ordered by priority.
 
 ## 1. Update Go Version & Dependencies — `high`
 
-- [ ] Bump `go.mod` to latest Go version (currently 1.23.1)
-- [ ] Update all dependencies and verify build
+- [x] Bump `go.mod` to latest Go version (1.26.1)
+- [x] Update all dependencies and verify build
 
 ## 2. Tests & Coverage — `high`
 
@@ -45,7 +45,7 @@ Items are ordered by priority.
 
 ## 7. New Features — `low`
 
-- [ ] Create new MR
+- [x] Create new MR
 - [ ] Visualize pipelines/jobs
 - [ ] Interact with pipelines/jobs
 - [ ] Visualize issues
@@ -57,3 +57,4 @@ Items are ordered by priority.
 - [ ] Review MR
 - [ ] Search projects
 - [ ] View project README
+- [ ] Publish to Homebrew (tap via GoReleaser)
