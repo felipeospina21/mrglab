@@ -4,6 +4,7 @@
 Output docs/assets/demo.gif
 
 Set Shell "bash"
+Set FontFamily "JetBrainsMono Nerd Font"
 Set FontSize 14
 Set Width 1400
 Set Height 800
@@ -25,6 +26,7 @@ Down
 Sleep 500ms
 Down
 Sleep 500ms
+Sleep 2s
 
 # View MR details
 Enter
@@ -37,12 +39,24 @@ Down
 Sleep 300ms
 Down
 Sleep 300ms
+Down
+Sleep 300ms
+Down
+Sleep 1s
 
 # Navigate discussions
 Type "n"
 Sleep 1s
 Type "n"
 Sleep 1s
+
+# Respond to comment
+Shift+C
+Sleep 1s
+Type "gotcha"
+Sleep 2s
+Ctrl+S
+Sleep 2s
 
 # Close details panel
 Escape
@@ -55,4 +69,4 @@ Escape
 Sleep 1s
 
 # Quit
-Ctrl+c
+Ctrl+C
