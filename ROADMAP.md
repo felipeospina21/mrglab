@@ -31,14 +31,14 @@ Items are ordered by priority.
 
 ## 5. Documentation — `medium`
 
-- [ ] Record demo GIF with VHS and add to README
+- [x] Record demo GIF with VHS and add to README
 - [ ] Add GitHub issue templates (bug report, feature request)
 
 ## 6. Refactoring — `medium`
 
 - [ ] Move `FormatTime` to a shared `tui/format.go`
 - [ ] Move `StyleIconsColumns` to `mergerequests/columns.go` or `app/commands.go`
-- [ ] Make `table` package a pure reusable widget
+- [ ] Make `table` package a pure reusable widget (extract to standalone Go module)
 - [ ] Rename `internal/tui/components/mergerequests/` → `internal/tui/components/mrlist/`
 - [ ] Update all imports across `app/`, `tui/`, and other components
 - [ ] Move `setStatus`, `startTask`, `finishTask`, `toggleLeftPanel`, `toggleRightPanel`, `SelectMR` to `app/helpers.go`
@@ -46,6 +46,7 @@ Items are ordered by priority.
 ## 7. New Features — `low`
 
 - [x] Create new MR
+- [ ] Dynamic statusline colors per status mode (normal, loading, error, etc.)
 - [ ] Visualize pipelines/jobs
 - [ ] Interact with pipelines/jobs
 - [ ] Visualize issues
