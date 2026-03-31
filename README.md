@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/github/license/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/felipeospina21/mrglab)](https://goreportcard.com/report/github.com/felipeospina21/mrglab)
+
 mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
 ![gif](docs/assets/demo.gif)
@@ -18,6 +19,20 @@ mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
 ```bash
 go install github.com/felipeospina21/mrglab@latest
+```
+
+### From source
+
+```bash
+git clone https://github.com/felipeospina21/mrglab.git
+cd mrglab
+make build
+```
+
+This creates the `mrglab` binary in the project directory. To make it available system-wide:
+
+```bash
+sudo mv mrglab /usr/local/bin/
 ```
 
 ## Usage
@@ -43,6 +58,7 @@ mrglab -dev
 - Merge a merge request directly from the TUI
 - Open any MR in your browser
 - Respond to discussion threads (post comments)
+- Open new MR (including default templates)
 - Navigate between resolvable discussions
 - Copy modal content to clipboard
 - Toggle project list and details panels
@@ -72,6 +88,7 @@ mrglab -dev
 | `enter` | View details    |
 | `x`     | Open in browser |
 | `M`     | Merge MR        |
+| `N`     | New MR          |
 | `↑/k`   | Move up         |
 | `↓/j`   | Move down       |
 
