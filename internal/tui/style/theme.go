@@ -1,7 +1,7 @@
 package style
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // MainFrameStyle is the outer border style for the main application frame.

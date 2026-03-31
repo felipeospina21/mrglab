@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
@@ -23,7 +23,7 @@ func main() {
 	client := gitlab.NewClient(&config.GlobalConfig)
 	m := app.InitMainModel(ctx, &config.GlobalConfig, client)
 
-	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
+	if _, err := tea.NewProgram(m).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}

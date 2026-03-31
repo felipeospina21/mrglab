@@ -3,7 +3,7 @@ package modal
 import (
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 
@@ -16,7 +16,7 @@ type (
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		match := tui.KeyMatcher(msg)
 		switch {
 		case match(Keybinds.Close):

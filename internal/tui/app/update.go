@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
-	"github.com/charmbracelet/bubbles/spinner"
+	"charm.land/bubbles/v2/spinner"
 	"github.com/felipeospina21/mrglab/internal/context"
 	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
@@ -32,7 +32,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		defer f.Close()
 		l.Error(msg.Error())
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		cmd = m.handleGlobalKeys(msg)
 		if cmd != nil {
 			cmds = append(cmds, cmd)
@@ -278,7 +278,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.pendingCreateMR && m.isModalOpen && m.formReady {
-		if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		if keyMsg, ok := msg.(tea.KeyPressMsg); ok {
 			switch keyMsg.String() {
 			case "tab":
 				cmds = append(cmds, m.createForm.NextField())
@@ -298,7 +298,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m *Model) handleGlobalKeys(msg tea.KeyMsg) tea.Cmd {
+func (m *Model) handleGlobalKeys(msg tea.KeyPressMsg) tea.Cmd {
 	match := tui.KeyMatcher(msg)
 	gk := tui.GlobalKeys(m.ctx.DevMode)
 

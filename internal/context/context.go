@@ -1,7 +1,7 @@
 // Package context provides shared application state accessible by all TUI components.
 package context
 
-import tea "github.com/charmbracelet/bubbletea"
+import tea "charm.land/bubbletea/v2"
 
 type focusedPanel uint
 

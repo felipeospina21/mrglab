@@ -1,15 +1,15 @@
 package statusline
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
 var (
 	// TODO: update colors with tokens
 	StatusBarStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
-			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"}).
+			Foreground(lipgloss.Color("#C1C6B2")).
+			Background(lipgloss.Color("#353533")).
 			Margin(0, 0)
 
 	statusNugget = lipgloss.NewStyle().

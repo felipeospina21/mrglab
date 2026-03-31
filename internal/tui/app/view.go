@@ -3,7 +3,8 @@ package app
 import (
 	"fmt"
 
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
@@ -11,17 +12,19 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	left := projects.DocStyle.Render(m.Projects.List.View())
 	render := style.MainFrameStyle.Render
 	screen := m.renderNormalScreen(left, render)
 
 	if m.isModalOpen {
 		m.setHelpKeys(modal.Keybinds)
-		return m.Modal.View(screen)
+		screen = m.Modal.View(screen)
 	}
 
-	return screen
+	v := tea.NewView(screen)
+	v.AltScreen = true
+	return v
 }
 
 func (m Model) renderNormalScreen(left string, render func(...string) string) string {

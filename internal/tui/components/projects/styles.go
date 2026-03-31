@@ -1,7 +1,7 @@
 package projects
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
@@ -32,8 +32,8 @@ var (
 )
 
 var (
-	hl = string(lipgloss.Color(style.Violet[400]))
-	fg = string(lipgloss.Color(style.Violet[50]))
+	hl = style.Violet[400]
+	fg = style.Violet[50]
 )
 
 type DefaultItemStyles struct {
@@ -55,28 +55,27 @@ type DefaultItemStyles struct {
 
 func NewDefaultItemStyles() (s DefaultItemStyles) {
 	s.NormalTitle = lipgloss.NewStyle().
-		// Foreground(lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#dddddd"}).
-		Foreground(lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: fg}).
+		Foreground(lipgloss.Color(fg)).
 		Padding(0, 0, 0, 2)
 
 	s.NormalDesc = s.NormalTitle.
-		Foreground(lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#777777"})
+		Foreground(lipgloss.Color("#777777"))
 
 	s.SelectedTitle = lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}).
-		Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: hl}).
+		BorderForeground(lipgloss.Color("#AD58B4")).
+		Foreground(lipgloss.Color(hl)).
 		Padding(0, 0, 0, 1)
 
 	s.SelectedDesc = s.SelectedTitle.
-		Foreground(lipgloss.AdaptiveColor{Light: "#F793FF", Dark: hl})
+		Foreground(lipgloss.Color(hl))
 
 	s.DimmedTitle = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Light: "#A49FA5", Dark: "#777777"}).
+		Foreground(lipgloss.Color("#777777")).
 		Padding(0, 0, 0, 2)
 
 	s.DimmedDesc = s.DimmedTitle.
-		Foreground(lipgloss.AdaptiveColor{Light: "#C2B8C2", Dark: "#4D4D4D"})
+		Foreground(lipgloss.Color("#4D4D4D"))
 
 	s.FilterMatch = lipgloss.NewStyle().Underline(true)
 

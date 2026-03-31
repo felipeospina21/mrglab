@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
@@ -16,8 +16,7 @@ import (
 
 // LeftMargin is the horizontal margin used in the details panel.
 const (
-	useHighPerformanceRenderer = false
-	LeftMargin                 = 2
+	LeftMargin = 2
 )
 
 // MergeRequestDetails holds the fetched details for a single merge request.
@@ -62,7 +61,7 @@ type (
 // New creates a new details panel model.
 func New(ctx *context.AppContext) Model {
 	return Model{
-		Viewport: viewport.New(10, 10),
+		Viewport: viewport.New(viewport.WithWidth(10), viewport.WithHeight(10)),
 		ctx:      ctx,
 	}
 }
@@ -91,13 +90,13 @@ func (m Model) View() string {
 
 func (m *Model) HeaderView() string {
 	title := MdTitle.Render(m.Content.Title)
-	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width-lipgloss.Width(title)))
+	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width()-lipgloss.Width(title)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
 func (m *Model) FooterView() string {
 	info := MdInfo.Render(fmt.Sprintf("%3.f%%", m.Viewport.ScrollPercent()*100))
-	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width-lipgloss.Width(info)))
+	line := strings.Repeat("─", tui.Max(0, m.Viewport.Width()-lipgloss.Width(info)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
@@ -109,16 +108,11 @@ func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	verticalMarginHeight := headerHeight + footerHeight
 
 	if !m.Ready {
-		m.Viewport = viewport.New(w, msg.Height-verticalMarginHeight)
-		m.Viewport.HighPerformanceRendering = useHighPerformanceRenderer
+		m.Viewport = viewport.New(viewport.WithWidth(w), viewport.WithHeight(msg.Height-verticalMarginHeight))
 		m.Ready = true
-		m.Viewport.YPosition = headerHeight
 	} else {
-		m.Viewport.Width = w
-		m.Viewport.Height = msg.Height - verticalMarginHeight
-	}
-	if useHighPerformanceRenderer {
-		return viewport.Sync(m.Viewport)
+		m.Viewport.SetWidth(w)
+		m.Viewport.SetHeight(msg.Height - verticalMarginHeight)
 	}
 
 	return nil

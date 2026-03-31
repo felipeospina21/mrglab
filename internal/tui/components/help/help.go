@@ -3,9 +3,9 @@ package help
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 // KeyMap is a map of keybindings used to generate help. Since it's an
@@ -58,15 +58,9 @@ type Model struct {
 
 // New creates a new help view with some useful defaults.
 func New() Model {
-	keyStyle := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
-		Light: "#909090",
-		Dark:  "#626262",
-	})
+	keyStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#626262"))
 
-	descStyle := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
-		Light: "#B2B2B2",
-		Dark:  "#4A4A4A",
-	})
+	descStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#4A4A4A"))
 
 	// sepStyle := lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
 	// 	Light: "#DDDADA",
