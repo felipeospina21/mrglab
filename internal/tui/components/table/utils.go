@@ -6,7 +6,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
@@ -35,28 +35,27 @@ func InitModel(params InitModelParams) Model {
 
 func StyleIconsColumns(s Styles, iconColIdx []int) StyleFunc {
 	return func(row, col int, value string) lipgloss.Style {
-		type color = lipgloss.Color
 		isIconCol := slices.Contains(iconColIdx, col)
 		defStyle := s.Cell.Foreground
 
 		iconStyle := map[string]lipgloss.Style{
-			icon.Alert:       defStyle(color(style.Yellow[300])),
-			icon.Time:        defStyle(color(style.Blue[500])),
-			icon.Empty:       defStyle(color("")),
-			icon.Dash:        defStyle(color(style.DarkGray)),
-			icon.Check:       defStyle(color(style.Green[300])),
-			icon.Clock:       defStyle(color(style.White)),
-			icon.Rebase:      defStyle(color(style.Red[300])),
-			icon.Cross:       defStyle(color(style.Red[300])),
-			icon.Conflict:    defStyle(color(style.Yellow[400])),
-			icon.Discussion:  defStyle(color(style.Green[300])),
-			icon.Edit:        defStyle(color(style.Violet[400])),
-			icon.CircleCheck: defStyle(color(style.Green[300])),
-			icon.CircleCross: defStyle(color(style.Red[300])),
-			icon.CirclePlay:  defStyle(color(style.Violet[300])),
-			icon.CircleDash:  defStyle(color(style.Red[400])),
-			icon.Gear:        defStyle(color(style.Yellow[300])),
-			icon.Plus:        defStyle(color(style.Green[300])),
+			icon.Alert:       defStyle(lipgloss.Color(style.Yellow[300])),
+			icon.Time:        defStyle(lipgloss.Color(style.Blue[500])),
+			icon.Empty:       defStyle(lipgloss.Color("")),
+			icon.Dash:        defStyle(lipgloss.Color(style.DarkGray)),
+			icon.Check:       defStyle(lipgloss.Color(style.Green[300])),
+			icon.Clock:       defStyle(lipgloss.Color(style.White)),
+			icon.Rebase:      defStyle(lipgloss.Color(style.Red[300])),
+			icon.Cross:       defStyle(lipgloss.Color(style.Red[300])),
+			icon.Conflict:    defStyle(lipgloss.Color(style.Yellow[400])),
+			icon.Discussion:  defStyle(lipgloss.Color(style.Green[300])),
+			icon.Edit:        defStyle(lipgloss.Color(style.Violet[400])),
+			icon.CircleCheck: defStyle(lipgloss.Color(style.Green[300])),
+			icon.CircleCross: defStyle(lipgloss.Color(style.Red[300])),
+			icon.CirclePlay:  defStyle(lipgloss.Color(style.Violet[300])),
+			icon.CircleDash:  defStyle(lipgloss.Color(style.Red[400])),
+			icon.Gear:        defStyle(lipgloss.Color(style.Yellow[300])),
+			icon.Plus:        defStyle(lipgloss.Color(style.Green[300])),
 		}
 
 		if isIconCol {

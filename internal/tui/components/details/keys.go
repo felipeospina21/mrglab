@@ -3,7 +3,7 @@ package details
 import (
 	"slices"
 
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/key"
 	"github.com/felipeospina21/mrglab/internal/tui"
 )
 

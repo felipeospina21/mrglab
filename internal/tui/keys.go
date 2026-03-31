@@ -1,8 +1,8 @@
 package tui
 
 import (
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
 )
 
 // GlobalKeyMap defines the keybindings available in all panels.
@@ -67,7 +67,7 @@ func GlobalKeys(devMode bool) GlobalKeyMap {
 }
 
 // KeyMatcher returns a predicate that checks if a tea.KeyMsg matches a key.Binding.
-func KeyMatcher(msg tea.KeyMsg) func(key.Binding) bool {
+func KeyMatcher(msg tea.KeyPressMsg) func(key.Binding) bool {
 	return func(k key.Binding) bool {
 		return key.Matches(msg, k)
 	}

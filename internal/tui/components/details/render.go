@@ -5,8 +5,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/charmbracelet/glamour"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/glamour/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
@@ -285,7 +285,7 @@ func (m Model) renderWithWidth(s string, width int) string {
 
 func (m Model) mdWidth() int {
 	magicnumber := 4 // FIX: find where this comes from
-	return m.Viewport.Width - magicnumber - LeftMargin
+	return m.Viewport.Width() - magicnumber - LeftMargin
 }
 
 func getMdRenderer(width int) *glamour.TermRenderer {

@@ -4,9 +4,9 @@ package modal
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/context"
-	"github.com/felipeospina21/mrglab/internal/tui/components/help"
+	"charm.land/bubbles/v2/help"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 

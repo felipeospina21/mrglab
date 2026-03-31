@@ -93,4 +93,10 @@ var (
 	MediumGray = "#999999"
 	White      = "#C4C4C4"
 	Black      = "#111"
+
+	// Statusline colors
+	StatuslineText     = "#FFFDF5"
+	StatuslineMode     = "#FF5F87"
+	StatuslineEncoding = "#A550DF"
+	StatuslineProject  = "#6124DF"
 )

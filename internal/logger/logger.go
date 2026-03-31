@@ -5,7 +5,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/charmbracelet/log"
+	"charm.land/log/v2"
 )
 
 // NewLogger holds the configuration for creating a logger instance.
