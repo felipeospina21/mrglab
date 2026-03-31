@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/github/license/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/felipeospina21/mrglab)](https://goreportcard.com/report/github.com/felipeospina21/mrglab)
+[![Coverage](https://img.shields.io/badge/coverage-60%25-yellowgreen)](https://github.com/felipeospina21/mrglab)
 
 mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
 
