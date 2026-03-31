@@ -1,8 +1,15 @@
 # MR.G.Lab (mrglab)
 
+[![Go Version](https://img.shields.io/github/go-mod/go-version/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab)
+[![License](https://img.shields.io/github/license/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/felipeospina21/mrglab)](https://goreportcard.com/report/github.com/felipeospina21/mrglab)
+
 ![screenshot](docs/assets/mrglab_logo.png)
 
 mrglab is a TUI to manage `merge requests` in Gitlab from the command line.
+
+![gif](docs/assets/demo.gif)
 
 ## Requirements
 
