@@ -105,9 +105,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case details.ClosePanelMsg:
+		m.isRightFullscreen = false
 		m.toggleRightPanel()
 		m.MergeRequests.SetFocus()
 		m.setHelpKeys(mergerequests.Keybinds)
+
+	case details.FullscreenMsg:
+		m.isRightFullscreen = !m.isRightFullscreen
+		m.recomputeLayout()
 
 	case details.RespondCommentMsg:
 		m.isModalOpen = true
@@ -210,7 +215,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
 			m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
 
-			rl := computeLayout(m.ctx.Window, false, true)
+			rl := computeLayout(m.ctx.Window, false, true, m.isRightFullscreen)
 			m.Details.SetViewportViewSize(
 				tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
 			)
