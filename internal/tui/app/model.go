@@ -37,9 +37,10 @@ type Model struct {
 	ctx           *context.AppContext
 	taskStatus    taskStatus
 	taskErr       error
-	isLeftOpen    bool
-	isRightOpen   bool
-	isModalOpen   bool
+	isLeftOpen        bool
+	isRightOpen       bool
+	isRightFullscreen bool
+	isModalOpen       bool
 	pendingNote   struct {
 		DiscussionId string
 		NoteableId   string
@@ -136,7 +137,7 @@ func (m *Model) toggleRightPanel() {
 }
 
 func (m *Model) recomputeLayout() {
-	m.layout = computeLayout(m.ctx.Window, m.isLeftOpen, m.isRightOpen)
+	m.layout = computeLayout(m.ctx.Window, m.isLeftOpen, m.isRightOpen, m.isRightFullscreen)
 	m.applyLayout()
 }
 

@@ -58,6 +58,9 @@ func (m Model) renderNormalScreen(left string, render func(...string) string) st
 
 	if m.isRightOpen {
 		right := m.Details.View()
+		if m.isRightFullscreen {
+			return render(lipgloss.JoinVertical(0, right, sl))
+		}
 		main := lipgloss.JoinHorizontal(0, body, right)
 		return render(lipgloss.JoinVertical(0, main, sl))
 	}

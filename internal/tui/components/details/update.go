@@ -7,9 +7,10 @@ import (
 )
 
 type (
-	ClosePanelMsg    struct{}
-	MergeMRMsg       struct{}
-	OpenInBrowserMsg struct{}
+	ClosePanelMsg     struct{}
+	MergeMRMsg        struct{}
+	OpenInBrowserMsg  struct{}
+	FullscreenMsg     struct{}
 	RespondCommentMsg struct {
 		DiscussionId string
 		NoteableId   string
@@ -45,6 +46,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case match(Keybinds.PrevDiscussion):
 			m.prevDiscussion()
 			m.refreshContent()
+		case match(Keybinds.Fullscreen):
+			return m, func() tea.Msg { return FullscreenMsg{} }
 		}
 	}
 	m.Viewport, cmd = m.Viewport.Update(msg)

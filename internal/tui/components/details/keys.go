@@ -14,12 +14,13 @@ type DetailsKeyMap struct {
 	NextDiscussion key.Binding
 	PrevDiscussion key.Binding
 	OpenInBrowser  key.Binding
+	Fullscreen     key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k DetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
+		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
 		tui.CommonKeys,
 	)
 }
@@ -27,7 +28,7 @@ func (k DetailsKeyMap) ShortHelp() []key.Binding {
 func (k DetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
+		{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
 	}
 }
 
@@ -55,6 +56,10 @@ var Keybinds = DetailsKeyMap{
 	OpenInBrowser: key.NewBinding(
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
+	),
+	Fullscreen: key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "fullscreen"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

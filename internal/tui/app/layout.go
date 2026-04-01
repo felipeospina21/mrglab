@@ -42,7 +42,7 @@ const (
 	tableViewOverhead = 1
 )
 
-func computeLayout(win tea.WindowSizeMsg, leftOpen, rightOpen bool) Layout {
+func computeLayout(win tea.WindowSizeMsg, leftOpen, rightOpen, rightFullscreen bool) Layout {
 	mainFrameX, mainFrameY := style.MainFrameStyle.GetFrameSize()
 
 	innerW := win.Width - mainFrameX
@@ -57,15 +57,18 @@ func computeLayout(win tea.WindowSizeMsg, leftOpen, rightOpen bool) Layout {
 
 	// Left panel
 	leftW := 0
-	if leftOpen {
+	if leftOpen && !rightFullscreen {
 		leftW = leftPanelWidth + projects.DocStyle.GetHorizontalFrameSize()
 	}
 
 	// Main panel gets remaining width, minus right panel if open
 	mainW := innerW - leftW
 	rightW := 0
-	if rightOpen && !leftOpen {
-		detailsFrameX := details.PanelStyle.GetHorizontalFrameSize()
+	detailsFrameX := details.PanelStyle.GetHorizontalFrameSize()
+	if rightOpen && rightFullscreen {
+		mainW = 0
+		rightW = innerW - detailsFrameX
+	} else if rightOpen && !leftOpen {
 		rightW = mainW/2 - detailsFrameX
 		mainW = mainW - rightW - detailsFrameX
 	}
