@@ -2,45 +2,30 @@
 package app
 
 import (
-	"charm.land/bubbles/v2/spinner"
+	"charm.land/bubbles/v2/help"
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
-	"charm.land/bubbles/v2/help"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
-	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
-	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
+	"github.com/felipeospina21/mrglab/internal/tui/icon"
+	"github.com/felipeospina21/mrglab/internal/tui/style"
+	"github.com/felipeospina21/tuishell/shell"
+	tsstyle "github.com/felipeospina21/tuishell/style"
 )
 
-type taskStatus uint
-
-const (
-	taskIdle taskStatus = iota
-	taskStarted
-	taskFinished
-)
-
-// Model is the top-level Bubble Tea model that composes all TUI components.
+// Model wraps shell.Model with mrglab-specific domain logic.
 type Model struct {
-	Projects      projects.Model
-	MergeRequests mergerequests.Model
-	Details       details.Model
-	Statusline    statusline.Model
-	Modal         modal.Model
-	Spinner       spinner.Model
+	Shell         shell.Model
+	Projects      *projects.Model
+	MergeRequests *mergerequests.Model
+	Details       *details.Model
 	Input         textarea.Model
-	layout        Layout
 	ctx           *context.AppContext
-	taskStatus    taskStatus
-	taskErr       error
-	isLeftOpen        bool
-	isRightOpen       bool
-	isRightFullscreen bool
-	isModalOpen       bool
 	pendingNote   struct {
 		DiscussionId string
 		NoteableId   string
@@ -51,99 +36,94 @@ type Model struct {
 	createForm      createMRForm
 }
 
+var theme = tsstyle.Theme{
+	Primary:         lipgloss.Color(style.Violet[300]),
+	PrimaryBright:   lipgloss.Color(style.Violet[400]),
+	PrimaryFg:       lipgloss.Color(style.Violet[50]),
+	PrimaryDim:      lipgloss.Color(style.Violet[800]),
+	Info:            lipgloss.Color(style.Blue[400]),
+	InfoBright:      lipgloss.Color(style.Blue[500]),
+	Success:         lipgloss.Color(style.Green[300]),
+	SuccessBright:   lipgloss.Color(style.Green[400]),
+	Danger:          lipgloss.Color(style.Red[300]),
+	DangerBright:    lipgloss.Color(style.Red[400]),
+	Warning:         lipgloss.Color(style.Yellow[300]),
+	WarningBright:   lipgloss.Color(style.Yellow[400]),
+	Caution:         lipgloss.Color(style.Orange[400]),
+	Text:            lipgloss.Color("#C4C4C4"),
+	TextInverse:     lipgloss.Color("#111"),
+	TextDimmed:      lipgloss.Color("#777777"),
+	Muted:           lipgloss.Color("#999999"),
+	Dim:             lipgloss.Color("#444444"),
+	Border:          lipgloss.Color("#3f4145"),
+	ModalBorder:     lipgloss.Color("#666666"),
+	SurfaceDim:      lipgloss.Color("#1e1e24"),
+	SelectionBorder: lipgloss.Color("#AD58B4"),
+	StatusText:      lipgloss.Color("#FFFDF5"),
+	StatusNormal:    lipgloss.Color(style.Violet[600]),
+	StatusLoading:   lipgloss.Color("#1A7A94"),
+	StatusError:     lipgloss.Color("#CE3060"),
+	StatusDev:       lipgloss.Color("#4E8212"),
+	StatusAccent1:   lipgloss.Color("#A550DF"),
+	StatusAccent2:   lipgloss.Color("#6124DF"),
+}
+
+var leftPanelStyle = lipgloss.NewStyle().
+	PaddingRight(4).
+	Foreground(theme.Primary).
+	Border(lipgloss.NormalBorder(), false, true, false, false).
+	BorderForeground(theme.Border).
+	Width(30)
+
+var rightPanelStyle = lipgloss.NewStyle().
+	Border(lipgloss.NormalBorder(), true, false, true, true).
+	BorderForeground(theme.Border)
+
 // InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
-	ctx.FocusedPanel = context.LeftPanel
 	ctx.DevMode = cfg.DevMode
 
 	ti := textarea.New()
 	ti.Placeholder = "Write your reply..."
 	ti.CharLimit = 0
 
+	proj := projects.New(ctx, client, cfg.Filters.Projects)
+	mrs := mergerequests.New(ctx, client)
+	det := details.New(ctx)
+
+	s := shell.New(shell.Config{
+		Theme:           theme,
+		LeftPanel:       ProjectsPanel{&proj},
+		MainPanel:       MergeRequestsPanel{&mrs},
+		RightPanel:      DetailsPanel{&det},
+		AppIcon:         icon.Gitlab,
+		Keybinds:        projects.Keybinds,
+		DevMode:         cfg.DevMode,
+		LeftPanelWidth:  30,
+		LeftPanelStyle:  leftPanelStyle,
+		RightPanelStyle: rightPanelStyle,
+	})
+
+	// Sync shell's initial context to mrglab's context
+	ctx.AppContext = s.Ctx
+
 	return Model{
-		Projects:      projects.New(ctx, client, cfg.Filters.Projects),
-		MergeRequests: mergerequests.New(ctx, client),
-		Details:       details.New(ctx),
-		Statusline:    statusline.New(ctx, projects.Keybinds),
-		Modal:         modal.New(ctx),
+		Shell:         s,
+		Projects:      &proj,
+		MergeRequests: &mrs,
+		Details:       &det,
 		Input:         ti,
-		Spinner: spinner.New(
-			spinner.WithSpinner(spinner.Line),
-			spinner.WithStyle(statusline.SpinnerStyle),
-		),
-		ctx:        ctx,
-		taskStatus: taskIdle,
-		isLeftOpen: true,
-		createForm: newCreateMRForm(),
+		ctx:           ctx,
+		createForm:    newCreateMRForm(),
 	}
 }
 
 func (m Model) Init() tea.Cmd {
-	return tea.Batch(m.Statusline.Init(), m.Spinner.Tick)
-}
-
-func (m *Model) setStatus(mode string, content string) {
-	switch mode {
-	case statusline.ModesEnum.Normal,
-		statusline.ModesEnum.Loading,
-		statusline.ModesEnum.Error,
-		statusline.ModesEnum.Dev:
-		m.Statusline.Status = mode
-		m.Statusline.Content = content
-	default:
-		m.Statusline.Content = "status not supported"
-	}
-}
-
-func (m *Model) startTask(cb func() tea.Cmd) tea.Cmd {
-	m.taskStatus = taskStarted
-	m.setStatus(statusline.ModesEnum.Loading, m.Statusline.Spinner.View())
-	return cb()
-}
-
-func (m *Model) finishTask(err error, kb help.KeyMap) {
-	if err != nil {
-		m.setStatus(statusline.ModesEnum.Error, err.Error())
-		m.taskErr = err
-	} else {
-		mode := statusline.ModesEnum.Normal
-		if m.ctx.DevMode {
-			mode = statusline.ModesEnum.Dev
-		}
-		m.setStatus(mode, "")
-		m.setHelpKeys(kb)
-		m.taskErr = nil
-	}
-	m.taskStatus = taskFinished
-}
-
-func (m *Model) updateSpinnerViewCommand(msg tea.Msg) tea.Cmd {
-	var cmd tea.Cmd
-	if m.Statusline.Status == statusline.ModesEnum.Loading {
-		m.Statusline.Content = m.Statusline.Spinner.View()
-	}
-	m.Statusline.Spinner, cmd = m.Statusline.Spinner.Update(msg)
-
-	return cmd
-}
-
-func (m *Model) toggleLeftPanel() {
-	m.isLeftOpen = !m.isLeftOpen
-	m.recomputeLayout()
-}
-
-func (m *Model) toggleRightPanel() {
-	m.isRightOpen = !m.isRightOpen
-	m.recomputeLayout()
-}
-
-func (m *Model) recomputeLayout() {
-	m.layout = computeLayout(m.ctx.Window, m.isLeftOpen, m.isRightOpen, m.isRightFullscreen)
-	m.applyLayout()
+	return m.Shell.Init()
 }
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
-	m.Statusline.Keybinds = kb
+	m.Shell.Statusline.Keybinds = kb
 }
 
 // SelectMR stores the currently selected merge request's IID, SHA, and status in the app context.

@@ -7,16 +7,22 @@ import (
 )
 
 type (
-	ClosePanelMsg     struct{}
-	MergeMRMsg        struct{}
-	OpenInBrowserMsg  struct{}
-	FullscreenMsg     struct{}
+	ClosePanelMsg    struct{}
+	MergeMRMsg       struct{}
+	OpenInBrowserMsg struct{}
+	FullscreenMsg    struct{}
 	RespondCommentMsg struct {
 		DiscussionId string
 		NoteableId   string
 	}
 )
 
+// Init returns nil (no initialization needed).
+func (m Model) Init() tea.Cmd {
+	return nil
+}
+
+// Update handles key events for the details panel.
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
@@ -49,9 +55,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case match(Keybinds.Fullscreen):
 			return m, func() tea.Msg { return FullscreenMsg{} }
 		}
+	case tea.WindowSizeMsg:
+		frameY := PanelStyle.GetVerticalFrameSize()
+		m.SetViewportViewSize(tea.WindowSizeMsg{Width: msg.Width, Height: msg.Height - frameY})
 	}
 	m.Viewport, cmd = m.Viewport.Update(msg)
 	return m, cmd
+}
+
+// ViewContent returns the panel content as a tea.View.
+func (m Model) ViewContent() tea.View {
+	return tea.NewView(m.View())
 }
 
 func (m *Model) refreshContent() {

@@ -15,9 +15,13 @@ import (
 
 // Model holds the state for the merge requests list panel.
 type Model struct {
-	Table  table.Model
-	ctx    *context.AppContext
-	client *gitlab.Client
+	Table       table.Model
+	Loading     bool
+	SpinnerView string
+	ctx         *context.AppContext
+	client      *gitlab.Client
+	width       int
+	height      int
 }
 
 // ColName maps column identifiers to their string names.

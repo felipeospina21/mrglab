@@ -16,15 +16,18 @@ import (
 func (m Model) getMergeRequestModel(msg tui.MRListFetchedMsg) func() table.Model {
 	return func() table.Model {
 		rows := mergerequests.GetTableRows(msg.Mrs)
-		tableW := m.layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
+		tableW := m.Shell.Layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
+		s := table.Styles(table.DefaultStyle())
 		return table.InitModel(table.InitModelParams{
 			Rows:   rows,
 			Colums: mergerequests.GetTableColums(tableW),
+			Styles: &s,
+			Width:  tableW,
 			StyleFunc: table.StyleIconsColumns(
-				table.Styles(table.DefaultStyle()),
+				s,
 				mergerequests.IconCols(),
 			),
-			Height: m.layout.ContentH - mainPanelHeaderLines - tableBorderY - tableViewOverhead,
+			Height: m.Shell.Layout.ContentH - mainPanelHeaderLines - tableBorderY - tableViewOverhead,
 		})
 	}
 }

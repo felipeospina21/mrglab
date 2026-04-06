@@ -9,6 +9,7 @@ require (
 	charm.land/lipgloss/v2 v2.0.2
 	charm.land/log/v2 v2.0.0
 	github.com/charmbracelet/x/ansi v0.11.6
+	github.com/felipeospina21/tuishell v0.0.0-00010101000000-000000000000
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/hasura/go-graphql-client v0.15.1
 	github.com/mitchellh/mapstructure v1.5.0
@@ -56,3 +57,5 @@ require (
 	golang.org/x/text v0.35.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 )
+
+replace github.com/felipeospina21/tuishell => ../tuishell
