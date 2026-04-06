@@ -25,6 +25,7 @@ type createMRForm struct {
 	target      textinput.Model
 	title       textinput.Model
 	description textarea.Model
+	draft       bool
 	focused     int
 	width       int
 }
@@ -85,7 +86,12 @@ func (f *createMRForm) Reset() {
 	f.target.Reset()
 	f.title.Reset()
 	f.description.Reset()
+	f.draft = false
 	f.focused = formFieldSource
+}
+
+func (f *createMRForm) dirty() bool {
+	return f.title.Value() != "" || f.draft
 }
 
 func (f *createMRForm) SetSize(w, h int) {
@@ -159,6 +165,15 @@ func (f *createMRForm) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (f *createMRForm) View() string {
+	draftIcon := icon.Empty
+	if f.draft {
+		draftIcon = icon.Check
+	}
+	draftStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(style.MediumGray))
+	if f.draft {
+		draftStyle = draftStyle.Foreground(lipgloss.Color(style.Violet[400]))
+	}
+
 	return lipgloss.JoinVertical(0,
 		labelStyle.Render("Branches"),
 		f.source.View(),
@@ -166,6 +181,7 @@ func (f *createMRForm) View() string {
 		f.target.View(),
 		labelStyle.Render("Title"),
 		f.title.View(),
+		draftStyle.Render(fmt.Sprintf("[%s] Draft (ctrl+d)", draftIcon)),
 		labelStyle.Render("Description"),
 		f.description.View(),
 	)

@@ -58,6 +58,10 @@ type createNoteMutation struct {
 	CreateNote CreateNoteResponse `graphql:"createNote(input:{noteableId:$noteableId,discussionId:$discussionId,body:$body})"`
 }
 
+type createMergeRequestMutation struct {
+	MergeRequestCreate CreateMergeRequestResponse `graphql:"mergeRequestCreate(input:{projectPath:$projectPath,sourceBranch:$sourceBranch,targetBranch:$targetBranch,title:$title,description:$description})"`
+}
+
 // Input types
 
 // MergeRequestsQueryVariables holds the variables for the merge requests list query.
@@ -100,6 +104,15 @@ type CreateNoteInput struct {
 	Body         string
 }
 
+// CreateMergeRequestInput holds the input for the create merge request mutation.
+type CreateMergeRequestInput struct {
+	ProjectPath  graphql.ID
+	SourceBranch string
+	TargetBranch string
+	Title        string
+	Description  string
+}
+
 // Variable builders
 
 func mergeRequestsVariables(vars MergeRequestsQueryVariables) map[string]any {
@@ -131,25 +144,6 @@ func createNoteVariables(input CreateNoteInput) map[string]any {
 		"discussionId": input.DiscussionId,
 		"body":         input.Body,
 	}
-}
-
-// Mutation struct for creating a merge request.
-type createMergeRequestMutation struct {
-	MergeRequestCreate CreateMergeRequestResponse `graphql:"mergeRequestCreate(input:{projectPath:$projectPath,sourceBranch:$sourceBranch,targetBranch:$targetBranch,title:$title,description:$description})"`
-}
-
-// CreateMergeRequestInput holds the input for the create merge request mutation.
-type CreateMergeRequestInput struct {
-	ProjectPath  graphql.ID
-	SourceBranch string
-	TargetBranch string
-	Title        string
-	Description  string
-}
-
-// CreateMergeRequestResponse is the result of a create merge request mutation.
-type CreateMergeRequestResponse struct {
-	Errors []string
 }
 
 func createMergeRequestVariables(input CreateMergeRequestInput) map[string]any {

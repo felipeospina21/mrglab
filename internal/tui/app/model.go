@@ -46,6 +46,7 @@ type Model struct {
 		NoteableId   string
 	}
 	pendingCreateMR bool
+	pendingConfirm  bool
 	formReady       bool
 	createForm      createMRForm
 }
