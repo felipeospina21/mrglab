@@ -26,10 +26,17 @@ type NewLogger struct {
 // l.Info("test")
 func New(l NewLogger) (*log.Logger, *os.File) {
 	var defaultOpts log.Options
-	file := ".log"
+	file := l.file
 
-	if l.file != "" {
-		file = l.file
+	if file == "" {
+		dir, err := os.UserConfigDir()
+		if err != nil {
+			dir = "."
+		} else {
+			dir = dir + "/mrglab"
+			os.MkdirAll(dir, 0o700)
+		}
+		file = dir + "/.log"
 	}
 
 	f, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0o600)
