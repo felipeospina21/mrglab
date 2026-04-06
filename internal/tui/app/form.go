@@ -90,6 +90,10 @@ func (f *createMRForm) Reset() {
 	f.focused = formFieldSource
 }
 
+func (f *createMRForm) dirty() bool {
+	return f.title.Value() != "" || f.draft
+}
+
 func (f *createMRForm) SetSize(w, h int) {
 	f.width = w
 	f.source.SetWidth(w)

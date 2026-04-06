@@ -57,7 +57,9 @@ Items are ordered by priority.
 - [x] Create new MR
 - [x] Dynamic statusline colors per status mode (normal, loading, error, etc.)
 - [x] Draft toggle when creating a new MR
-- [ ] Confirm before closing modal when creating a new MR
+- [x] Confirm before closing modal when creating a new MR
+- [ ] Attach files when creating a new MR
+- [ ] Hot reload (live restart on source changes)
 - [ ] Visualize pipelines/jobs
 - [ ] Interact with pipelines/jobs
 - [ ] Visualize issues

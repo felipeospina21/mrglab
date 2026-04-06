@@ -40,8 +40,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch m.ctx.FocusedPanel {
 		case context.Modal:
-			m.Modal, cmd = m.Modal.Update(msg)
-			cmds = append(cmds, cmd)
+			if m.pendingConfirm {
+				switch msg.String() {
+				case "y":
+					cmds = append(cmds, func() tea.Msg { return modal.CloseModalMsg{} })
+				case "n":
+					m.pendingConfirm = false
+					m.Modal.HasSubmit = true
+					m.Modal.Content = m.createForm.View()
+					cmds = append(cmds, m.createForm.Focus())
+				}
+			} else {
+				m.Modal, cmd = m.Modal.Update(msg)
+				cmds = append(cmds, cmd)
+			}
 
 		case context.LeftPanel:
 			m.Projects, cmd = m.Projects.Update(msg)
@@ -128,6 +140,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, m.Input.Focus())
 
 	case modal.CloseModalMsg:
+		if m.pendingCreateMR && m.formReady && m.createForm.dirty() && !m.pendingConfirm {
+			m.pendingConfirm = true
+			m.createForm.Blur()
+			m.Modal.Content = "Discard changes? (y/n)"
+			m.Modal.HasSubmit = false
+			break
+		}
 		m.Input.Blur()
 		m.Input.Reset()
 		m.createForm.Blur()
@@ -136,6 +155,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Modal.FooterKeys = modal.Keybinds
 		m.Modal.HasSubmit = false
 		m.pendingCreateMR = false
+		m.pendingConfirm = false
 		m.formReady = false
 		if m.taskErr != nil {
 			mode := statusline.ModesEnum.Normal
@@ -307,6 +327,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 		m.Modal.Content = m.createForm.View()
+	}
+
+	if m.pendingCreateMR && m.isModalOpen && m.formReady && m.pendingConfirm {
+		m.Modal.Content = "Discard changes? (y/n)"
 	}
 
 	return m, tea.Batch(cmds...)
