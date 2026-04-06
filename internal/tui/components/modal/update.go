@@ -21,7 +21,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case match(Keybinds.Close):
 			return m, func() tea.Msg { return CloseModalMsg{} }
-		case match(Keybinds.Submit):
+		case m.HasSubmit && match(Keybinds.Submit):
 			return m, func() tea.Msg { return SubmitModalMsg{} }
 		case match(Keybinds.Copy):
 			m.Highlight = true

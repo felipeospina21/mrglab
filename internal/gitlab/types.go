@@ -168,3 +168,8 @@ type AcceptMergeRequestResponse struct {
 type CreateNoteResponse struct {
 	Errors []string
 }
+
+// CreateMergeRequestResponse is the result of a create merge request mutation.
+type CreateMergeRequestResponse struct {
+	Errors []string
+}

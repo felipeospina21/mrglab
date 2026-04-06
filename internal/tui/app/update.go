@@ -82,6 +82,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.pendingCreateMR = true
 		m.ctx.FocusedPanel = context.Modal
 		m.Modal.Header = "New Merge Request"
+		m.Modal.FooterKeys = modal.CreateMRKeybinds
+		m.Modal.HasSubmit = true
 		m.Modal.Content = loader.View(m.Spinner.View())
 		cmds = append(cmds, m.MergeRequests.FetchMRTemplates())
 
@@ -118,6 +120,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.isModalOpen = true
 		m.ctx.FocusedPanel = context.Modal
 		m.Modal.Header = fmt.Sprintf("Responding to discussion (%s)", details.ShortID(msg.DiscussionId))
+		m.Modal.FooterKeys = modal.MutationKeybinds
+		m.Modal.HasSubmit = true
 		m.Modal.Content = m.Input.View()
 		m.pendingNote.DiscussionId = msg.DiscussionId
 		m.pendingNote.NoteableId = msg.NoteableId
@@ -129,6 +133,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.createForm.Blur()
 		m.createForm.Reset()
 		m.Modal.IsError = false
+		m.Modal.FooterKeys = modal.Keybinds
+		m.Modal.HasSubmit = false
 		m.pendingCreateMR = false
 		m.formReady = false
 		if m.taskErr != nil {
@@ -169,8 +175,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}))
 		}
 		if m.pendingCreateMR {
+			createCmd := m.createMergeRequest()
 			cmds = append(cmds, m.startTask(func() tea.Cmd {
-				return m.createMergeRequest()
+				return createCmd
 			}))
 			m.pendingCreateMR = false
 		}
@@ -289,6 +296,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				cmds = append(cmds, m.createForm.NextField())
 			case "shift+tab":
 				cmds = append(cmds, m.createForm.PrevField())
+			case "ctrl+d":
+				m.createForm.draft = !m.createForm.draft
 			default:
 				cmd = m.createForm.Update(msg)
 				cmds = append(cmds, cmd)
@@ -328,6 +337,8 @@ func (m *Model) handleGlobalKeys(msg tea.KeyPressMsg) tea.Cmd {
 			m.isModalOpen = true
 			m.Modal.Header = "Error"
 			m.Modal.IsError = true
+			m.Modal.HasSubmit = false
+			m.Modal.FooterKeys = modal.Keybinds
 			m.Modal.Content = m.taskErr.Error()
 			m.Modal.SetFocus()
 		}
@@ -335,6 +346,8 @@ func (m *Model) handleGlobalKeys(msg tea.KeyPressMsg) tea.Cmd {
 	case match(gk.Help):
 		m.isModalOpen = true
 		m.Modal.Header = "Keybindings"
+		m.Modal.HasSubmit = false
+		m.Modal.FooterKeys = modal.Keybinds
 		m.Modal.Content = m.Modal.RenderHelp(m.Statusline.Keybinds)
 		m.Modal.SetFocus()
 

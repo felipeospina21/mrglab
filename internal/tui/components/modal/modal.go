@@ -12,17 +12,20 @@ import (
 
 // Model holds the state for the modal overlay.
 type Model struct {
-	Header    string
-	Content   string
-	Highlight bool
-	IsError   bool
-	ctx       *context.AppContext
+	Header     string
+	Content    string
+	FooterKeys help.KeyMap
+	Highlight  bool
+	IsError    bool
+	HasSubmit  bool
+	ctx        *context.AppContext
 }
 
 // New creates a new modal model.
 func New(ctx *context.AppContext) Model {
 	return Model{
-		ctx: ctx,
+		FooterKeys: Keybinds,
+		ctx:        ctx,
 	}
 }
 
@@ -38,7 +41,11 @@ func (m Model) View(background string) string {
 	if m.IsError {
 		header = headerStyle.Background(lipgloss.Color(style.StatuslineModeError)).Width(modalW).Render(m.Header)
 	}
-	footer := helpStyle.Render("esc close · ctrl+s submit · ctrl+y copy")
+	hp := help.New()
+	hp.Styles.ShortKey = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
+	hp.Styles.ShortDesc = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
+	hp.Styles.ShortSeparator = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
+	footer := helpStyle.Render(hp.View(m.FooterKeys))
 	contentH := max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
 
 	contentW := modalW - boxStyle.GetHorizontalFrameSize()

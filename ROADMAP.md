@@ -22,7 +22,15 @@ Items are ordered by priority.
 - [ ] Run `golangci-lint run` and fix all warnings
 - [ ] Add linter to CI workflow
 
-## 4. Fix TODO/FIX Comments — `medium`
+## 4. Bug Fixes & Improvements — `high`
+
+- [x] Fix create MR sending empty payload (closure read form values after reset)
+- [x] Reorganize `createMergeRequestMutation` to follow query/mutation conventions in `queries.go`
+- [x] Move `CreateMergeRequestResponse` to `types.go` with other response types
+- [ ] Make `acceptMergeRequestMutation` return response fields via variable map convention
+- [ ] Make `createNoteMutation` return response fields via variable map convention
+
+## 5. Fix TODO/FIX Comments — `medium`
 
 - [ ] `mergerequests.go:236` — Refactor Icon + Status rendering in details view
 - [ ] `projects/styles.go:16` — Set width from config instead of hardcoded 30
@@ -30,12 +38,12 @@ Items are ordered by priority.
 - [ ] `table/styles.go:36` — Update border color with design tokens
 - [ ] `details/render.go:286` — Replace magic number 4 with proper calculation
 
-## 5. Documentation — `medium`
+## 6. Documentation — `medium`
 
 - [x] Record demo GIF with VHS and add to README
 - [ ] Add GitHub issue templates (bug report, feature request)
 
-## 6. Refactoring — `medium`
+## 7. Refactoring — `medium`
 
 - [ ] Move `FormatTime` to a shared `tui/format.go`
 - [ ] Move `StyleIconsColumns` to `mergerequests/columns.go` or `app/commands.go`
@@ -44,10 +52,12 @@ Items are ordered by priority.
 - [ ] Update all imports across `app/`, `tui/`, and other components
 - [ ] Move `setStatus`, `startTask`, `finishTask`, `toggleLeftPanel`, `toggleRightPanel`, `SelectMR` to `app/helpers.go`
 
-## 7. New Features — `low`
+## 8. New Features — `low`
 
 - [x] Create new MR
 - [x] Dynamic statusline colors per status mode (normal, loading, error, etc.)
+- [x] Draft toggle when creating a new MR
+- [ ] Confirm before closing modal when creating a new MR
 - [ ] Visualize pipelines/jobs
 - [ ] Interact with pipelines/jobs
 - [ ] Visualize issues

@@ -78,6 +78,11 @@ func (m Model) createMergeRequest() tea.Cmd {
 			}
 		}
 	}
+
+	if m.createForm.draft {
+		title = "Draft: " + title
+	}
+
 	return m.MergeRequests.CreateMergeRequest(gitlab.CreateMergeRequestInput{
 		SourceBranch: source,
 		TargetBranch: target,
