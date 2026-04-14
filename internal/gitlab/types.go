@@ -47,11 +47,17 @@ type MergeRequestNode struct {
 	DetailedMergeStatus string
 	DiffStatsSummary    DiffStatsSummary
 	Draft               bool
+	HeadPipeline        *HeadPipelineStatus
 	IID                 string
 	Labels              Labels
 	Title               string
 	UserNotesCount      int
 	WebURL              string
+}
+
+// HeadPipelineStatus holds the overall pipeline status for a merge request.
+type HeadPipelineStatus struct {
+	Status string
 }
 
 // DiffStatsSummary holds the diff statistics for a merge request.

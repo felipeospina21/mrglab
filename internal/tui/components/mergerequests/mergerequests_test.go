@@ -137,17 +137,17 @@ func TestGetTableRows(t *testing.T) {
 	}
 
 	row := rows[0]
-	// Title is at index 2
-	if row[2] != "Test MR" {
-		t.Errorf("row title = %q, want %q", row[2], "Test MR")
+	// Title is at index 4 (after created_at, isMergeable, isDraft, IID display)
+	if row[4] != "Test MR" {
+		t.Errorf("row title = %q, want %q", row[4], "Test MR")
 	}
-	// Author at index 3
-	if row[3] != "Dev" {
-		t.Errorf("row author = %q, want %q", row[3], "Dev")
+	// Author at index 5
+	if row[5] != "Dev" {
+		t.Errorf("row author = %q, want %q", row[5], "Dev")
 	}
-	// IID at index 12
-	if row[12] != "123" {
-		t.Errorf("row IID = %q, want %q", row[12], "123")
+	// IID at index 14
+	if row[14] != "123" {
+		t.Errorf("row IID = %q, want %q", row[14], "123")
 	}
 }
 
