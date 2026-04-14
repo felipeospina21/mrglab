@@ -12,11 +12,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: felipeospina21/tuishell
-          path: ../tuishell
+          path: tuishell
 
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Fix local replace
+        run: go mod edit -replace github.com/felipeospina21/tuishell=./tuishell
 
       - name: Build
         run: go build ./...
@@ -32,11 +35,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: felipeospina21/tuishell
-          path: ../tuishell
+          path: tuishell
 
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Fix local replace
+        run: go mod edit -replace github.com/felipeospina21/tuishell=./tuishell
 
       - name: Test
         run: go test ./...
