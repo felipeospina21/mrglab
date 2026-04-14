@@ -1,3 +1,7 @@
+# Go workspace (local dev only)
+go.work
+go.work.sum
+
 # Binary
 mrglab
 *.exe

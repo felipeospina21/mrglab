@@ -3,23 +3,18 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  GOWORK: "off"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-        with:
-          repository: felipeospina21/tuishell
-          path: tuishell
-
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-
-      - name: Fix local replace
-        run: go mod edit -replace github.com/felipeospina21/tuishell=./tuishell
 
       - name: Build
         run: go build ./...
@@ -32,17 +27,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/checkout@v4
-        with:
-          repository: felipeospina21/tuishell
-          path: tuishell
-
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-
-      - name: Fix local replace
-        run: go mod edit -replace github.com/felipeospina21/tuishell=./tuishell
 
       - name: Test
         run: go test ./...
