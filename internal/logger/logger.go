@@ -31,7 +31,8 @@ func New(l NewLogger) (*log.Logger, *os.File) {
 	if file == "" {
 		dir, err := os.UserConfigDir()
 		if err != nil {
-			dir = "."
+			dir = os.TempDir() + "/mrglab"
+			os.MkdirAll(dir, 0o700)
 		} else {
 			dir = dir + "/mrglab"
 			os.MkdirAll(dir, 0o700)
@@ -62,7 +63,13 @@ func New(l NewLogger) (*log.Logger, *os.File) {
 //
 // logger.Debug("value")
 func Debug(value ...any) {
-	l, f := New(NewLogger{file: "debug.log"})
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		dir = os.TempDir()
+	}
+	debugDir := dir + "/mrglab"
+	os.MkdirAll(debugDir, 0o700)
+	l, f := New(NewLogger{file: debugDir + "/debug.log"})
 	defer f.Close()
 	l.Info(value)
 }
