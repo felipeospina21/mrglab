@@ -75,16 +75,15 @@ func (e errMsg) Error() string { return e.err.Error() }
 
 func (m Model) View() string {
 	if !m.Ready {
-		return PanelStyle.Render(fmt.Sprintf("%s\n%s",
+		return fmt.Sprintf("%s\n%s",
 			m.HeaderView(),
 			loader.View(m.SpinnerView),
-		))
+		)
 	}
-	return PanelStyle.Render(fmt.Sprintf("%s\n%s\n%s",
+	return fmt.Sprintf("%s\n%s\n%s",
 		m.HeaderView(),
 		m.Viewport.View(),
 		m.FooterView(),
-	),
 	)
 }
 

@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"charm.land/bubbles/v2/help"
 	tea "charm.land/bubbletea/v2"
 
-	"charm.land/bubbles/v2/spinner"
-	"github.com/felipeospina21/mrglab/internal/context"
 	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
@@ -16,9 +15,8 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
-	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
-	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
+	"github.com/felipeospina21/tuishell"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -32,72 +30,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		defer f.Close()
 		l.Error(msg.Error())
 
-	case tea.KeyPressMsg:
-		cmd = m.handleGlobalKeys(msg)
-		if cmd != nil {
-			cmds = append(cmds, cmd)
-		}
-
-		switch m.ctx.FocusedPanel {
-		case context.Modal:
-			if m.pendingConfirm {
-				switch msg.String() {
-				case "y":
-					cmds = append(cmds, func() tea.Msg { return modal.CloseModalMsg{} })
-				case "n":
-					m.pendingConfirm = false
-					m.Modal.HasSubmit = true
-					m.Modal.Content = m.createForm.View()
-					cmds = append(cmds, m.createForm.Focus())
-				}
-			} else {
-				m.Modal, cmd = m.Modal.Update(msg)
-				cmds = append(cmds, cmd)
-			}
-
-		case context.LeftPanel:
-			m.Projects, cmd = m.Projects.Update(msg)
-			cmds = append(cmds, cmd)
-
-		case context.MainPanel:
-			m.MergeRequests, cmd = m.MergeRequests.Update(msg)
-			cmds = append(cmds, cmd)
-
-		case context.RightPanel:
-			m.Details, cmd = m.Details.Update(msg)
-			cmds = append(cmds, cmd)
-		}
-
-	// Component action messages
+	// Component action messages from panels
 	case projects.FetchMRListMsg:
-		cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
+		m.MergeRequests.Loading = true
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.fetchMergeRequestsList()}
+		})
 
 	case mergerequests.ViewDetailsMsg:
-		if !m.isRightOpen {
-			m.toggleRightPanel()
+		if !m.Shell.IsRightOpen() {
+			cmds = append(cmds, func() tea.Msg { return tuishell.OpenRightPanelMsg{} })
 		}
 		m.Details.SetFocus()
 		m.Details.Ready = false
 		m.Details.Viewport.SetContent("")
 		titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
 		m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
-		cmds = append(cmds, m.startTask(m.fetchSingleMergeRequest))
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.fetchSingleMergeRequest()}
+		})
 
 	case mergerequests.MergeMRMsg, details.MergeMRMsg:
-		cmds = append(cmds, m.startTask(m.acceptMergeRequest))
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.acceptMergeRequest()}
+		})
 
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
 
 	case mergerequests.CreateMRMsg:
-		m.isModalOpen = true
 		m.pendingCreateMR = true
-		m.ctx.FocusedPanel = context.Modal
-		m.Modal.Header = "New Merge Request"
-		m.Modal.FooterKeys = modal.CreateMRKeybinds
-		m.Modal.HasSubmit = true
-		m.Modal.Content = loader.View(m.Spinner.View())
-		cmds = append(cmds, m.MergeRequests.FetchMRTemplates())
+		content := loader.View(m.Shell.Spinner.View())
+		cmds = append(cmds,
+			func() tea.Msg { return tuishell.OpenModalMsg{Header: "New Merge Request", Content: content} },
+			m.MergeRequests.FetchMRTemplates(),
+		)
 
 	case tui.MRTemplatesFetchedMsg:
 		if m.pendingCreateMR {
@@ -114,91 +81,63 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			m.formReady = true
-			m.Modal.Content = m.createForm.View()
+			m.Shell.Modal.Content = m.createForm.View()
 			cmds = append(cmds, m.createForm.Focus())
 		}
 
 	case details.ClosePanelMsg:
-		m.isRightFullscreen = false
-		m.toggleRightPanel()
 		m.MergeRequests.SetFocus()
 		m.setHelpKeys(mergerequests.Keybinds)
+		cmds = append(cmds, func() tea.Msg { return tuishell.CloseRightPanelMsg{} })
 
 	case details.FullscreenMsg:
-		m.isRightFullscreen = !m.isRightFullscreen
-		m.recomputeLayout()
+		cmds = append(cmds, func() tea.Msg { return tuishell.ToggleFullscreenMsg{} })
 
 	case details.RespondCommentMsg:
-		m.isModalOpen = true
-		m.ctx.FocusedPanel = context.Modal
-		m.Modal.Header = fmt.Sprintf("Responding to discussion (%s)", details.ShortID(msg.DiscussionId))
-		m.Modal.FooterKeys = modal.MutationKeybinds
-		m.Modal.HasSubmit = true
-		m.Modal.Content = m.Input.View()
 		m.pendingNote.DiscussionId = msg.DiscussionId
 		m.pendingNote.NoteableId = msg.NoteableId
-		cmds = append(cmds, m.Input.Focus())
+		cmds = append(cmds,
+			func() tea.Msg {
+				return tuishell.OpenModalMsg{
+					Header:  fmt.Sprintf("Responding to discussion (%s)", details.ShortID(msg.DiscussionId)),
+					Content: m.Input.View(),
+				}
+			},
+			m.Input.Focus(),
+		)
 
-	case modal.CloseModalMsg:
-		if m.pendingCreateMR && m.formReady && m.createForm.dirty() && !m.pendingConfirm {
-			m.pendingConfirm = true
-			m.createForm.Blur()
-			m.Modal.Content = "Discard changes? (y/n)"
-			m.Modal.HasSubmit = false
-			break
-		}
+	case tuishell.CloseModalMsg:
 		m.Input.Blur()
 		m.Input.Reset()
 		m.createForm.Blur()
 		m.createForm.Reset()
-		m.Modal.IsError = false
-		m.Modal.FooterKeys = modal.Keybinds
-		m.Modal.HasSubmit = false
 		m.pendingCreateMR = false
 		m.pendingConfirm = false
 		m.formReady = false
-		if m.taskErr != nil {
-			mode := statusline.ModesEnum.Normal
-			if m.ctx.DevMode {
-				mode = statusline.ModesEnum.Dev
-			}
-			m.setStatus(mode, "")
-		}
-		m.isModalOpen = false
-		switch {
-		case m.isRightOpen:
-			m.Details.SetFocus()
-			m.setHelpKeys(details.Keybinds)
-		case m.isLeftOpen:
-			m.Projects.SetFocus()
-			m.setHelpKeys(projects.Keybinds)
-		default:
-			m.MergeRequests.SetFocus()
-			m.setHelpKeys(mergerequests.Keybinds)
+		if m.Shell.TaskErr() != nil {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.SetStatusMsg{Content: ""}
+			})
 		}
 
-	case modal.CopyModalMsg:
-		execPkg.CopyToClipboard(m.Modal.Content)
+	case tuishell.CopyModalMsg:
+		execPkg.CopyToClipboard(m.Shell.Modal.Content)
 
-	case modal.ResetHighlightMsg:
-		m.Modal.Highlight = false
-
-	case modal.SubmitModalMsg:
+	case tuishell.SubmitModalMsg, tuishell.ShellSubmitMsg:
 		body := m.Input.Value()
 		if body != "" && m.pendingNote.NoteableId != "" {
-			cmds = append(cmds, m.startTask(func() tea.Cmd {
-				return m.MergeRequests.CreateNote(gitlab.CreateNoteInput{
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.MergeRequests.CreateNote(gitlab.CreateNoteInput{
 					NoteableId:   gitlab.NoteableID(m.pendingNote.NoteableId),
 					DiscussionId: gitlab.DiscussionID(m.pendingNote.DiscussionId),
 					Body:         body,
-				})
-			}))
+				})}
+			})
 		}
 		if m.pendingCreateMR {
-			createCmd := m.createMergeRequest()
-			cmds = append(cmds, m.startTask(func() tea.Cmd {
-				return createCmd
-			}))
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.createMergeRequest()}
+			})
 			m.pendingCreateMR = false
 		}
 		m.Input.Blur()
@@ -206,8 +145,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.createForm.Blur()
 		m.createForm.Reset()
 		m.formReady = false
-		m.isModalOpen = false
-		if m.isRightOpen {
+		if m.Shell.IsRightOpen() {
 			m.Details.SetFocus()
 			m.setHelpKeys(details.Keybinds)
 		} else {
@@ -217,19 +155,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Typed task result messages
 	case tui.MRListFetchedMsg:
-		m.finishTask(msg.Err, mergerequests.Keybinds)
+		m.MergeRequests.Loading = false
+		cmds = append(cmds, finishTaskCmd(msg.Err, mergerequests.Keybinds))
 		if msg.Err == nil {
 			t := m.getMergeRequestModel(msg)()
-			if m.isLeftOpen {
-				m.toggleLeftPanel()
-				m.MergeRequests.SetFocus()
-			}
 			m.MergeRequests.Table = t
-			m.recomputeLayout()
+			m.MergeRequests.SetFocus()
+			cmds = append(cmds, func() tea.Msg { return tuishell.CloseLeftPanelMsg{} })
 		}
 
 	case tui.MRDetailsFetchedMsg:
-		m.finishTask(msg.Err, details.Keybinds)
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.Keybinds))
 		if msg.Err == nil {
 			mr := m.getMergeRequestDetails(msg)()
 
@@ -242,74 +178,66 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			titleIdx := mergerequests.GetColIndex(mergerequests.ColNames.Title)
 			m.Details.Content.Title = m.MergeRequests.Table.SelectedRow()[titleIdx]
 
-			rl := computeLayout(m.ctx.Window, false, true, m.isRightFullscreen)
-			m.Details.SetViewportViewSize(
-				tea.WindowSizeMsg{Width: rl.RightPanel.Width, Height: rl.ContentH - details.PanelStyle.GetVerticalFrameSize() - tableViewOverhead},
-			)
-
 			c := m.Details.GetViewportContent(m.Details.MRDescription, mr)
 			m.Details.Viewport.SetContent(c)
 			m.Details.Ready = true
 		}
 
 	case tui.MRMergedMsg:
-		m.finishTask(msg.Err, mergerequests.Keybinds)
+		cmds = append(cmds, finishTaskCmd(msg.Err, mergerequests.Keybinds))
 		if msg.Err == nil {
 			if len(msg.Errors) > 0 {
 				e := strings.Join(msg.Errors, ", ")
 				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
-			} else if m.ctx.FocusedPanel == context.MainPanel {
-				cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
-			} else if m.ctx.FocusedPanel == context.RightPanel {
-				cmds = append(cmds, m.startTask(m.fetchSingleMergeRequest))
+			} else if m.Shell.Ctx.FocusedPanel == tuishell.MainPanel {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.fetchMergeRequestsList()}
+				})
+			} else if m.Shell.Ctx.FocusedPanel == tuishell.RightPanel {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.fetchSingleMergeRequest()}
+				})
 			}
 		}
 
 	case tui.NoteCreatedMsg:
-		m.finishTask(msg.Err, details.Keybinds)
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.Keybinds))
 		if msg.Err == nil {
 			if len(msg.Errors) > 0 {
 				e := strings.Join(msg.Errors, ", ")
 				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
 			} else {
-				m.Statusline.Content = "✓ Comment sent"
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.SetStatusMsg{Content: "✓ Comment sent"}
+				})
 			}
 		}
 
 	case tui.MRCreatedMsg:
-		m.finishTask(msg.Err, mergerequests.Keybinds)
+		cmds = append(cmds, finishTaskCmd(msg.Err, mergerequests.Keybinds))
 		if msg.Err == nil {
 			if len(msg.Errors) > 0 {
 				e := strings.Join(msg.Errors, ", ")
 				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
 			} else {
-				m.Statusline.Content = "✓ MR created"
-				cmds = append(cmds, m.startTask(m.fetchMergeRequestsList))
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ MR created"} },
+					func() tea.Msg { return tuishell.StartTaskMsg{Cmd: m.fetchMergeRequestsList()} },
+				)
 			}
 		}
 
-	case spinner.TickMsg:
-		var spin tea.Cmd
-		cmd = m.updateSpinnerViewCommand(msg)
-		m.Spinner, spin = m.Spinner.Update(msg)
-		m.Details.SpinnerView = m.Spinner.View()
-		if m.pendingCreateMR && m.isModalOpen && !m.formReady {
-			m.Modal.Content = loader.View(m.Spinner.View())
-		}
-		cmds = append(cmds, cmd, spin)
-
-	case tea.WindowSizeMsg:
-		m.ctx.Window = msg
-		m.recomputeLayout()
 	}
 
+	// Handle input focus
 	if m.Input.Focused() {
 		m.Input, cmd = m.Input.Update(msg)
-		m.Modal.Content = m.Input.View()
+		m.Shell.Modal.Content = m.Input.View()
 		cmds = append(cmds, cmd)
 	}
 
-	if m.pendingCreateMR && m.isModalOpen && m.formReady {
+	// Handle form focus
+	if m.pendingCreateMR && m.Shell.IsModalOpen() && m.formReady {
 		if keyMsg, ok := msg.(tea.KeyPressMsg); ok {
 			switch keyMsg.String() {
 			case "tab":
@@ -326,68 +254,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmd = m.createForm.Update(msg)
 			cmds = append(cmds, cmd)
 		}
-		m.Modal.Content = m.createForm.View()
+		m.Shell.Modal.Content = m.createForm.View()
 	}
 
-	if m.pendingCreateMR && m.isModalOpen && m.formReady && m.pendingConfirm {
-		m.Modal.Content = "Discard changes? (y/n)"
+	// Propagate focus changes from components to shell before shell.Update
+	m.Shell.Ctx.FocusedPanel = m.ctx.FocusedPanel
+
+	// Delegate to shell for everything else
+	m.Shell, cmd = m.Shell.Update(msg)
+	cmds = append(cmds, cmd)
+
+	// Sync shell context back to mrglab context after shell update
+	m.ctx.AppContext = m.Shell.Ctx
+
+	// Sync panel pointers after shell update
+	if p, ok := m.Shell.Left.(ProjectsPanel); ok {
+		m.Projects = p.Model
+	}
+	if mr, ok := m.Shell.Main.(MergeRequestsPanel); ok {
+		m.MergeRequests = mr.Model
+	}
+	if d, ok := m.Shell.Right.(DetailsPanel); ok {
+		m.Details = d.Model
+	}
+
+	// Sync spinner view to components that render loading states
+	sv := m.Shell.Spinner.View()
+	m.Details.SpinnerView = sv
+	m.MergeRequests.SpinnerView = sv
+	if m.pendingCreateMR && m.Shell.IsModalOpen() && !m.formReady {
+		m.Shell.Modal.Content = loader.View(sv)
+	}
+
+	if m.pendingCreateMR && m.Shell.IsModalOpen() && m.formReady && m.pendingConfirm {
+		m.Shell.Modal.Content = "Discard changes? (y/n)"
 	}
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m *Model) handleGlobalKeys(msg tea.KeyPressMsg) tea.Cmd {
-	match := tui.KeyMatcher(msg)
-	gk := tui.GlobalKeys(m.ctx.DevMode)
-
-	switch {
-	case match(gk.MockFetch):
-		if m.taskStatus == taskStarted {
-			m.taskStatus = taskFinished
-		} else if m.taskStatus == taskFinished || m.taskStatus == taskIdle {
-			m.taskStatus = taskStarted
-		}
-
-	case match(gk.ThrowError):
-		txt := "# github.com/felipeospina21/mrglab/internal/tui/app internal/tui/app/update.go:246:12: m.Modal.IsEror undefined (type modal.Model has no field or method IsEror)"
-		m.finishTask(errors.New(txt), mergerequests.Keybinds)
-		return nil
-
-	case match(gk.Quit):
-		return tea.Quit
-
-	case match(gk.OpenModal):
-		if m.taskErr != nil {
-			m.isModalOpen = true
-			m.Modal.Header = "Error"
-			m.Modal.IsError = true
-			m.Modal.HasSubmit = false
-			m.Modal.FooterKeys = modal.Keybinds
-			m.Modal.Content = m.taskErr.Error()
-			m.Modal.SetFocus()
-		}
-
-	case match(gk.Help):
-		m.isModalOpen = true
-		m.Modal.Header = "Keybindings"
-		m.Modal.HasSubmit = false
-		m.Modal.FooterKeys = modal.Keybinds
-		m.Modal.Content = m.Modal.RenderHelp(m.Statusline.Keybinds)
-		m.Modal.SetFocus()
-
-	case match(gk.ToggleLeftPanel):
-		m.toggleLeftPanel()
-		if m.isRightOpen {
-			m.toggleRightPanel()
-		}
-		if m.isLeftOpen {
-			m.Projects.SetFocus()
-			m.setHelpKeys(projects.Keybinds)
-		} else {
-			m.MergeRequests.SetFocus()
-			m.setHelpKeys(mergerequests.Keybinds)
-		}
+// finishTaskCmd returns a command that sends FinishTaskMsg to the shell.
+func finishTaskCmd(err error, kb help.KeyMap) tea.Cmd {
+	return func() tea.Msg {
+		return tuishell.FinishTaskMsg{Err: err, Keybinds: kb}
 	}
-
-	return nil
 }

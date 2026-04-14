@@ -1,20 +1,19 @@
 // Package context provides shared application state accessible by all TUI components.
 package context
 
-import tea "charm.land/bubbletea/v2"
+import "github.com/felipeospina21/tuishell"
 
-type focusedPanel uint
-
-// Panel focus constants.
+// Re-export panel constants for convenience.
 const (
-	LeftPanel focusedPanel = iota
-	MainPanel
-	RightPanel
-	Modal
+	LeftPanel  = tuishell.LeftPanel
+	MainPanel  = tuishell.MainPanel
+	RightPanel = tuishell.RightPanel
+	Modal      = tuishell.ModalPanel
 )
 
 // AppContext holds shared state passed to all TUI components.
 type AppContext struct {
+	tuishell.AppContext
 	SelectedProject struct {
 		Name string
 		ID   string
@@ -24,8 +23,4 @@ type AppContext struct {
 		Sha    string
 		Status string
 	}
-	Window       tea.WindowSizeMsg
-	DevMode      bool
-	FocusedPanel focusedPanel
-	PanelHeight  int
 }

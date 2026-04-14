@@ -1,191 +1,54 @@
-// Package modal implements a centered overlay modal component.
+// Package modal re-exports the tuishell modal component adapted for mrglab's context.
 package modal
 
 import (
-	"strings"
-
-	"charm.land/lipgloss/v2"
-	"github.com/felipeospina21/mrglab/internal/context"
+	tea "charm.land/bubbletea/v2"
 	"charm.land/bubbles/v2/help"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
+	tsmodal "github.com/felipeospina21/tuishell/modal"
+	"github.com/felipeospina21/tuishell/style"
+	"github.com/felipeospina21/mrglab/internal/context"
 )
 
-// Model holds the state for the modal overlay.
+// Re-export message types.
+type (
+	CloseModalMsg     = tsmodal.CloseModalMsg
+	SubmitModalMsg    = tsmodal.SubmitModalMsg
+	CopyModalMsg      = tsmodal.CopyModalMsg
+	ResetHighlightMsg = tsmodal.ResetHighlightMsg
+)
+
+// Keybinds re-exports the modal keybindings.
+var Keybinds = tsmodal.Keybinds
+
+// Model wraps the tuishell modal with mrglab's context.
 type Model struct {
-	Header     string
-	Content    string
-	FooterKeys help.KeyMap
-	Highlight  bool
-	IsError    bool
-	HasSubmit  bool
-	ctx        *context.AppContext
+	tsmodal.Model
 }
 
-// New creates a new modal model.
+// New creates a new modal model using mrglab's AppContext.
 func New(ctx *context.AppContext) Model {
-	return Model{
-		FooterKeys: Keybinds,
-		ctx:        ctx,
-	}
+	theme := style.DefaultTheme()
+	return Model{Model: tsmodal.New(&ctx.AppContext, theme)}
 }
 
-// View renders the modal box centered over the dimmed background.
-func (m Model) View(background string) string {
-	w := m.ctx.Window.Width
-	h := m.ctx.Window.Height
-
-	modalW := modalSize(w)
-	modalH := modalSize(h)
-
-	header := headerStyle.Width(modalW).Render(m.Header)
-	if m.IsError {
-		header = headerStyle.Background(lipgloss.Color(style.StatuslineModeError)).Width(modalW).Render(m.Header)
-	}
-	hp := help.New()
-	hp.Styles.ShortKey = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
-	hp.Styles.ShortDesc = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
-	hp.Styles.ShortSeparator = lipgloss.NewStyle().Foreground(lipgloss.Color(style.DarkGray))
-	footer := helpStyle.Render(hp.View(m.FooterKeys))
-	contentH := max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
-
-	contentW := modalW - boxStyle.GetHorizontalFrameSize()
-	content := m.Content
-	if m.Highlight {
-		content = lipgloss.NewStyle().
-			Background(lipgloss.Color(style.Violet[400])).
-			Foreground(lipgloss.Color(style.Black)).
-			Render(content)
-	}
-
-	body := lipgloss.NewStyle().
-		Width(contentW).
-		Height(contentH).
-		MaxHeight(contentH).
-		Render(content)
-
-	box := boxStyle.Width(modalW).Render(
-		lipgloss.JoinVertical(0, header, body, footer),
-	)
-
-	dimmed := dimContent(background, w, h)
-
-	return placeOverlay(w, h, box, dimmed)
+// Update wraps the inner Update to return the mrglab modal.Model type.
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	inner, cmd := m.Model.Update(msg)
+	m.Model = inner
+	return m, cmd
 }
 
-// SetFocus sets the focused panel to the modal.
-func (m *Model) SetFocus() {
-	m.ctx.FocusedPanel = context.Modal
-}
-
-// RenderHelp renders a full help view with styles suited for the modal.
+// RenderHelp delegates to the inner model.
 func (m Model) RenderHelp(km help.KeyMap) string {
-	h := help.New()
-	h.Styles.FullKey = lipgloss.NewStyle().Foreground(lipgloss.Color(style.White))
-	h.Styles.FullDesc = lipgloss.NewStyle().Foreground(lipgloss.Color(style.MediumGray))
-	h.Styles.FullSeparator = lipgloss.NewStyle()
-	return h.FullHelpView(km.FullHelp())
+	return m.Model.RenderHelp(km)
 }
 
-// modalSize returns the modal dimension based on available space.
-// Smaller terminals get a larger ratio so content remains usable.
-func modalSize(available int) int {
-	switch {
-	case available < 40:
-		return available - 2
-	case available < 80:
-		return available * 85 / 100
-	default:
-		return available * 3 / 4
-	}
-}
-
-// ContentWidth returns the usable content width inside the modal for a given window width.
+// ContentWidth returns the usable content width inside the modal.
 func ContentWidth(windowW int) int {
-	return modalSize(windowW) - boxStyle.GetHorizontalFrameSize()
+	return tsmodal.ContentWidth(style.DefaultTheme(), windowW)
 }
 
-// ContentHeight returns the usable content height inside the modal for a given window height.
+// ContentHeight returns the usable content height inside the modal.
 func ContentHeight(windowH int) int {
-	modalH := modalSize(windowH)
-	header := headerStyle.Render("X")
-	footer := helpStyle.Render("X")
-	return max(modalH-lipgloss.Height(header)-lipgloss.Height(footer)-boxStyle.GetVerticalFrameSize(), 1)
-}
-
-// dimContent strips existing colors and applies a dim foreground.
-func dimContent(s string, w, h int) string {
-	// Ensure background fills the full screen
-	bg := lipgloss.NewStyle().Width(w).Height(h).Render(s)
-	lines := strings.Split(bg, "\n")
-	for i, line := range lines {
-		// Strip existing ANSI sequences and re-render dimmed
-		plain := stripAnsi(line)
-		lines[i] = dimStyle.Render(plain)
-	}
-	return strings.Join(lines, "\n")
-}
-
-// placeOverlay centers fg on top of bg by replacing characters in bg.
-func placeOverlay(w, h int, fg, bg string) string {
-	fgLines := strings.Split(fg, "\n")
-	bgLines := strings.Split(bg, "\n")
-
-	fgW := lipgloss.Width(fg)
-	fgH := len(fgLines)
-
-	startY := (h - fgH) / 2
-	startX := (w - fgW) / 2
-	if startY < 0 {
-		startY = 0
-	}
-	if startX < 0 {
-		startX = 0
-	}
-
-	for i, fgLine := range fgLines {
-		bgIdx := startY + i
-		if bgIdx >= len(bgLines) {
-			break
-		}
-		bgLine := bgLines[bgIdx]
-		bgRunes := []rune(stripAnsi(bgLine))
-
-		var prefix string
-		if startX > 0 && startX <= len(bgRunes) {
-			prefix = dimStyle.Render(string(bgRunes[:startX]))
-		} else {
-			prefix = strings.Repeat(" ", startX)
-		}
-
-		fgVisualW := lipgloss.Width(fgLine)
-		endX := startX + fgVisualW
-		var suffix string
-		if endX < len(bgRunes) {
-			suffix = dimStyle.Render(string(bgRunes[endX:]))
-		}
-
-		bgLines[bgIdx] = prefix + fgLine + suffix
-	}
-
-	return strings.Join(bgLines, "\n")
-}
-
-// stripAnsi removes ANSI escape sequences from a string.
-func stripAnsi(s string) string {
-	var out strings.Builder
-	inEsc := false
-	for _, r := range s {
-		if r == '\x1b' {
-			inEsc = true
-			continue
-		}
-		if inEsc {
-			if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '~' {
-				inEsc = false
-			}
-			continue
-		}
-		out.WriteRune(r)
-	}
-	return out.String()
+	return tsmodal.ContentHeight(style.DefaultTheme(), windowH)
 }
