@@ -286,8 +286,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Shell.Modal.Content = loader.View(sv)
 	}
 
-	if m.pendingCreateMR && m.isModalOpen && m.formReady && m.pendingConfirm {
-		m.Modal.Content = "Discard changes? (y/n)"
+	if m.pendingCreateMR && m.Shell.IsModalOpen() && m.formReady && m.pendingConfirm {
+		m.Shell.Modal.Content = "Discard changes? (y/n)"
 	}
 
 	return m, tea.Batch(cmds...)
