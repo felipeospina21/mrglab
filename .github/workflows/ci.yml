@@ -9,6 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/checkout@v4
+        with:
+          repository: felipeospina21/tuishell
+          path: ../tuishell
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -23,6 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: felipeospina21/tuishell
+          path: ../tuishell
 
       - uses: actions/setup-go@v5
         with:
