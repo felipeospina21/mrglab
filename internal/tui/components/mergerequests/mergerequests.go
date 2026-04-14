@@ -26,38 +26,42 @@ type Model struct {
 
 // ColName maps column identifiers to their string names.
 type ColName struct {
-	CreatedAt   string
-	IsDraft     string
-	Title       string
-	Author      string
-	Status      string
-	IsMergeable string
-	Approvals   string
-	Discussions string
-	Diffs       string
-	UpdatedAt   string
-	URL         string
-	Description string
-	ID          string
-	Sha         string
+	CreatedAt      string
+	IsDraft        string
+	MRNumber       string
+	Title          string
+	Author         string
+	PipelineStatus string
+	Status         string
+	IsMergeable    string
+	Approvals      string
+	Discussions    string
+	Diffs          string
+	UpdatedAt      string
+	URL            string
+	Description    string
+	ID             string
+	Sha            string
 }
 
 // ColNames contains the canonical column name strings.
 var ColNames = ColName{
-	CreatedAt:   "created_at",
-	IsDraft:     "is_draft",
-	Title:       "title",
-	Author:      "author",
-	Status:      "status",
-	IsMergeable: "is_mergeable",
-	Approvals:   "approvals",
-	Discussions: "discussions",
-	Diffs:       "diffs",
-	UpdatedAt:   "updated_at",
-	URL:         "url",
-	Description: "description",
-	ID:          "id",
-	Sha:         "sha",
+	CreatedAt:      "created_at",
+	IsDraft:        "is_draft",
+	MRNumber:       "mr_number",
+	Title:          "title",
+	Author:         "author",
+	PipelineStatus: "pipeline_status",
+	Status:         "status",
+	IsMergeable:    "is_mergeable",
+	Approvals:      "approvals",
+	Discussions:    "discussions",
+	Diffs:          "diffs",
+	UpdatedAt:      "updated_at",
+	URL:            "url",
+	Description:    "description",
+	ID:             "id",
+	Sha:            "sha",
 }
 
 // Cols defines the default column layout for the merge requests table.
@@ -68,9 +72,21 @@ var Cols = []table.Column{
 		Width: 2,
 	},
 	{
+		Name:     ColNames.IsMergeable,
+		Title:    icon.Merge,
+		Width:    4,
+		Centered: true,
+	},
+	{
 		Name:     ColNames.IsDraft,
 		Title:    "",
 		Width:    2,
+		Centered: true,
+	},
+	{
+		Name:     ColNames.MRNumber,
+		Title:    "#",
+		Width:    3,
 		Centered: true,
 	},
 	{
@@ -84,15 +100,15 @@ var Cols = []table.Column{
 		Width: 8,
 	},
 	{
-		Name:     ColNames.Status,
-		Title:    "Status",
-		Width:    0,
+		Name:     ColNames.PipelineStatus,
+		Title:    icon.Pipeline,
+		Width:    2,
 		Centered: true,
 	},
 	{
-		Name:     ColNames.IsMergeable,
-		Title:    icon.Merge,
-		Width:    4,
+		Name:     ColNames.Status,
+		Title:    "Status",
+		Width:    0,
 		Centered: true,
 	},
 	{
@@ -143,6 +159,7 @@ var Cols = []table.Column{
 var IconCols = func() []int {
 	return []int{
 		table.GetColIndex(Cols, "is_draft"),
+		table.GetColIndex(Cols, "pipeline_status"),
 		table.GetColIndex(Cols, "status"),
 		table.GetColIndex(Cols, "is_mergeable"),
 		table.GetColIndex(Cols, "approvals"),
@@ -202,12 +219,14 @@ func GetTableRows(mrs gitlab.MergeRequestConnection) []table.Row {
 		node := edge.Node
 		r := table.Row{
 			table.FormatTime(node.CreatedAt),
+			isMergeable(node.DetailedMergeStatus, node.Conflicts),
 			table.RenderIcon(node.Draft, icon.Edit),
+			node.IID,
 			node.Title,
 			node.Author.Name,
+			pipelineStatusIcon(node.HeadPipeline),
 			node.DetailedMergeStatus,
 			// getStatusIcon(node.DetailedMergeStatus),
-			isMergeable(node.DetailedMergeStatus, node.Conflicts),
 			approvals(node.ApprovalState.Rules, node.ApprovalsRequired),
 			strconv.Itoa(node.UserNotesCount),
 			diff(node.DiffStatsSummary.Additions, node.DiffStatsSummary.Deletions),
@@ -296,4 +315,24 @@ func approvals(rules []gitlab.ApprovalRule, total int) string {
 
 func diff(additions int, deletions int) string {
 	return fmt.Sprintf("+%v / -%v", additions, deletions)
+}
+
+func pipelineStatusIcon(hp *gitlab.HeadPipelineStatus) string {
+	if hp == nil {
+		return icon.Dash
+	}
+	icons := map[string]string{
+		"success":  icon.CircleCheck,
+		"failed":   icon.CircleCross,
+		"running":  icon.CircleRunning,
+		"pending":  icon.CirclePause,
+		"canceled": icon.CircleCancel,
+		"skipped":  icon.CircleSkip,
+		"manual":   icon.Gear,
+		"created":  icon.CircleDot,
+	}
+	if v, ok := icons[strings.ToLower(hp.Status)]; ok {
+		return v
+	}
+	return icon.Dash
 }
