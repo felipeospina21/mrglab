@@ -5,6 +5,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
@@ -36,6 +37,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
 		case match(Keybinds.CreateMR):
 			return m, func() tea.Msg { return CreateMRMsg{} }
+		case match(Keybinds.Refetch):
+			return m, func() tea.Msg { return projects.FetchMRListMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

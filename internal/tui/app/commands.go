@@ -53,6 +53,10 @@ func (m Model) fetchMergeRequestsList() tea.Cmd {
 	return m.Projects.GetListCmd()
 }
 
+func (m Model) reFetchMergeRequestsList() tea.Cmd {
+	return m.Projects.GetListCmd()
+}
+
 func (m Model) fetchSingleMergeRequest() tea.Cmd {
 	m.SelectMR()
 	return m.MergeRequests.FetchMergeRequest()
