@@ -5,7 +5,6 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
@@ -15,6 +14,7 @@ type (
 	MergeMRMsg       struct{}
 	OpenInBrowserMsg struct{}
 	CreateMRMsg      struct{}
+	ReFetchMRListMsg struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -38,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case match(Keybinds.CreateMR):
 			return m, func() tea.Msg { return CreateMRMsg{} }
 		case match(Keybinds.Refetch):
-			return m, func() tea.Msg { return projects.FetchMRListMsg{} }
+			return m, func() tea.Msg { return ReFetchMRListMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

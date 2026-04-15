@@ -31,7 +31,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		l.Error(msg.Error())
 
 	// Component action messages from panels
-	case projects.FetchMRListMsg:
+	case projects.FetchMRListMsg, mergerequests.ReFetchMRListMsg:
 		m.MergeRequests.Loading = true
 		cmds = append(cmds, func() tea.Msg {
 			return tuishell.StartTaskMsg{Cmd: m.fetchMergeRequestsList()}
