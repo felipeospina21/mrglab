@@ -72,6 +72,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.setHelpKeys(pipelines.Keybinds)
 			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
 		}
+		l := m.Shell.Layout
+		m.Shell.Main, cmd = m.Shell.Main.Update(tea.WindowSizeMsg{Width: l.MainPanel.Width, Height: l.MainPanel.Height})
+		cmds = append(cmds, cmd)
 
 	case mergerequests.CreateMRMsg:
 		m.pendingCreateMR = true
