@@ -6,6 +6,7 @@ package icon
 
 const (
 	Alert      = " "
+	AlertFill  = " "
 	Approval   = "󰄴 "
 	ArrowRight = "->"
 	ArrowLeft  = "<-"
