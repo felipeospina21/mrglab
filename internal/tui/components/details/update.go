@@ -11,7 +11,10 @@ type (
 	MergeMRMsg       struct{}
 	OpenInBrowserMsg struct{}
 	FullscreenMsg    struct{}
-	PlayJobMsg       struct{ JobID string }
+	PlayJobMsg       struct {
+		JobID  string
+		Status string
+	}
 	RespondCommentMsg struct {
 		DiscussionId string
 		NoteableId   string
@@ -32,10 +35,21 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case match(Keybinds.ClosePanel):
 			return m, func() tea.Msg { return ClosePanelMsg{} }
-		case match(Keybinds.Merge):
-			return m, func() tea.Msg { return MergeMRMsg{} }
 		case match(Keybinds.OpenInBrowser):
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
+		case match(Keybinds.Fullscreen):
+			return m, func() tea.Msg { return FullscreenMsg{} }
+		case m.PipelineNode != nil && match(PipelineKeybinds.NextJob):
+			m.nextJob()
+		case m.PipelineNode != nil && match(PipelineKeybinds.PrevJob):
+			m.prevJob()
+		case m.PipelineNode != nil && match(PipelineKeybinds.PlayJob):
+			if len(m.ActionableJobs) > 0 {
+				j := m.ActionableJobs[m.ActionableJobIdx]
+				return m, func() tea.Msg { return PlayJobMsg{JobID: j.ID, Status: j.Status} }
+			}
+		case match(Keybinds.Merge):
+			return m, func() tea.Msg { return MergeMRMsg{} }
 		case match(Keybinds.RespondComment):
 			d := m.selectedDiscussion()
 			if d == nil {
@@ -53,17 +67,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		case match(Keybinds.PrevDiscussion):
 			m.prevDiscussion()
 			m.refreshContent()
-		case match(Keybinds.Fullscreen):
-			return m, func() tea.Msg { return FullscreenMsg{} }
-		case match(PipelineKeybinds.NextJob):
-			m.nextManualJob()
-		case match(PipelineKeybinds.PrevJob):
-			m.prevManualJob()
-		case match(PipelineKeybinds.PlayJob):
-			if len(m.ManualJobs) > 0 {
-				jobID := m.ManualJobs[m.ManualJobIdx].ID
-				return m, func() tea.Msg { return PlayJobMsg{JobID: jobID} }
-			}
 		}
 	case tea.WindowSizeMsg:
 		frameY := PanelStyle.GetVerticalFrameSize()
@@ -125,19 +128,19 @@ func (m *Model) prevDiscussion() {
 	m.DiscussionIdx = (m.DiscussionIdx - 1 + len(indices)) % len(indices)
 }
 
-func (m *Model) nextManualJob() {
-	if len(m.ManualJobs) == 0 {
+func (m *Model) nextJob() {
+	if len(m.ActionableJobs) == 0 {
 		return
 	}
-	m.ManualJobIdx = (m.ManualJobIdx + 1) % len(m.ManualJobs)
+	m.ActionableJobIdx = (m.ActionableJobIdx + 1) % len(m.ActionableJobs)
 	m.refreshPipelineContent()
 }
 
-func (m *Model) prevManualJob() {
-	if len(m.ManualJobs) == 0 {
+func (m *Model) prevJob() {
+	if len(m.ActionableJobs) == 0 {
 		return
 	}
-	m.ManualJobIdx = (m.ManualJobIdx - 1 + len(m.ManualJobs)) % len(m.ManualJobs)
+	m.ActionableJobIdx = (m.ActionableJobIdx - 1 + len(m.ActionableJobs)) % len(m.ActionableJobs)
 	m.refreshPipelineContent()
 }
 
@@ -146,8 +149,8 @@ func (m *Model) refreshPipelineContent() {
 		return
 	}
 	selectedJob := ""
-	if len(m.ManualJobs) > 0 {
-		j := m.ManualJobs[m.ManualJobIdx]
+	if len(m.ActionableJobs) > 0 {
+		j := m.ActionableJobs[m.ActionableJobIdx]
 		selectedJob = j.Stage.Name + "/" + j.Name
 	}
 	c := RenderPipelineDetailsWithSelection(*m.PipelineNode, selectedJob)

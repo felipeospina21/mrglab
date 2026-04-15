@@ -66,3 +66,23 @@ func (c *Client) PlayJob(id string) (*JobPlayResponse, error) {
 
 	return &mutation.JobPlay, nil
 }
+
+// RetryJob retries a CI job.
+func (c *Client) RetryJob(id string) (*JobRetryResponse, error) {
+	if c.devMode {
+		c.sleep(500 * time.Millisecond)
+		return &JobRetryResponse{}, nil
+	}
+
+	var mutation jobRetryMutation
+	variables := map[string]any{
+		"id": CiBuildID(id),
+	}
+
+	err := c.gql.Mutate(context.Background(), &mutation, variables)
+	if err != nil {
+		return &JobRetryResponse{}, err
+	}
+
+	return &mutation.JobRetry, nil
+}

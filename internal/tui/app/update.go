@@ -86,16 +86,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		node := m.findPipelineByIID(iid)
 		if node != nil {
 			m.Details.PipelineNode = node
-			m.Details.ManualJobs = nil
-			m.Details.ManualJobIdx = 0
+			m.Details.ActionableJobs = nil
+			m.Details.ActionableJobIdx = 0
 			for _, j := range node.Jobs.Nodes {
-				if strings.ToLower(j.Status) == "manual" {
-					m.Details.ManualJobs = append(m.Details.ManualJobs, j)
+				if strings.ToLower(j.Status) != "success" {
+					m.Details.ActionableJobs = append(m.Details.ActionableJobs, j)
 				}
 			}
 			selectedJob := ""
-			if len(m.Details.ManualJobs) > 0 {
-				j := m.Details.ManualJobs[0]
+			if len(m.Details.ActionableJobs) > 0 {
+				j := m.Details.ActionableJobs[0]
 				selectedJob = j.Stage.Name + "/" + j.Name
 			}
 			c := details.RenderPipelineDetailsWithSelection(*node, selectedJob)
@@ -331,9 +331,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case details.PlayJobMsg:
-		cmds = append(cmds, func() tea.Msg {
-			return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(msg.JobID)}
-		})
+		if strings.ToLower(msg.Status) == "manual" {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(msg.JobID)}
+			})
+		} else {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryJob(msg.JobID)}
+			})
+		}
 
 	case tui.JobPlayMsg:
 		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
@@ -344,6 +350,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				cmds = append(cmds,
 					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job triggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case tui.JobRetryMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job retriggered"} },
 					m.fetchPipelinesList(),
 				)
 			}

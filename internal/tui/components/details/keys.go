@@ -71,15 +71,15 @@ var PipelineKeybinds = PipelineDetailsKeyMap{
 	),
 	NextJob: key.NewBinding(
 		key.WithKeys("n"),
-		key.WithHelp("n", "next manual job"),
+		key.WithHelp("n", "next job"),
 	),
 	PrevJob: key.NewBinding(
 		key.WithKeys("N"),
-		key.WithHelp("N", "prev manual job"),
+		key.WithHelp("N", "prev job"),
 	),
 	PlayJob: key.NewBinding(
 		key.WithKeys("P"),
-		key.WithHelp("P", "play job"),
+		key.WithHelp("P", "run job"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

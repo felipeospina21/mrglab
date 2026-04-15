@@ -256,3 +256,8 @@ func (CiBuildID) GetGraphQLType() string { return "CiBuildID" }
 type JobPlayResponse struct {
 	Errors []string
 }
+
+// JobRetryResponse is the result of a job retry mutation.
+type JobRetryResponse struct {
+	Errors []string
+}

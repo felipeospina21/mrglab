@@ -38,3 +38,14 @@ func (m *Model) PlayJob(jobID string) tea.Cmd {
 		}
 	}
 }
+
+// RetryJob returns a command that retries a CI job.
+func (m *Model) RetryJob(jobID string) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.RetryJob(jobID)
+		return tui.JobRetryMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}

@@ -132,7 +132,7 @@ func renderApprovals(approvals []gitlab.ApprovalRule) string {
 	return contentStyle.Render(content.String())
 }
 
-func renderPipelines(stages []gitlab.CiStageNode, selectedManualJob string) string {
+func renderPipelines(stages []gitlab.CiStageNode, selectedJob string) string {
 	var content strings.Builder
 
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Pipeline Jobs", icon.Pipeline)))
@@ -149,7 +149,7 @@ func renderPipelines(stages []gitlab.CiStageNode, selectedManualJob string) stri
 		if lower(stage.Status) != "success" || lower(stage.Status) != "manual" {
 			for _, node := range stage.Jobs.Nodes {
 				jobKey := stage.Name + "/" + node.Name
-				isSelected := selectedManualJob != "" && jobKey == selectedManualJob && lower(node.Status) == "manual"
+				isSelected := selectedJob != "" && jobKey == selectedJob
 				if lower(node.Status) != "success" {
 					nodeStatus := getStageIconStatus(node.Status)
 					if isSelected {
@@ -344,12 +344,12 @@ func RenderPipelineDetails(pipeline gitlab.PipelineNode) string {
 }
 
 // RenderPipelineDetailsWithSelection renders pipeline details with an optional selected manual job highlight.
-func RenderPipelineDetailsWithSelection(pipeline gitlab.PipelineNode, selectedManualJob string) string {
+func RenderPipelineDetailsWithSelection(pipeline gitlab.PipelineNode, selectedJob string) string {
 	var content strings.Builder
 
 	content.WriteString(renderPipelineInfo(pipeline))
 	content.WriteString("\n\n")
-	content.WriteString(renderPipelines(pipelineJobsToStages(pipeline.Jobs.Nodes), selectedManualJob))
+	content.WriteString(renderPipelines(pipelineJobsToStages(pipeline.Jobs.Nodes), selectedJob))
 
 	return content.String()
 }

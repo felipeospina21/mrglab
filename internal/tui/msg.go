@@ -72,3 +72,9 @@ type JobPlayMsg struct {
 	Errors []string
 	Err    error
 }
+
+// JobRetryMsg is sent after a job retry mutation completes.
+type JobRetryMsg struct {
+	Errors []string
+	Err    error
+}
