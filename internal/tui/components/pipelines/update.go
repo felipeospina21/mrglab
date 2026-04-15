@@ -1,40 +1,54 @@
 package pipelines
 
 import (
+	"fmt"
+
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
-	"github.com/felipeospina21/tuishell/style"
+	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
-// CycleTabMsg signals the app to cycle to the next tab.
-type CycleTabMsg struct{}
+type (
+	CycleTabMsg      struct{}
+	OpenInBrowserMsg struct{}
+)
 
 // Init returns nil (no initialization needed).
 func (m Model) Init() tea.Cmd { return nil }
 
 // Update handles key events and window resize for the pipelines panel.
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		match := tui.KeyMatcher(msg)
-		if match(Keybinds.CycleTab) {
+		switch {
+		case match(Keybinds.CycleTab):
 			return m, func() tea.Msg { return CycleTabMsg{} }
+
+		case match(Keybinds.OpenInBrowser):
+			return m, func() tea.Msg { return OpenInBrowserMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		tableFrameX := table.DocStyle.GetHorizontalFrameSize() + 2
+		tableW := msg.Width - tableFrameX
+		tableH := msg.Height - 1 - 2 - 1
+		m.Table.W = tableW
+		m.Table.H = tableH
+		m.Table.SetWidth(tableW)
+		m.Table.SetHeight(tableH)
+		if len(m.Table.Rows()) > 0 {
+			m.Table.SetColumns(GetTableColums(tableW))
+		}
 	}
-	return m, nil
+	m.Table, cmd = m.Table.Update(msg)
+	return m, cmd
 }
 
-// View returns a centered placeholder.
+// View returns the panel content as a tea.View.
 func (m Model) View() tea.View {
-	content := lipgloss.NewStyle().
-		Width(m.width).
-		Height(m.height).
-		Align(lipgloss.Center, lipgloss.Center).
-		Foreground(style.DefaultTheme().TextDimmed).
-		Render("Pipelines")
-	return tea.NewView(content)
+	header := fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Pipelines")
+	return tea.NewView(table.RenderPanel(&m.Table, m.Loading, m.SpinnerView, header))
 }

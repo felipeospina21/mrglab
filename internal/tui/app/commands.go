@@ -10,6 +10,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
@@ -115,4 +116,27 @@ func parseBranches(input string) (source, target string) {
 		target = "main"
 	}
 	return source, target
+}
+
+func (m Model) getPipelineModel(msg tui.PipelineListFetchedMsg) func() table.Model {
+	return func() table.Model {
+		rows := pipelines.GetTableRows(msg.Pipelines)
+		tableW := m.Shell.Layout.MainPanel.Width - table.DocStyle.GetHorizontalFrameSize() - tableBorderX
+		s := table.Styles(table.DefaultStyle())
+		return table.InitModel(table.InitModelParams{
+			Rows:   rows,
+			Colums: pipelines.GetTableColums(tableW),
+			Styles: &s,
+			Width:  tableW,
+			StyleFunc: table.StyleIconsColumns(
+				s,
+				pipelines.IconCols(),
+			),
+			Height: m.Shell.Layout.ContentH - mainPanelHeaderLines - tableBorderY - tableViewOverhead,
+		})
+	}
+}
+
+func (m Model) fetchPipelinesList() tea.Cmd {
+	return m.Pipelines.FetchPipelines()
 }

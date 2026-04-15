@@ -54,3 +54,9 @@ type MRTemplatesFetchedMsg struct {
 	SourceBranch  string
 	Err           error
 }
+
+// PipelineListFetchedMsg is sent when the pipeline list has been fetched.
+type PipelineListFetchedMsg struct {
+	Pipelines gitlab.PipelineConnection
+	Err       error
+}

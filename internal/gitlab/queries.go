@@ -48,6 +48,12 @@ type getRepositoryBlobs struct {
 	} `graphql:"project(fullPath: $fullPath)"`
 }
 
+type getProjectPipelines struct {
+	Project struct {
+		Pipelines PipelineConnection `graphql:"pipelines(first: 30)"`
+	} `graphql:"project(fullPath: $fullPath)"`
+}
+
 // Mutation structs
 
 type acceptMergeRequestMutation struct {
@@ -113,7 +119,18 @@ type CreateMergeRequestInput struct {
 	Description  string
 }
 
+// PipelinesQueryVariables holds the variables for the pipelines list query.
+type PipelinesQueryVariables struct {
+	ProjectFullPath graphql.ID
+}
+
 // Variable builders
+
+func pipelinesVariables(vars PipelinesQueryVariables) map[string]any {
+	return map[string]any{
+		"fullPath": vars.ProjectFullPath,
+	}
+}
 
 func mergeRequestsVariables(vars MergeRequestsQueryVariables) map[string]any {
 	return map[string]any{

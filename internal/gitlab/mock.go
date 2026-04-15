@@ -271,6 +271,98 @@ var mergeRequestConnectionMock = MergeRequestConnection{
 	},
 }
 
+var dur120 = 120
+var dur345 = 345
+var dur42 = 42
+var dur780 = 780
+var finishedAt1 = now.Add(-1 * time.Hour)
+var finishedAt2 = now.Add(-4 * time.Hour)
+var finishedAt3 = now.Add(-2 * 24 * time.Hour)
+var finishedAt4 = now.Add(-6 * time.Hour)
+
+var pipelineConnectionMock = PipelineConnection{
+	Count: 6,
+	Nodes: []PipelineNode{
+		{
+			ID:             "gid://gitlab/Ci::Pipeline/1001",
+			IID:            "301",
+			Commit:         PipelineCommit{ShortId: "a1b2c3d4", Title: "feat: add keyboard shortcuts for discussion navigation"},
+			MergeRequest:   &PipelineMergeRequest{IID: "482"},
+			Jobs:           PipelineJobsConnection{Count: 3, Nodes: []PipelineJobNode{{Name: "compile", Status: "SUCCESS", Stage: PipelineJobStage{Name: "build"}}, {Name: "lint", Status: "SUCCESS", Stage: PipelineJobStage{Name: "build"}}, {Name: "unit-tests", Status: "SUCCESS", Stage: PipelineJobStage{Name: "test"}}}},
+			Status:         "SUCCESS",
+			Source:         "merge_request_event",
+			CreatedAt:      now.Add(-2 * time.Hour),
+			UpdatedAt:      now.Add(-1 * time.Hour),
+			FinishedAt:     &finishedAt1,
+			Duration:       &dur120,
+			User:           Author{Name: "Sarah Chen"},
+		},
+		{
+			ID:           "gid://gitlab/Ci::Pipeline/1002",
+			IID:          "300",
+			Commit:       PipelineCommit{ShortId: "f7e8d9c0", Title: "fix: resolve pipeline status icon not updating after retry"},
+			MergeRequest: &PipelineMergeRequest{IID: "479"},
+			Jobs:         PipelineJobsConnection{Count: 4, Nodes: []PipelineJobNode{{Name: "compile", Status: "SUCCESS", Stage: PipelineJobStage{Name: "build"}}, {Name: "lint", Status: "SUCCESS", Stage: PipelineJobStage{Name: "build"}}, {Name: "unit-tests", Status: "RUNNING", Stage: PipelineJobStage{Name: "test"}}, {Name: "integration-tests", Status: "PENDING", Stage: PipelineJobStage{Name: "test"}}}},
+			Status:       "RUNNING",
+			Source:       "merge_request_event",
+			CreatedAt:    now.Add(-30 * time.Minute),
+			UpdatedAt:    now.Add(-5 * time.Minute),
+			Duration:     &dur345,
+			User:         Author{Name: "James Park"},
+		},
+		{
+			ID:         "gid://gitlab/Ci::Pipeline/1003",
+			IID:        "299",
+			Commit:     PipelineCommit{ShortId: "1a2b3c4d", Title: "refactor: extract layout computation into dedicated module"},
+			Jobs:       PipelineJobsConnection{Count: 3, Nodes: []PipelineJobNode{{Name: "compile", Status: "SUCCESS", Stage: PipelineJobStage{Name: "build"}}, {Name: "lint", Status: "FAILED", Stage: PipelineJobStage{Name: "build"}}, {Name: "unit-tests", Status: "SKIPPED", Stage: PipelineJobStage{Name: "test"}}}},
+			Status:     "FAILED",
+			Source:     "push",
+			CreatedAt:  now.Add(-5 * time.Hour),
+			UpdatedAt:  now.Add(-4 * time.Hour),
+			FinishedAt: &finishedAt2,
+			Duration:   &dur42,
+			User:       Author{Name: "Maria Lopez"},
+		},
+		{
+			ID:             "gid://gitlab/Ci::Pipeline/1004",
+			IID:            "298",
+			Commit:         PipelineCommit{ShortId: "c0d1e2f3", Title: "WIP: support custom color themes via config"},
+			MergeRequest:   &PipelineMergeRequest{IID: "474"},
+			Jobs:           PipelineJobsConnection{Count: 2, Nodes: []PipelineJobNode{{Name: "compile", Status: "CANCELED", Stage: PipelineJobStage{Name: "build"}}, {Name: "lint", Status: "CANCELED", Stage: PipelineJobStage{Name: "build"}}}},
+			Status:         "CANCELED",
+			Source:         "web",
+			CreatedAt:      now.Add(-3 * 24 * time.Hour),
+			UpdatedAt:      now.Add(-2 * 24 * time.Hour),
+			FinishedAt:     &finishedAt3,
+			Duration:       &dur780,
+			User:           Author{Name: "Alex Rivera"},
+		},
+		{
+			ID:        "gid://gitlab/Ci::Pipeline/1005",
+			IID:       "297",
+			Commit:    PipelineCommit{ShortId: "b5a4f3e2", Title: "chore: scheduled nightly pipeline"},
+			Jobs:      PipelineJobsConnection{Count: 0},
+			Status:    "PENDING",
+			Source:    "schedule",
+			CreatedAt: now.Add(-10 * time.Minute),
+			UpdatedAt: now.Add(-10 * time.Minute),
+			User:      Author{Name: "Sarah Chen"},
+		},
+		{
+			ID:         "gid://gitlab/Ci::Pipeline/1006",
+			IID:        "296",
+			Commit:     PipelineCommit{ShortId: "e6f7a8b9", Title: "feat: copy MR URL to clipboard with keybinding"},
+			Jobs:       PipelineJobsConnection{Count: 1, Nodes: []PipelineJobNode{{Name: "deploy-staging", Status: "MANUAL", Stage: PipelineJobStage{Name: "deploy"}}}},
+			Status:     "MANUAL",
+			Source:     "push",
+			CreatedAt:  now.Add(-7 * time.Hour),
+			UpdatedAt:  now.Add(-6 * time.Hour),
+			FinishedAt: &finishedAt4,
+			User:       Author{Name: "James Park"},
+		},
+	},
+}
+
 var mergeRequestResponseMock = MergeRequestResponse{
 	Id:           "gid://gitlab/MergeRequest/482",
 	SourceBranch: "feat/discussion-navigation",

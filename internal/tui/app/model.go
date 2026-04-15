@@ -96,7 +96,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	proj := projects.New(ctx, client, cfg.Filters.Projects)
 	mrs := mergerequests.New(ctx, client)
 	det := details.New(ctx)
-	pip := pipelines.New(ctx)
+	pip := pipelines.New(ctx, client)
 
 	tabNames := []string{"Merge Requests", "Pipelines"}
 
