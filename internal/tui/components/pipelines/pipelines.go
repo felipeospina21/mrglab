@@ -124,8 +124,8 @@ func GetTableColums(width int) []table.Column {
 func GetTableRows(pipelines gitlab.PipelineConnection) []table.Row {
 	var rows []table.Row
 	for _, node := range pipelines.Nodes {
-		mrIID := "-"
-		sourceBranch := "-"
+		mrIID := icon.Dash
+		sourceBranch := icon.Dash
 		if node.MergeRequest != nil {
 			mrIID = "!" + node.MergeRequest.IID
 			sourceBranch = node.MergeRequest.SourceBranch
