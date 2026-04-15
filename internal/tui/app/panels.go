@@ -7,6 +7,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
+	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
 // ProjectsPanel wraps projects.Model to implement tea.Model.
@@ -43,7 +44,7 @@ func (p MergeRequestsPanel) Init() tea.Cmd { return p.Model.Init() }
 
 func (p MergeRequestsPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if wsm, ok := msg.(tea.WindowSizeMsg); ok {
-		wsm.Height -= 1 // Reserve 1 line for tab bar
+		wsm.Height -= 3 // header + tab bar + margin
 		msg = wsm
 	}
 	m, cmd := p.Model.Update(msg)
@@ -52,8 +53,9 @@ func (p MergeRequestsPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (p MergeRequestsPanel) View() tea.View {
+	header := table.TitleStyle.Render(p.Model.Header())
 	tabBar := renderTabBar(p.ActiveTab, p.TabNames)
-	return tea.NewView(lipgloss.JoinVertical(0, tabBar, p.Model.View().Content))
+	return tea.NewView(lipgloss.JoinVertical(0, header, tabBar, p.Model.View().Content))
 }
 
 // PipelinesPanel wraps pipelines.Model to implement tea.Model.
@@ -67,7 +69,7 @@ func (p PipelinesPanel) Init() tea.Cmd { return p.Model.Init() }
 
 func (p PipelinesPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if wsm, ok := msg.(tea.WindowSizeMsg); ok {
-		wsm.Height -= 1 // Reserve 1 line for tab bar
+		wsm.Height -= 3 // header + tab bar + margin
 		msg = wsm
 	}
 	m, cmd := p.Model.Update(msg)
@@ -76,8 +78,9 @@ func (p PipelinesPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (p PipelinesPanel) View() tea.View {
+	header := table.TitleStyle.Render(p.Model.Header())
 	tabBar := renderTabBar(p.ActiveTab, p.TabNames)
-	return tea.NewView(lipgloss.JoinVertical(0, tabBar, p.Model.View().Content))
+	return tea.NewView(lipgloss.JoinVertical(0, header, tabBar, p.Model.View().Content))
 }
 
 // DetailsPanel wraps details.Model to implement tea.Model.
@@ -102,12 +105,12 @@ func renderTabBar(activeTab int, tabNames []string) string {
 		Foreground(theme.Primary).
 		Underline(true).
 		Padding(0, 1).
-		MarginBottom(1)
+		MarginTop(1)
 
 	inactiveStyle := lipgloss.NewStyle().
 		Foreground(theme.TextDimmed).
 		Padding(0, 1).
-		MarginBottom(1)
+		MarginTop(1)
 
 	var tabs []string
 	for i, name := range tabNames {

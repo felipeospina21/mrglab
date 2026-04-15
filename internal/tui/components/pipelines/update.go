@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
@@ -34,7 +35,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		m.height = msg.Height
 		tableFrameX := table.DocStyle.GetHorizontalFrameSize() + 2
 		tableW := msg.Width - tableFrameX
-		tableH := msg.Height - 1 - 2 - 1
+		tableH := msg.Height - 2 - 1 // border + overhead
 		m.Table.W = tableW
 		m.Table.H = tableH
 		m.Table.SetWidth(tableW)
@@ -47,8 +48,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+// Header returns the panel header text.
+func (m Model) Header() string {
+	return fmt.Sprintf("%s", m.ctx.SelectedProject.Name)
+}
+
 // View returns the panel content as a tea.View.
 func (m Model) View() tea.View {
-	header := fmt.Sprintf("%s - %s", m.ctx.SelectedProject.Name, "Pipelines")
-	return tea.NewView(table.RenderPanel(&m.Table, m.Loading, m.SpinnerView, header))
+	if m.Loading {
+		content := lipgloss.NewStyle().
+			Width(m.Table.W).
+			Height(m.Table.H).
+			Align(lipgloss.Center, lipgloss.Center).
+			Render(m.SpinnerView + " Loading...")
+		return tea.NewView(content)
+	}
+	return tea.NewView(table.DocStyle.Render(m.Table.View()))
 }
