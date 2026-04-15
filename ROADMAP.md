@@ -72,5 +72,5 @@ These violate tuishell's documented message-based contract and cause state desyn
 - [ ] Publish to Homebrew (tap via GoReleaser) ([#43](https://github.com/felipeospina21/mrglab/issues/43))
 - [ ] refetch mrs after merging ([#44](https://github.com/felipeospina21/mrglab/issues/44))
 - [ ] refresh command for mrs and updated timestamp in status bar ([#44](https://github.com/felipeospina21/mrglab/issues/44))
-- [ ] Add missing fields to MR table columns (pipeline status, MR number, merge details/commits behind) ([#45](https://github.com/felipeospina21/mrglab/issues/45))
-- [ ] Fix approvals column to use rule-based logic instead of flat count ([#47](https://github.com/felipeospina21/mrglab/issues/47))
+- [x] Add missing fields to MR table columns (pipeline status, MR number, merge details/commits behind)
+- [x] Fix approvals column to use rule-based logic instead of flat count

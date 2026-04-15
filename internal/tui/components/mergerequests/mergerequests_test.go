@@ -16,7 +16,7 @@ func TestIsMergeable(t *testing.T) {
 		expected     string
 	}{
 		{"mergeable no conflicts", "mergeable", false, icon.CircleCheck},
-		{"mergeable with conflicts", "mergeable", true, icon.CircleDash},
+		{"mergeable with conflicts", "mergeable", true, icon.Alert},
 		{"not mergeable no conflicts", "checking", false, icon.Dash},
 		{"case insensitive", "Mergeable", false, icon.CircleCheck},
 	}
@@ -38,15 +38,15 @@ func TestApprovals(t *testing.T) {
 	}{
 		{
 			"fully approved",
-			[]gitlab.ApprovalRule{{ApprovalsRequired: 2, ApprovedBy: gitlab.ApprovedBy{Nodes: []gitlab.ApprovedByNode{{Name: "A"}, {Name: "B"}}}}},
+			[]gitlab.ApprovalRule{{ApprovalsRequired: 2, Approved: true}, {ApprovalsRequired: 1, Approved: true}},
 			2,
 			icon.Check,
 		},
 		{
 			"partially approved",
-			[]gitlab.ApprovalRule{{ApprovalsRequired: 2, ApprovedBy: gitlab.ApprovedBy{Nodes: []gitlab.ApprovedByNode{{Name: "A"}}}}},
+			[]gitlab.ApprovalRule{{ApprovalsRequired: 2, Approved: false}},
 			2,
-			"1/2",
+			"0/2",
 		},
 		{
 			"no rules zero total",
@@ -66,9 +66,9 @@ func TestApprovals(t *testing.T) {
 
 func TestDiff(t *testing.T) {
 	tests := []struct {
-		name       string
-		add, del   int
-		expected   string
+		name     string
+		add, del int
+		expected string
 	}{
 		{"basic", 10, 5, "+10 / -5"},
 		{"zeros", 0, 0, "+0 / -0"},
