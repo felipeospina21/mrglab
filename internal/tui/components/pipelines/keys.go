@@ -11,15 +11,16 @@ import (
 type PipelinesKeyMap struct {
 	CycleTab      key.Binding
 	OpenInBrowser key.Binding
+	Details       key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k PipelinesKeyMap) ShortHelp() []key.Binding {
-	return slices.Concat([]key.Binding{k.CycleTab, k.OpenInBrowser}, tui.CommonKeys)
+	return slices.Concat([]key.Binding{k.Details, k.CycleTab, k.OpenInBrowser}, tui.CommonKeys)
 }
 
 func (k PipelinesKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{tui.CommonKeys, {k.CycleTab, k.OpenInBrowser}}
+	return [][]key.Binding{tui.CommonKeys, {k.Details, k.CycleTab, k.OpenInBrowser}}
 }
 
 // Keybinds is the default keybinding set for the pipelines panel.
@@ -31,6 +32,10 @@ var Keybinds = PipelinesKeyMap{
 	OpenInBrowser: key.NewBinding(
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
+	),
+	Details: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "view details"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

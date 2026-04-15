@@ -140,3 +140,12 @@ func (m Model) getPipelineModel(msg tui.PipelineListFetchedMsg) func() table.Mod
 func (m Model) fetchPipelinesList() tea.Cmd {
 	return m.Pipelines.FetchPipelines()
 }
+
+func (m *Model) findPipelineByIID(iid string) *gitlab.PipelineNode {
+	for i := range m.Pipelines.Nodes {
+		if m.Pipelines.Nodes[i].IID == iid {
+			return &m.Pipelines.Nodes[i]
+		}
+	}
+	return nil
+}
