@@ -68,6 +68,26 @@ type createMergeRequestMutation struct {
 	MergeRequestCreate CreateMergeRequestResponse `graphql:"mergeRequestCreate(input:{projectPath:$projectPath,sourceBranch:$sourceBranch,targetBranch:$targetBranch,title:$title,description:$description})"`
 }
 
+type pipelineRetryMutation struct {
+	PipelineRetry PipelineRetryResponse `graphql:"pipelineRetry(input:{id:$id})"`
+}
+
+type jobPlayMutation struct {
+	JobPlay JobPlayResponse `graphql:"jobPlay(input:{id:$id})"`
+}
+
+type jobRetryMutation struct {
+	JobRetry JobRetryResponse `graphql:"jobRetry(input:{id:$id})"`
+}
+
+type pipelineCancelMutation struct {
+	PipelineCancel PipelineCancelResponse `graphql:"pipelineCancel(input:{id:$id})"`
+}
+
+type jobCancelMutation struct {
+	JobCancel JobCancelResponse `graphql:"jobCancel(input:{id:$id})"`
+}
+
 // Input types
 
 // MergeRequestsQueryVariables holds the variables for the merge requests list query.

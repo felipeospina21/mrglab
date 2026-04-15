@@ -139,7 +139,7 @@ func TestRenderPipelines(t *testing.T) {
 			Jobs:   gitlab.JobsConnection{Nodes: []gitlab.JobsNode{{Name: "unit-tests", Status: "failed"}}},
 		},
 	}
-	got := renderPipelines(stages)
+	got := renderPipelines(stages, "")
 	if !strings.Contains(got, "Pipeline") {
 		t.Error("renderPipelines should contain title")
 	}
@@ -159,7 +159,7 @@ func TestRenderApprovalsEmpty(t *testing.T) {
 }
 
 func TestRenderPipelinesEmpty(t *testing.T) {
-	got := renderPipelines(nil)
+	got := renderPipelines(nil, "")
 	if !strings.Contains(got, "Pipeline") {
 		t.Error("renderPipelines with nil should still contain title")
 	}

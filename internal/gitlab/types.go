@@ -208,9 +208,11 @@ type PipelineJobsConnection struct {
 
 // PipelineJobNode represents a single CI job in a pipeline.
 type PipelineJobNode struct {
-	Name   string
-	Status string
-	Stage  PipelineJobStage
+	ID      string
+	Name    string
+	Status  string
+	Retried bool
+	Stage   PipelineJobStage
 }
 
 // PipelineJobStage holds the stage info for a pipeline job.
@@ -231,5 +233,42 @@ type CreateNoteResponse struct {
 
 // CreateMergeRequestResponse is the result of a create merge request mutation.
 type CreateMergeRequestResponse struct {
+	Errors []string
+}
+
+// CiPipelineID is a typed GraphQL ID for CI pipelines.
+type CiPipelineID string
+
+// GetGraphQLType returns the GraphQL type name for CiPipelineID.
+func (CiPipelineID) GetGraphQLType() string { return "CiPipelineID" }
+
+// PipelineRetryResponse is the result of a pipeline retry mutation.
+type PipelineRetryResponse struct {
+	Errors []string
+}
+
+// CiBuildID is a typed GraphQL ID for CI jobs.
+type CiBuildID string
+
+// GetGraphQLType returns the GraphQL type name for CiBuildID.
+func (CiBuildID) GetGraphQLType() string { return "CiBuildID" }
+
+// JobPlayResponse is the result of a job play mutation.
+type JobPlayResponse struct {
+	Errors []string
+}
+
+// JobRetryResponse is the result of a job retry mutation.
+type JobRetryResponse struct {
+	Errors []string
+}
+
+// PipelineCancelResponse is the result of a pipeline cancel mutation.
+type PipelineCancelResponse struct {
+	Errors []string
+}
+
+// JobCancelResponse is the result of a job cancel mutation.
+type JobCancelResponse struct {
 	Errors []string
 }

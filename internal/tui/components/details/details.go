@@ -46,6 +46,9 @@ type Model struct {
 	MRDescription  string
 	SpinnerView    string
 	DiscussionIdx  int
+	ActionableJobs []gitlab.PipelineJobNode
+	ActionableJobIdx int
+	PipelineNode   *gitlab.PipelineNode
 	Err            error
 	ctx            *context.AppContext
 }

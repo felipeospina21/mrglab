@@ -60,15 +60,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return tuishell.StartTaskMsg{Cmd: m.acceptMergeRequest()}
 		})
 
-	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
+	case mergerequests.OpenInBrowserMsg:
 		m.openInBrowser()
+
+	case details.OpenInBrowserMsg:
+		if m.ActiveTab == 1 {
+			pp := pipelines.GetColIndex(pipelines.ColNames.Path)
+			url := m.Pipelines.Table.SelectedRow()[pp]
+			exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
+		} else {
+			m.openInBrowser()
+		}
 
 	case pipelines.ViewDetailsMsg:
 		if !m.Shell.IsRightOpen() {
 			cmds = append(cmds, func() tea.Msg { return tuishell.OpenRightPanelMsg{} })
 		}
 		m.Details.SetFocus()
-		m.setHelpKeys(details.Keybinds)
+		m.setHelpKeys(details.PipelineKeybinds)
 
 		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
 		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
@@ -76,7 +85,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		node := m.findPipelineByIID(iid)
 		if node != nil {
-			c := details.RenderPipelineDetails(*node)
+			m.Details.PipelineNode = node
+			m.Details.ActionableJobs = nil
+			m.Details.ActionableJobIdx = 0
+			for _, j := range node.Jobs.Nodes {
+				if !j.Retried && strings.ToLower(j.Status) != "success" {
+					m.Details.ActionableJobs = append(m.Details.ActionableJobs, j)
+				}
+			}
+			selectedJob := ""
+			if len(m.Details.ActionableJobs) > 0 {
+				j := m.Details.ActionableJobs[0]
+				selectedJob = j.Stage.Name + "/" + j.Name
+			}
+			c := details.RenderPipelineDetailsWithSelection(*node, selectedJob)
 			m.Details.Viewport.SetContent(c)
 			m.Details.Ready = true
 		}
@@ -192,12 +214,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Typed task result messages
 	case tui.MRListFetchedMsg:
 		m.MergeRequests.Loading = false
-		cmds = append(cmds, finishTaskCmd(msg.Err, mergerequests.Keybinds))
+		var kb help.KeyMap = mergerequests.Keybinds
+		if m.ActiveTab == 1 {
+			kb = pipelines.Keybinds
+		}
+		m.setHelpKeys(kb)
+		cmds = append(cmds, finishTaskCmd(msg.Err, kb))
 		if msg.Err == nil {
 			t := m.getMergeRequestModel(msg)()
 			m.MergeRequests.Table = t
 			m.MergeRequests.SetFocus()
 			cmds = append(cmds, func() tea.Msg { return tuishell.CloseLeftPanelMsg{} })
+			l := m.Shell.Layout
+			m.Shell.Main, cmd = m.Shell.Main.Update(tea.WindowSizeMsg{Width: l.MainPanel.Width, Height: l.MainPanel.Height})
+			cmds = append(cmds, cmd)
 		}
 
 	case tui.PipelineListFetchedMsg:
@@ -275,6 +305,112 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		pp := pipelines.GetColIndex(pipelines.ColNames.Path)
 		url := m.Pipelines.Table.SelectedRow()[pp]
 		exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
+
+	case pipelines.RetryPipelineMsg:
+		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+		node := m.findPipelineByIID(iid)
+		if node != nil {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryPipeline(node.ID)}
+			})
+		}
+
+	case pipelines.CancelPipelineMsg:
+		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+		node := m.findPipelineByIID(iid)
+		if node != nil {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelPipeline(node.ID)}
+			})
+		}
+
+	case tui.PipelineRetryMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Pipeline retry triggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case tui.PipelineCancelMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Pipeline canceled"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case details.CancelJobMsg:
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelJob(msg.JobID)}
+		})
+
+	case details.PlayJobMsg:
+		if strings.ToLower(msg.Status) == "manual" {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(msg.JobID)}
+			})
+		} else {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryJob(msg.JobID)}
+			})
+		}
+
+	case tui.JobPlayMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job triggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case tui.JobRetryMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job retriggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case tui.JobCancelMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job canceled"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
 	}
 
 	// Handle input focus
