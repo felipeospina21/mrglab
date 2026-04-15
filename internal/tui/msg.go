@@ -60,3 +60,9 @@ type PipelineListFetchedMsg struct {
 	Pipelines gitlab.PipelineConnection
 	Err       error
 }
+
+// PipelineRetryMsg is sent after a pipeline retry mutation completes.
+type PipelineRetryMsg struct {
+	Errors []string
+	Err    error
+}

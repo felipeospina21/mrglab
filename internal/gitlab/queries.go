@@ -68,6 +68,10 @@ type createMergeRequestMutation struct {
 	MergeRequestCreate CreateMergeRequestResponse `graphql:"mergeRequestCreate(input:{projectPath:$projectPath,sourceBranch:$sourceBranch,targetBranch:$targetBranch,title:$title,description:$description})"`
 }
 
+type pipelineRetryMutation struct {
+	PipelineRetry PipelineRetryResponse `graphql:"pipelineRetry(input:{id:$id})"`
+}
+
 // Input types
 
 // MergeRequestsQueryVariables holds the variables for the merge requests list query.
@@ -170,5 +174,11 @@ func createMergeRequestVariables(input CreateMergeRequestInput) map[string]any {
 		"targetBranch": input.TargetBranch,
 		"title":        input.Title,
 		"description":  input.Description,
+	}
+}
+
+func pipelineRetryVariables(id CiPipelineID) map[string]any {
+	return map[string]any{
+		"id": id,
 	}
 }

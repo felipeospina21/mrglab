@@ -11,6 +11,7 @@ type GitLabAPI interface {
 	CreateNote(input CreateNoteInput) (CreateNoteResponse, error)
 	CreateMergeRequest(projectID string, input CreateMergeRequestInput) (CreateMergeRequestResponse, error)
 	GetProjectPipelines(projectID string, vars PipelinesQueryVariables) (PipelineConnection, error)
+	RetryPipeline(id string) (PipelineRetryResponse, error)
 }
 
 // Compile-time check that *Client satisfies GitLabAPI.

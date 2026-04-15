@@ -233,3 +233,14 @@ type CreateNoteResponse struct {
 type CreateMergeRequestResponse struct {
 	Errors []string
 }
+
+// CiPipelineID is a typed GraphQL ID for CI pipelines.
+type CiPipelineID string
+
+// GetGraphQLType returns the GraphQL type name for CiPipelineID.
+func (CiPipelineID) GetGraphQLType() string { return "CiPipelineID" }
+
+// PipelineRetryResponse is the result of a pipeline retry mutation.
+type PipelineRetryResponse struct {
+	Errors []string
+}

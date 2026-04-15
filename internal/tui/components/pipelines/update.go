@@ -11,6 +11,7 @@ type (
 	CycleTabMsg      struct{}
 	OpenInBrowserMsg struct{}
 	ViewDetailsMsg   struct{}
+	RetryPipelineMsg struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -31,6 +32,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		case match(Keybinds.Details):
 			return m, func() tea.Msg { return ViewDetailsMsg{} }
+
+		case match(Keybinds.RetryPipeline):
+			return m, func() tea.Msg { return RetryPipelineMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

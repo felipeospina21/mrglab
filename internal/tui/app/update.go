@@ -275,6 +275,30 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		pp := pipelines.GetColIndex(pipelines.ColNames.Path)
 		url := m.Pipelines.Table.SelectedRow()[pp]
 		exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
+
+	case pipelines.RetryPipelineMsg:
+		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+		node := m.findPipelineByIID(iid)
+		if node != nil {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryPipeline(node.ID)}
+			})
+		}
+
+	case tui.PipelineRetryMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Pipeline retry triggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
 	}
 
 	// Handle input focus

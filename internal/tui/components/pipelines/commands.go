@@ -16,3 +16,14 @@ func (m *Model) FetchPipelines() tea.Cmd {
 		}
 	}
 }
+
+// RetryPipeline returns a command that retries failed jobs in a pipeline.
+func (m *Model) RetryPipeline(pipelineID string) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.RetryPipeline(pipelineID)
+		return tui.PipelineRetryMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}
