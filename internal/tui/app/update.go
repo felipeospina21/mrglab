@@ -89,7 +89,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Details.ActionableJobs = nil
 			m.Details.ActionableJobIdx = 0
 			for _, j := range node.Jobs.Nodes {
-				if strings.ToLower(j.Status) != "success" {
+				if !j.Retried && strings.ToLower(j.Status) != "success" {
 					m.Details.ActionableJobs = append(m.Details.ActionableJobs, j)
 				}
 			}

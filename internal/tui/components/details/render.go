@@ -390,6 +390,9 @@ func pipelineJobsToStages(jobs []gitlab.PipelineJobNode) []gitlab.CiStageNode {
 	var stages []gitlab.CiStageNode
 	idx := map[string]int{}
 	for _, job := range jobs {
+		if job.Retried {
+			continue
+		}
 		sn := job.Stage.Name
 		jn := gitlab.JobsNode{Name: job.Name, Status: job.Status}
 		if i, ok := idx[sn]; ok {
@@ -410,7 +413,7 @@ func pipelineJobsToStages(jobs []gitlab.PipelineJobNode) []gitlab.CiStageNode {
 func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
 	hasRunning, hasFailed, hasPending := false, false, false
 	for _, j := range jobs {
-		if j.Stage.Name != stageName {
+		if j.Stage.Name != stageName || j.Retried {
 			continue
 		}
 		switch strings.ToLower(j.Status) {

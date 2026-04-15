@@ -208,10 +208,11 @@ type PipelineJobsConnection struct {
 
 // PipelineJobNode represents a single CI job in a pipeline.
 type PipelineJobNode struct {
-	ID     string
-	Name   string
-	Status string
-	Stage  PipelineJobStage
+	ID      string
+	Name    string
+	Status  string
+	Retried bool
+	Stage   PipelineJobStage
 }
 
 // PipelineJobStage holds the stage info for a pipeline job.
