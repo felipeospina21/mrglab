@@ -15,6 +15,7 @@ type (
 	OpenInBrowserMsg struct{}
 	CreateMRMsg      struct{}
 	ReFetchMRListMsg struct{}
+	CycleTabMsg      struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -39,6 +40,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m, func() tea.Msg { return CreateMRMsg{} }
 		case match(Keybinds.Refetch):
 			return m, func() tea.Msg { return ReFetchMRListMsg{} }
+		case match(Keybinds.CycleTab):
+			return m, func() tea.Msg { return CycleTabMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

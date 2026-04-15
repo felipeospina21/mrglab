@@ -58,6 +58,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
 
+	case mergerequests.CycleTabMsg:
+		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
+		if m.ActiveTab == 0 {
+			m.setHelpKeys(mergerequests.Keybinds)
+		} else {
+			m.setHelpKeys(pipelinesKeybinds)
+		}
+
 	case mergerequests.CreateMRMsg:
 		m.pendingCreateMR = true
 		content := loader.View(m.Shell.Spinner.View())
@@ -273,6 +281,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if mr, ok := m.Shell.Main.(MergeRequestsPanel); ok {
 		m.MergeRequests = mr.Model
+		// Sync tab state into the panel for rendering
+		mr.ActiveTab = m.ActiveTab
+		m.Shell.Main = mr
 	}
 	if d, ok := m.Shell.Right.(DetailsPanel); ok {
 		m.Details = d.Model
