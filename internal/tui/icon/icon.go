@@ -24,6 +24,7 @@ const (
 	Time         = " "
 	Rebase       = " "
 	Merge        = " "
+	SourceBranch = "󰘬 "
 	Mergeable    = " "
 	Edit         = " "
 	User         = " "
@@ -46,4 +47,7 @@ const (
 	CircleRunning  = "󰪢 "
 	Circle         = " "
 	Gitlab         = " "
+	Target         = " "
+	PR             = " "
+	Start          = " "
 )

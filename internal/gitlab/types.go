@@ -164,6 +164,60 @@ type JobsNode struct {
 	Duration int
 }
 
+// PipelineConnection is the paginated list of pipelines returned by the API.
+type PipelineConnection struct {
+	Count int
+	Nodes []PipelineNode
+}
+
+// PipelineNode contains the core fields of a pipeline.
+type PipelineNode struct {
+	ID           string
+	IID          string
+	Path         string
+	Commit       PipelineCommit
+	MergeRequest *PipelineMergeRequest
+	Jobs         PipelineJobsConnection
+	Status       string
+	Source       string
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	FinishedAt   *time.Time
+	Duration     *int
+	User         Author
+	Latest       bool
+}
+
+// PipelineCommit holds the commit info for a pipeline.
+type PipelineCommit struct {
+	ShortId string
+	Title   string
+}
+
+// PipelineMergeRequest holds the merge request reference for a pipeline.
+type PipelineMergeRequest struct {
+	IID          string
+	SourceBranch string
+}
+
+// PipelineJobsConnection holds the jobs within a pipeline.
+type PipelineJobsConnection struct {
+	Count int
+	Nodes []PipelineJobNode
+}
+
+// PipelineJobNode represents a single CI job in a pipeline.
+type PipelineJobNode struct {
+	Name   string
+	Status string
+	Stage  PipelineJobStage
+}
+
+// PipelineJobStage holds the stage info for a pipeline job.
+type PipelineJobStage struct {
+	Name string
+}
+
 // AcceptMergeRequestResponse is the result of a merge request accept mutation.
 type AcceptMergeRequestResponse struct {
 	ClientMutationId string

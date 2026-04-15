@@ -11,6 +11,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
@@ -23,6 +24,7 @@ type Model struct {
 	Shell         shell.Model
 	Projects      *projects.Model
 	MergeRequests *mergerequests.Model
+	Pipelines     *pipelines.Model
 	Details       *details.Model
 	Input         textarea.Model
 	ctx           *context.AppContext
@@ -34,6 +36,8 @@ type Model struct {
 	pendingConfirm  bool
 	formReady       bool
 	createForm      createMRForm
+	ActiveTab       int
+	TabNames        []string
 }
 
 var theme = tsstyle.Theme{
@@ -79,6 +83,8 @@ var rightPanelStyle = lipgloss.NewStyle().
 	Border(lipgloss.NormalBorder(), true, false, true, true).
 	BorderForeground(theme.Border)
 
+
+
 // InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
 	ctx.DevMode = cfg.DevMode
@@ -90,11 +96,14 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	proj := projects.New(ctx, client, cfg.Filters.Projects)
 	mrs := mergerequests.New(ctx, client)
 	det := details.New(ctx)
+	pip := pipelines.New(ctx, client)
+
+	tabNames := []string{"Merge Requests", "Pipelines"}
 
 	s := shell.New(shell.Config{
 		Theme:           theme,
 		LeftPanel:       ProjectsPanel{&proj},
-		MainPanel:       MergeRequestsPanel{&mrs},
+		MainPanel:       MergeRequestsPanel{Model: &mrs, TabNames: tabNames, ProjectName: ""},
 		RightPanel:      DetailsPanel{&det},
 		AppIcon:         icon.Gitlab,
 		Keybinds:        projects.Keybinds,
@@ -111,10 +120,12 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Shell:         s,
 		Projects:      &proj,
 		MergeRequests: &mrs,
+		Pipelines:     &pip,
 		Details:       &det,
 		Input:         ti,
 		ctx:           ctx,
 		createForm:    newCreateMRForm(),
+		TabNames:      tabNames,
 	}
 }
 

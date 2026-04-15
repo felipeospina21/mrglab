@@ -1,4 +1,4 @@
-package mergerequests
+package pipelines
 
 import (
 	tea "charm.land/bubbletea/v2"
@@ -7,46 +7,31 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 )
 
-// Messages returned to app for actions requiring app-level coordination
 type (
-	ViewDetailsMsg   struct{}
-	MergeMRMsg       struct{}
-	OpenInBrowserMsg struct{}
-	CreateMRMsg      struct{}
-	ReFetchMRListMsg struct{}
 	CycleTabMsg      struct{}
+	OpenInBrowserMsg struct{}
 )
 
 // Init returns nil (no initialization needed).
-func (m Model) Init() tea.Cmd {
-	return nil
-}
+func (m Model) Init() tea.Cmd { return nil }
 
-// Update handles key events for the merge requests panel.
+// Update handles key events and window resize for the pipelines panel.
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		match := tui.KeyMatcher(msg)
 		switch {
-		case match(Keybinds.Details):
-			return m, func() tea.Msg { return ViewDetailsMsg{} }
-		case match(Keybinds.Merge):
-			return m, func() tea.Msg { return MergeMRMsg{} }
-		case match(Keybinds.OpenInBrowser):
-			return m, func() tea.Msg { return OpenInBrowserMsg{} }
-		case match(Keybinds.CreateMR):
-			return m, func() tea.Msg { return CreateMRMsg{} }
-		case match(Keybinds.Refetch):
-			return m, func() tea.Msg { return ReFetchMRListMsg{} }
 		case match(Keybinds.CycleTab):
 			return m, func() tea.Msg { return CycleTabMsg{} }
+
+		case match(Keybinds.OpenInBrowser):
+			return m, func() tea.Msg { return OpenInBrowserMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		// Set table dimensions
-		tableFrameX := table.DocStyle.GetHorizontalFrameSize() + 2 // +2 for border
+		tableFrameX := table.DocStyle.GetHorizontalFrameSize() + 2
 		tableW := msg.Width - tableFrameX
 		tableH := msg.Height - 2 - 1 // border + overhead
 		m.Table.W = tableW

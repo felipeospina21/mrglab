@@ -8,6 +8,8 @@ import (
 	"charm.land/bubbles/v2/help"
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/felipeospina21/mrglab/internal/config"
+	"github.com/felipeospina21/mrglab/internal/exec"
 	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
@@ -15,6 +17,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/tuishell"
 )
@@ -33,9 +36,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Component action messages from panels
 	case projects.FetchMRListMsg, mergerequests.ReFetchMRListMsg:
 		m.MergeRequests.Loading = true
+		m.Pipelines.Loading = true
 		cmds = append(cmds, func() tea.Msg {
 			return tuishell.StartTaskMsg{Cmd: m.fetchMergeRequestsList()}
 		})
+		cmds = append(cmds, m.fetchPipelinesList())
 
 	case mergerequests.ViewDetailsMsg:
 		if !m.Shell.IsRightOpen() {
@@ -57,6 +62,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
+
+	case mergerequests.CycleTabMsg, pipelines.CycleTabMsg:
+		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
+		if m.ActiveTab == 0 {
+			m.setHelpKeys(mergerequests.Keybinds)
+			m.Shell.Main = MergeRequestsPanel{Model: m.MergeRequests, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
+		} else {
+			m.setHelpKeys(pipelines.Keybinds)
+			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
+		}
+		l := m.Shell.Layout
+		m.Shell.Main, cmd = m.Shell.Main.Update(tea.WindowSizeMsg{Width: l.MainPanel.Width, Height: l.MainPanel.Height})
+		cmds = append(cmds, cmd)
 
 	case mergerequests.CreateMRMsg:
 		m.pendingCreateMR = true
@@ -164,6 +182,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, func() tea.Msg { return tuishell.CloseLeftPanelMsg{} })
 		}
 
+	case tui.PipelineListFetchedMsg:
+		m.Pipelines.Loading = false
+		if msg.Err == nil {
+			t := m.getPipelineModel(msg)()
+			m.Pipelines.Table = t
+		}
+
 	case tui.MRDetailsFetchedMsg:
 		cmds = append(cmds, finishTaskCmd(msg.Err, details.Keybinds))
 		if msg.Err == nil {
@@ -227,6 +252,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
+	case pipelines.OpenInBrowserMsg:
+		pp := pipelines.GetColIndex(pipelines.ColNames.Path)
+		url := m.Pipelines.Table.SelectedRow()[pp]
+		exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
 	}
 
 	// Handle input focus
@@ -273,6 +302,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if mr, ok := m.Shell.Main.(MergeRequestsPanel); ok {
 		m.MergeRequests = mr.Model
+		mr.ActiveTab = m.ActiveTab
+		mr.ProjectName = m.ctx.SelectedProject.Name
+		m.Shell.Main = mr
+	}
+	if pip, ok := m.Shell.Main.(PipelinesPanel); ok {
+		m.Pipelines = pip.Model
+		pip.ActiveTab = m.ActiveTab
+		pip.ProjectName = m.ctx.SelectedProject.Name
+		m.Shell.Main = pip
 	}
 	if d, ok := m.Shell.Right.(DetailsPanel); ok {
 		m.Details = d.Model
@@ -282,6 +320,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	sv := m.Shell.Spinner.View()
 	m.Details.SpinnerView = sv
 	m.MergeRequests.SpinnerView = sv
+	m.Pipelines.SpinnerView = sv
 	if m.pendingCreateMR && m.Shell.IsModalOpen() && !m.formReady {
 		m.Shell.Modal.Content = loader.View(sv)
 	}

@@ -13,12 +13,13 @@ type MergeReqsKeyMap struct {
 	Merge         key.Binding
 	CreateMR      key.Binding
 	Refetch       key.Binding
+	CycleTab      key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k MergeReqsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.Details, k.OpenInBrowser, k.Merge, k.CreateMR, k.Refetch},
+		[]key.Binding{k.Details, k.OpenInBrowser, k.Merge, k.CreateMR, k.Refetch, k.CycleTab},
 		tui.CommonKeys,
 	)
 }
@@ -26,7 +27,7 @@ func (k MergeReqsKeyMap) ShortHelp() []key.Binding {
 func (k MergeReqsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.Details, k.OpenInBrowser, k.Merge, k.CreateMR, k.Refetch},
+		{k.Details, k.OpenInBrowser, k.Merge, k.CreateMR, k.Refetch, k.CycleTab},
 	}
 }
 
@@ -50,6 +51,10 @@ var Keybinds = MergeReqsKeyMap{
 	Refetch: key.NewBinding(
 		key.WithKeys("r"),
 		key.WithHelp("r", "refetch MRs"),
+	),
+	CycleTab: key.NewBinding(
+		key.WithKeys("tab"),
+		key.WithHelp("tab", "next tab"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }
