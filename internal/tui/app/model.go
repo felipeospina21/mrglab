@@ -103,7 +103,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	s := shell.New(shell.Config{
 		Theme:           theme,
 		LeftPanel:       ProjectsPanel{&proj},
-		MainPanel:       MergeRequestsPanel{Model: &mrs, TabNames: tabNames},
+		MainPanel:       MergeRequestsPanel{Model: &mrs, TabNames: tabNames, ProjectName: ""},
 		RightPanel:      DetailsPanel{&det},
 		AppIcon:         icon.Gitlab,
 		Keybinds:        projects.Keybinds,

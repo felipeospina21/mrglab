@@ -1,8 +1,6 @@
 package pipelines
 
 import (
-	"fmt"
-
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui"
@@ -46,11 +44,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	}
 	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
-}
-
-// Header returns the panel header text.
-func (m Model) Header() string {
-	return fmt.Sprintf("%s", m.ctx.SelectedProject.Name)
 }
 
 // View returns the panel content as a tea.View.
