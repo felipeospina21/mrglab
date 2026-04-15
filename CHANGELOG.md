@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Pipelines tab with table view (status, IID, commit, jobs count, author, branch, source, duration)
+- Tab navigation between Merge Requests and Pipelines views (`tab` key)
+- Pipeline details panel with stages and jobs breakdown
+- Navigate non-success jobs in pipeline details (`n`/`N`)
+- Run individual jobs: play manual jobs, retry failed/canceled/skipped (`P`)
+- Cancel running jobs from pipeline details (`X`)
+- Retry all failed jobs in a pipeline (`r`)
+- Cancel a running pipeline (`C`)
+- Open pipeline in browser from both table and details view
+- Create new merge request with default templates (`N`)
+- Refresh merge requests list (`R`)
+
+### Fixed
+
+- Help keys showing MR commands when switching projects while on pipelines tab
+- Open-in-browser from pipeline details opening MR URL instead of pipeline URL
+- Retried job duplicates appearing in pipeline details
+- Content disappearing when navigating jobs in pipeline details
+
 ## [0.1.0] - 2026-03-26
 
 Initial public release.

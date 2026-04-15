@@ -61,6 +61,12 @@ mrglab -dev
 - Respond to discussion threads (post comments)
 - Open new MR (including default templates)
 - Navigate between resolvable discussions
+- Browse pipelines with status, commit, jobs count, author, branch, and duration
+- View pipeline details with stages and jobs breakdown
+- Navigate and run individual jobs (play manual, retry failed/canceled/skipped)
+- Cancel running pipelines and jobs
+- Retry all failed jobs in a pipeline
+- Tab navigation between Merge Requests and Pipelines views
 - Copy modal content to clipboard
 - Toggle project list and details panels
 - Full-screen help modal with all keybindings
@@ -87,13 +93,27 @@ mrglab -dev
 | Key     | Action          |
 | ------- | --------------- |
 | `enter` | View details    |
+| `tab`   | Switch to Pipelines tab |
 | `x`     | Open in browser |
 | `M`     | Merge MR        |
 | `N`     | New MR          |
+| `R`     | Refresh list    |
 | `↑/k`   | Move up         |
 | `↓/j`   | Move down       |
 
-### Details panel
+### Pipelines panel
+
+| Key     | Action              |
+| ------- | ------------------- |
+| `enter` | View details        |
+| `tab`   | Switch to MR tab    |
+| `x`     | Open in browser     |
+| `r`     | Retry failed jobs   |
+| `C`     | Cancel pipeline     |
+| `↑/k`   | Move up             |
+| `↓/j`   | Move down           |
+
+### MR Details panel
 
 | Key   | Action                |
 | ----- | --------------------- |
@@ -103,6 +123,19 @@ mrglab -dev
 | `C`   | Respond to discussion |
 | `n`   | Next discussion       |
 | `N`   | Previous discussion   |
+| `f`   | Toggle fullscreen     |
+
+### Pipeline Details panel
+
+| Key   | Action            |
+| ----- | ----------------- |
+| `esc` | Close panel       |
+| `x`   | Open in browser   |
+| `n`   | Next job          |
+| `N`   | Previous job      |
+| `P`   | Run job           |
+| `X`   | Cancel job        |
+| `f`   | Toggle fullscreen |
 
 ### Modal
 

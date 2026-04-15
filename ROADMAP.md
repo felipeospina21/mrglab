@@ -59,14 +59,14 @@ These violate tuishell's documented message-based contract and cause state desyn
 
 - [x] Create new MR
 - [x] Dynamic statusline colors per status mode (normal, loading, error, etc.)
-- [ ] Visualize pipelines/jobs ([#41](https://github.com/felipeospina21/mrglab/issues/41))
-- [ ] Interact with pipelines/jobs ([#41](https://github.com/felipeospina21/mrglab/issues/41))
+- [x] Visualize pipelines/jobs
+- [x] Interact with pipelines/jobs
 - [ ] Visualize issues ([#40](https://github.com/felipeospina21/mrglab/issues/40))
 - [ ] Create issues ([#40](https://github.com/felipeospina21/mrglab/issues/40))
+- [ ] Issues board ([#40](https://github.com/felipeospina21/mrglab/issues/40))
 - [ ] Filter MR ([#39](https://github.com/felipeospina21/mrglab/issues/39))
 - [ ] Filter pipelines/jobs ([#39](https://github.com/felipeospina21/mrglab/issues/39))
 - [ ] Filter issues ([#39](https://github.com/felipeospina21/mrglab/issues/39))
-- [ ] Issues board ([#40](https://github.com/felipeospina21/mrglab/issues/40))
 - [ ] Review MR ([#44](https://github.com/felipeospina21/mrglab/issues/44))
 - [ ] Search projects ([#42](https://github.com/felipeospina21/mrglab/issues/42))
 - [ ] View project README ([#42](https://github.com/felipeospina21/mrglab/issues/42))
