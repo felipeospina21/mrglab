@@ -11,7 +11,7 @@ type PanelSize = tuishell.PanelSize
 type Layout = tuishell.Layout
 
 const (
-	mainPanelHeaderLines = 1 // the "Project - Merge Requests" header
+	mainPanelHeaderLines = 3 // header + tab bar + margin (must match panels.go wsm.Height -= 3)
 
 	// table.DocStyle uses BorderStyle(RoundedBorder()) which renders borders
 	// but lipgloss GetFrameSize() reports 0 for it. Account for the actual rendered border.

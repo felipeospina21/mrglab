@@ -176,9 +176,3 @@ func createMergeRequestVariables(input CreateMergeRequestInput) map[string]any {
 		"description":  input.Description,
 	}
 }
-
-func pipelineRetryVariables(id CiPipelineID) map[string]any {
-	return map[string]any{
-		"id": id,
-	}
-}

@@ -35,7 +35,9 @@ func (c *Client) RetryPipeline(id string) (PipelineRetryResponse, error) {
 	}
 
 	var mutation pipelineRetryMutation
-	variables := pipelineRetryVariables(CiPipelineID(id))
+	variables := map[string]any{
+		"id": CiPipelineID(id),
+	}
 
 	err := c.gql.Mutate(context.Background(), &mutation, variables)
 	if err != nil {

@@ -47,6 +47,7 @@ These violate tuishell's documented message-based contract and cause state desyn
 
 ## 7. Refactoring — `medium`
 
+- [ ] Enforce mutation keybind conventions: all mutation actions (merge, retry, delete, etc.) must use capitalized keys or modifier keys (ctrl/alt), and must show a confirmation modal before executing ([#53](https://github.com/felipeospina21/mrglab/issues/53))
 - [ ] Move `FormatTime` to a shared `tui/format.go` ([#37](https://github.com/felipeospina21/mrglab/issues/37))
 - [ ] Move `StyleIconsColumns` to `mergerequests/columns.go` or `app/commands.go` ([#37](https://github.com/felipeospina21/mrglab/issues/37))
 - [ ] Make `table` package a pure reusable widget (extract to standalone Go module) ([#38](https://github.com/felipeospina21/mrglab/issues/38))
