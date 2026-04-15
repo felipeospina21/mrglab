@@ -285,7 +285,7 @@ func getStatusIcon(status string) string {
 
 func isMergeable(status string, hasConflicts bool) string {
 	if hasConflicts {
-		return icon.CircleDash
+		return icon.Alert
 	}
 
 	if strings.ToLower(status) == "mergeable" {
@@ -299,11 +299,9 @@ func approvals(rules []gitlab.ApprovalRule, total int) string {
 	count := 0
 	for _, rule := range rules {
 		req := rule.ApprovalsRequired
-		ruleApprovals := len(rule.ApprovedBy.Nodes)
-		if ruleApprovals >= req {
-			count += req
-		} else {
-			count += ruleApprovals
+		approved := rule.Approved
+		if req >= 1 && approved {
+			count++
 		}
 	}
 	if count >= total {
