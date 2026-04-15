@@ -85,7 +85,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		node := m.findPipelineByIID(iid)
 		if node != nil {
-			c := details.RenderPipelineDetails(*node)
+			m.Details.PipelineNode = node
+			m.Details.ManualJobs = nil
+			m.Details.ManualJobIdx = 0
+			for _, j := range node.Jobs.Nodes {
+				if strings.ToLower(j.Status) == "manual" {
+					m.Details.ManualJobs = append(m.Details.ManualJobs, j)
+				}
+			}
+			selectedJob := ""
+			if len(m.Details.ManualJobs) > 0 {
+				j := m.Details.ManualJobs[0]
+				selectedJob = j.Stage.Name + "/" + j.Name
+			}
+			c := details.RenderPipelineDetailsWithSelection(*node, selectedJob)
 			m.Details.Viewport.SetContent(c)
 			m.Details.Ready = true
 		}
@@ -312,6 +325,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				cmds = append(cmds,
 					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Pipeline retry triggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case details.PlayJobMsg:
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(msg.JobID)}
+		})
+
+	case tui.JobPlayMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job triggered"} },
 					m.fetchPipelinesList(),
 				)
 			}

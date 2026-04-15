@@ -27,3 +27,14 @@ func (m *Model) RetryPipeline(pipelineID string) tea.Cmd {
 		}
 	}
 }
+
+// PlayJob returns a command that triggers a manual CI job.
+func (m *Model) PlayJob(jobID string) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.PlayJob(jobID)
+		return tui.JobPlayMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}

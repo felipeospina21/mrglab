@@ -208,6 +208,7 @@ type PipelineJobsConnection struct {
 
 // PipelineJobNode represents a single CI job in a pipeline.
 type PipelineJobNode struct {
+	ID     string
 	Name   string
 	Status string
 	Stage  PipelineJobStage
@@ -242,5 +243,16 @@ func (CiPipelineID) GetGraphQLType() string { return "CiPipelineID" }
 
 // PipelineRetryResponse is the result of a pipeline retry mutation.
 type PipelineRetryResponse struct {
+	Errors []string
+}
+
+// CiBuildID is a typed GraphQL ID for CI jobs.
+type CiBuildID string
+
+// GetGraphQLType returns the GraphQL type name for CiBuildID.
+func (CiBuildID) GetGraphQLType() string { return "CiBuildID" }
+
+// JobPlayResponse is the result of a job play mutation.
+type JobPlayResponse struct {
 	Errors []string
 }

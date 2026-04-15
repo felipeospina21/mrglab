@@ -12,6 +12,7 @@ type GitLabAPI interface {
 	CreateMergeRequest(projectID string, input CreateMergeRequestInput) (CreateMergeRequestResponse, error)
 	GetProjectPipelines(projectID string, vars PipelinesQueryVariables) (PipelineConnection, error)
 	RetryPipeline(id string) (PipelineRetryResponse, error)
+	PlayJob(id string) (*JobPlayResponse, error)
 }
 
 // Compile-time check that *Client satisfies GitLabAPI.

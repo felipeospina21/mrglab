@@ -72,6 +72,10 @@ type pipelineRetryMutation struct {
 	PipelineRetry PipelineRetryResponse `graphql:"pipelineRetry(input:{id:$id})"`
 }
 
+type jobPlayMutation struct {
+	JobPlay JobPlayResponse `graphql:"jobPlay(input:{id:$id})"`
+}
+
 // Input types
 
 // MergeRequestsQueryVariables holds the variables for the merge requests list query.

@@ -66,3 +66,9 @@ type PipelineRetryMsg struct {
 	Errors []string
 	Err    error
 }
+
+// JobPlayMsg is sent after a job play mutation completes.
+type JobPlayMsg struct {
+	Errors []string
+	Err    error
+}

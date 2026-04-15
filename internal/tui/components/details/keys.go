@@ -36,12 +36,15 @@ type PipelineDetailsKeyMap struct {
 	ClosePanel    key.Binding
 	OpenInBrowser key.Binding
 	Fullscreen    key.Binding
+	NextJob       key.Binding
+	PrevJob       key.Binding
+	PlayJob       key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Fullscreen},
+		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Fullscreen, k.NextJob, k.PrevJob, k.PlayJob},
 		tui.CommonKeys,
 	)
 }
@@ -49,7 +52,7 @@ func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 func (k PipelineDetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.ClosePanel, k.OpenInBrowser, k.Fullscreen},
+		{k.ClosePanel, k.OpenInBrowser, k.Fullscreen, k.NextJob, k.PrevJob, k.PlayJob},
 	}
 }
 
@@ -65,6 +68,18 @@ var PipelineKeybinds = PipelineDetailsKeyMap{
 	Fullscreen: key.NewBinding(
 		key.WithKeys("f"),
 		key.WithHelp("f", "fullscreen"),
+	),
+	NextJob: key.NewBinding(
+		key.WithKeys("n"),
+		key.WithHelp("n", "next manual job"),
+	),
+	PrevJob: key.NewBinding(
+		key.WithKeys("N"),
+		key.WithHelp("N", "prev manual job"),
+	),
+	PlayJob: key.NewBinding(
+		key.WithKeys("P"),
+		key.WithHelp("P", "play job"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

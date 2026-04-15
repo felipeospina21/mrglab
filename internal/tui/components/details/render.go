@@ -38,7 +38,7 @@ func (m Model) getViewportContent(b string, mr MergeRequestDetails) viewportCont
 
 	content.WriteString(m.renderWithStyle(b))
 	content.WriteString("\n\n")
-	content.WriteString(renderPipelines(mr.Pipelines))
+	content.WriteString(renderPipelines(mr.Pipelines, ""))
 	content.WriteString("\n\n")
 	content.WriteString(renderApprovals(mr.Approvals))
 	content.WriteString("\n\n")
@@ -132,7 +132,7 @@ func renderApprovals(approvals []gitlab.ApprovalRule) string {
 	return contentStyle.Render(content.String())
 }
 
-func renderPipelines(stages []gitlab.CiStageNode) string {
+func renderPipelines(stages []gitlab.CiStageNode, selectedManualJob string) string {
 	var content strings.Builder
 
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Pipeline Jobs", icon.Pipeline)))
@@ -148,13 +148,22 @@ func renderPipelines(stages []gitlab.CiStageNode) string {
 		lower := strings.ToLower
 		if lower(stage.Status) != "success" || lower(stage.Status) != "manual" {
 			for _, node := range stage.Jobs.Nodes {
+				jobKey := stage.Name + "/" + node.Name
+				isSelected := selectedManualJob != "" && jobKey == selectedManualJob && lower(node.Status) == "manual"
 				if lower(node.Status) != "success" {
 					nodeStatus := getStageIconStatus(node.Status)
-					renderIndentedText(
-						&content,
-						styledIcon{icon: nodeStatus.icon, color: nodeStatus.color},
-						node.Name,
-					)
+					if isSelected {
+						text := iconStyle(nodeStatus.color).MarginLeft(0).Render(nodeStatus.icon) + sectionTextStyle.Render(node.Name)
+						content.WriteString(sectionIndentedTextStyle.Render("└ "))
+						content.WriteString(selectedDiscussionStyle.Render(text))
+						content.WriteString("\n")
+					} else {
+						renderIndentedText(
+							&content,
+							styledIcon{icon: nodeStatus.icon, color: nodeStatus.color},
+							node.Name,
+						)
+					}
 				}
 			}
 		}
@@ -331,11 +340,16 @@ func glamourRender(markdown string, width int) (string, error) {
 
 // RenderPipelineDetails renders the details view for a pipeline, composing sections.
 func RenderPipelineDetails(pipeline gitlab.PipelineNode) string {
+	return RenderPipelineDetailsWithSelection(pipeline, "")
+}
+
+// RenderPipelineDetailsWithSelection renders pipeline details with an optional selected manual job highlight.
+func RenderPipelineDetailsWithSelection(pipeline gitlab.PipelineNode, selectedManualJob string) string {
 	var content strings.Builder
 
 	content.WriteString(renderPipelineInfo(pipeline))
 	content.WriteString("\n\n")
-	content.WriteString(renderPipelines(pipelineJobsToStages(pipeline.Jobs.Nodes)))
+	content.WriteString(renderPipelines(pipelineJobsToStages(pipeline.Jobs.Nodes), selectedManualJob))
 
 	return content.String()
 }

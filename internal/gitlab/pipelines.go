@@ -46,3 +46,23 @@ func (c *Client) RetryPipeline(id string) (PipelineRetryResponse, error) {
 
 	return mutation.PipelineRetry, nil
 }
+
+// PlayJob triggers a manual CI job.
+func (c *Client) PlayJob(id string) (*JobPlayResponse, error) {
+	if c.devMode {
+		c.sleep(500 * time.Millisecond)
+		return &JobPlayResponse{}, nil
+	}
+
+	var mutation jobPlayMutation
+	variables := map[string]any{
+		"id": CiBuildID(id),
+	}
+
+	err := c.gql.Mutate(context.Background(), &mutation, variables)
+	if err != nil {
+		return &JobPlayResponse{}, err
+	}
+
+	return &mutation.JobPlay, nil
+}
