@@ -32,6 +32,43 @@ func (k DetailsKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
+type PipelineDetailsKeyMap struct {
+	ClosePanel    key.Binding
+	OpenInBrowser key.Binding
+	Fullscreen    key.Binding
+	tui.GlobalKeyMap
+}
+
+func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
+	return slices.Concat(
+		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Fullscreen},
+		tui.CommonKeys,
+	)
+}
+
+func (k PipelineDetailsKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		tui.CommonKeys,
+		{k.ClosePanel, k.OpenInBrowser, k.Fullscreen},
+	}
+}
+
+var PipelineKeybinds = PipelineDetailsKeyMap{
+	ClosePanel: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "close panel"),
+	),
+	OpenInBrowser: key.NewBinding(
+		key.WithKeys("x"),
+		key.WithHelp("x", "open in browser"),
+	),
+	Fullscreen: key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "fullscreen"),
+	),
+	GlobalKeyMap: tui.GlobalKeys(false),
+}
+
 var Keybinds = DetailsKeyMap{
 	ClosePanel: key.NewBinding(
 		key.WithKeys("esc"),

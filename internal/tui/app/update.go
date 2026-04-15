@@ -60,15 +60,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return tuishell.StartTaskMsg{Cmd: m.acceptMergeRequest()}
 		})
 
-	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
+	case mergerequests.OpenInBrowserMsg:
 		m.openInBrowser()
+
+	case details.OpenInBrowserMsg:
+		if m.ActiveTab == 1 {
+			pp := pipelines.GetColIndex(pipelines.ColNames.Path)
+			url := m.Pipelines.Table.SelectedRow()[pp]
+			exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
+		} else {
+			m.openInBrowser()
+		}
 
 	case pipelines.ViewDetailsMsg:
 		if !m.Shell.IsRightOpen() {
 			cmds = append(cmds, func() tea.Msg { return tuishell.OpenRightPanelMsg{} })
 		}
 		m.Details.SetFocus()
-		m.setHelpKeys(details.Keybinds)
+		m.setHelpKeys(details.PipelineKeybinds)
 
 		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
 		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
