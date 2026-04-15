@@ -192,12 +192,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Typed task result messages
 	case tui.MRListFetchedMsg:
 		m.MergeRequests.Loading = false
-		cmds = append(cmds, finishTaskCmd(msg.Err, mergerequests.Keybinds))
+		var kb help.KeyMap = mergerequests.Keybinds
+		if m.ActiveTab == 1 {
+			kb = pipelines.Keybinds
+		}
+		m.setHelpKeys(kb)
+		cmds = append(cmds, finishTaskCmd(msg.Err, kb))
 		if msg.Err == nil {
 			t := m.getMergeRequestModel(msg)()
 			m.MergeRequests.Table = t
 			m.MergeRequests.SetFocus()
 			cmds = append(cmds, func() tea.Msg { return tuishell.CloseLeftPanelMsg{} })
+			l := m.Shell.Layout
+			m.Shell.Main, cmd = m.Shell.Main.Update(tea.WindowSizeMsg{Width: l.MainPanel.Width, Height: l.MainPanel.Height})
+			cmds = append(cmds, cmd)
 		}
 
 	case tui.PipelineListFetchedMsg:
