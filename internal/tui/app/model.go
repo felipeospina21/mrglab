@@ -3,16 +3,15 @@ package app
 
 import (
 	"charm.land/bubbles/v2/help"
-	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
-	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
@@ -25,6 +24,7 @@ type Model struct {
 	Shell         shell.Model
 	Projects      *projects.Model
 	MergeRequests *mergerequests.Model
+	Pipelines     *pipelines.Model
 	Details       *details.Model
 	Input         textarea.Model
 	ctx           *context.AppContext
@@ -83,27 +83,7 @@ var rightPanelStyle = lipgloss.NewStyle().
 	Border(lipgloss.NormalBorder(), true, false, true, true).
 	BorderForeground(theme.Border)
 
-// pipelinesKeyMap shows only the tab-cycling keybind when the Pipelines tab is active.
-type pipelinesKeyMap struct {
-	CycleTab key.Binding
-	tui.GlobalKeyMap
-}
 
-func (k pipelinesKeyMap) ShortHelp() []key.Binding {
-	return append([]key.Binding{k.CycleTab}, tui.CommonKeys...)
-}
-
-func (k pipelinesKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{tui.CommonKeys, {k.CycleTab}}
-}
-
-var pipelinesKeybinds = pipelinesKeyMap{
-	CycleTab: key.NewBinding(
-		key.WithKeys("tab"),
-		key.WithHelp("tab", "next tab"),
-	),
-	GlobalKeyMap: tui.GlobalKeys(false),
-}
 
 // InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
@@ -116,6 +96,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	proj := projects.New(ctx, client, cfg.Filters.Projects)
 	mrs := mergerequests.New(ctx, client)
 	det := details.New(ctx)
+	pip := pipelines.New(ctx)
 
 	tabNames := []string{"Merge Requests", "Pipelines"}
 
@@ -139,6 +120,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Shell:         s,
 		Projects:      &proj,
 		MergeRequests: &mrs,
+		Pipelines:     &pip,
 		Details:       &det,
 		Input:         ti,
 		ctx:           ctx,

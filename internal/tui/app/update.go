@@ -15,6 +15,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
 	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/tuishell"
 )
@@ -58,12 +59,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
 
-	case mergerequests.CycleTabMsg:
+	case mergerequests.CycleTabMsg, pipelines.CycleTabMsg:
 		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
 		if m.ActiveTab == 0 {
 			m.setHelpKeys(mergerequests.Keybinds)
+			m.Shell.Main = MergeRequestsPanel{Model: m.MergeRequests, ActiveTab: m.ActiveTab, TabNames: m.TabNames}
 		} else {
-			m.setHelpKeys(pipelinesKeybinds)
+			m.setHelpKeys(pipelines.Keybinds)
+			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames}
 		}
 
 	case mergerequests.CreateMRMsg:
@@ -281,9 +284,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if mr, ok := m.Shell.Main.(MergeRequestsPanel); ok {
 		m.MergeRequests = mr.Model
-		// Sync tab state into the panel for rendering
 		mr.ActiveTab = m.ActiveTab
 		m.Shell.Main = mr
+	}
+	if pip, ok := m.Shell.Main.(PipelinesPanel); ok {
+		m.Pipelines = pip.Model
+		pip.ActiveTab = m.ActiveTab
+		m.Shell.Main = pip
 	}
 	if d, ok := m.Shell.Right.(DetailsPanel); ok {
 		m.Details = d.Model
