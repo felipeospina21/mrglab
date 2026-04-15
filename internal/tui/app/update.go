@@ -63,6 +63,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.OpenInBrowserMsg, details.OpenInBrowserMsg:
 		m.openInBrowser()
 
+	case pipelines.ViewDetailsMsg:
+		if !m.Shell.IsRightOpen() {
+			cmds = append(cmds, func() tea.Msg { return tuishell.OpenRightPanelMsg{} })
+		}
+		m.Details.SetFocus()
+		m.setHelpKeys(details.Keybinds)
+
+		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+		m.Details.Content.Title = fmt.Sprintf("Pipeline #%s", iid)
+
+		node := m.findPipelineByIID(iid)
+		if node != nil {
+			c := details.RenderPipelineDetails(*node)
+			m.Details.Viewport.SetContent(c)
+			m.Details.Ready = true
+		}
+
 	case mergerequests.CycleTabMsg, pipelines.CycleTabMsg:
 		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
 		if m.ActiveTab == 0 {
@@ -187,6 +205,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.Err == nil {
 			t := m.getPipelineModel(msg)()
 			m.Pipelines.Table = t
+			m.Pipelines.Nodes = msg.Pipelines.Nodes
 		}
 
 	case tui.MRDetailsFetchedMsg:

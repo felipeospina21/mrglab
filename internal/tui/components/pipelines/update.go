@@ -10,6 +10,7 @@ import (
 type (
 	CycleTabMsg      struct{}
 	OpenInBrowserMsg struct{}
+	ViewDetailsMsg   struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -27,6 +28,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		case match(Keybinds.OpenInBrowser):
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
+
+		case match(Keybinds.Details):
+			return m, func() tea.Msg { return ViewDetailsMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

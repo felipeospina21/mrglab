@@ -16,6 +16,7 @@ import (
 // Model holds the state for the pipelines panel.
 type Model struct {
 	Table       table.Model
+	Nodes       []gitlab.PipelineNode
 	Loading     bool
 	SpinnerView string
 	ctx         *context.AppContext
@@ -64,7 +65,7 @@ var Cols = []table.Column{
 	{Name: ColNames.Commit, Title: "Commit", Width: 30},
 	{Name: ColNames.Jobs, Title: "Jobs", Width: 3, Centered: true},
 	{Name: ColNames.Author, Title: "Author", Width: 8},
-	{Name: ColNames.Duration, Title: icon.Time, Width: 5},
+	{Name: ColNames.Duration, Title: icon.StopWatch, Width: 5},
 	{Name: ColNames.Source, Title: icon.Start, Width: 5},
 	{Name: ColNames.MrIID, Title: icon.PR, Width: 3, Centered: true},
 	{Name: ColNames.Branch, Title: icon.SourceBranch, Width: 20},

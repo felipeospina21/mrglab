@@ -135,7 +135,7 @@ func renderApprovals(approvals []gitlab.ApprovalRule) string {
 func renderPipelines(stages []gitlab.CiStageNode) string {
 	var content strings.Builder
 
-	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Pipeline", icon.Pipeline)))
+	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Pipeline Jobs", icon.Pipeline)))
 	content.WriteString("\n\n")
 
 	for _, stage := range stages {
@@ -327,6 +327,97 @@ func glamourRender(markdown string, width int) (string, error) {
 	}
 
 	return content, nil
+}
+
+// RenderPipelineDetails renders the details view for a pipeline, composing sections.
+func RenderPipelineDetails(pipeline gitlab.PipelineNode) string {
+	var content strings.Builder
+
+	content.WriteString(renderPipelineInfo(pipeline))
+	content.WriteString("\n\n")
+	content.WriteString(renderPipelines(pipelineJobsToStages(pipeline.Jobs.Nodes)))
+
+	return content.String()
+}
+
+func renderPipelineInfo(pipeline gitlab.PipelineNode) string {
+	var content strings.Builder
+
+	statusIcon := getStageIconStatus(pipeline.Status)
+	content.WriteString(iconStyle(statusIcon.color).Render(statusIcon.icon))
+	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Status: %s", pipeline.Status)))
+	content.WriteString("\n")
+
+	content.WriteString(iconStyle(style.White).Render(icon.Start))
+	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Source: %s", pipeline.Source)))
+	content.WriteString("\n")
+
+	content.WriteString(iconStyle(style.White).Render(icon.PR))
+	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("%s %s", pipeline.Commit.ShortId, pipeline.Commit.Title)))
+	content.WriteString("\n")
+
+	if pipeline.MergeRequest != nil {
+		content.WriteString(iconStyle(style.White).Render(icon.SourceBranch))
+		content.WriteString(sectionTextStyle.Render(pipeline.MergeRequest.SourceBranch))
+		content.WriteString("\n")
+	}
+
+	if pipeline.Duration != nil {
+		content.WriteString(iconStyle(style.White).Render(icon.StopWatch))
+		content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Duration: %ds", *pipeline.Duration)))
+		content.WriteString("\n")
+	}
+
+	return contentStyle.Render(content.String())
+}
+
+// pipelineJobsToStages converts flat PipelineJobNodes into CiStageNodes for reuse with renderPipelines.
+func pipelineJobsToStages(jobs []gitlab.PipelineJobNode) []gitlab.CiStageNode {
+	var stages []gitlab.CiStageNode
+	idx := map[string]int{}
+	for _, job := range jobs {
+		sn := job.Stage.Name
+		jn := gitlab.JobsNode{Name: job.Name, Status: job.Status}
+		if i, ok := idx[sn]; ok {
+			stages[i].Jobs.Nodes = append(stages[i].Jobs.Nodes, jn)
+		} else {
+			idx[sn] = len(stages)
+			stages = append(stages, gitlab.CiStageNode{
+				Name:   sn,
+				Status: deriveStageStatus(jobs, sn),
+				Jobs:   gitlab.JobsConnection{Nodes: []gitlab.JobsNode{jn}},
+			})
+		}
+	}
+	return stages
+}
+
+// deriveStageStatus determines the overall stage status from jobs in a given stage.
+func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
+	hasRunning, hasFailed, hasPending := false, false, false
+	for _, j := range jobs {
+		if j.Stage.Name != stageName {
+			continue
+		}
+		switch strings.ToLower(j.Status) {
+		case "failed":
+			hasFailed = true
+		case "running":
+			hasRunning = true
+		case "pending", "created":
+			hasPending = true
+		}
+	}
+	switch {
+	case hasFailed:
+		return "failed"
+	case hasRunning:
+		return "running"
+	case hasPending:
+		return "pending"
+	default:
+		return "success"
+	}
 }
 
 func getStageIconStatus(s string) styledIcon {
