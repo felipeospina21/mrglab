@@ -14,6 +14,8 @@ type GitLabAPI interface {
 	RetryPipeline(id string) (PipelineRetryResponse, error)
 	PlayJob(id string) (*JobPlayResponse, error)
 	RetryJob(id string) (*JobRetryResponse, error)
+	CancelPipeline(id string) (PipelineCancelResponse, error)
+	CancelJob(id string) (*JobCancelResponse, error)
 }
 
 // Compile-time check that *Client satisfies GitLabAPI.

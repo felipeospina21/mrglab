@@ -80,6 +80,14 @@ type jobRetryMutation struct {
 	JobRetry JobRetryResponse `graphql:"jobRetry(input:{id:$id})"`
 }
 
+type pipelineCancelMutation struct {
+	PipelineCancel PipelineCancelResponse `graphql:"pipelineCancel(input:{id:$id})"`
+}
+
+type jobCancelMutation struct {
+	JobCancel JobCancelResponse `graphql:"jobCancel(input:{id:$id})"`
+}
+
 // Input types
 
 // MergeRequestsQueryVariables holds the variables for the merge requests list query.

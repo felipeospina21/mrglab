@@ -11,9 +11,12 @@ type (
 	MergeMRMsg       struct{}
 	OpenInBrowserMsg struct{}
 	FullscreenMsg    struct{}
-	PlayJobMsg       struct {
+	PlayJobMsg struct {
 		JobID  string
 		Status string
+	}
+	CancelJobMsg struct {
+		JobID string
 	}
 	RespondCommentMsg struct {
 		DiscussionId string
@@ -47,6 +50,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			if len(m.ActionableJobs) > 0 {
 				j := m.ActionableJobs[m.ActionableJobIdx]
 				return m, func() tea.Msg { return PlayJobMsg{JobID: j.ID, Status: j.Status} }
+			}
+		case m.PipelineNode != nil && match(PipelineKeybinds.CancelJob):
+			if len(m.ActionableJobs) > 0 {
+				j := m.ActionableJobs[m.ActionableJobIdx]
+				return m, func() tea.Msg { return CancelJobMsg{JobID: j.ID} }
 			}
 		case match(Keybinds.Merge):
 			return m, func() tea.Msg { return MergeMRMsg{} }

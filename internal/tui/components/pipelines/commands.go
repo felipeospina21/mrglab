@@ -49,3 +49,25 @@ func (m *Model) RetryJob(jobID string) tea.Cmd {
 		}
 	}
 }
+
+// CancelPipeline returns a command that cancels a running pipeline.
+func (m *Model) CancelPipeline(pipelineID string) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.CancelPipeline(pipelineID)
+		return tui.PipelineCancelMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}
+
+// CancelJob returns a command that cancels a running CI job.
+func (m *Model) CancelJob(jobID string) tea.Cmd {
+	return func() tea.Msg {
+		res, err := m.client.CancelJob(jobID)
+		return tui.JobCancelMsg{
+			Errors: res.Errors,
+			Err:    err,
+		}
+	}
+}

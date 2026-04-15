@@ -262,3 +262,13 @@ type JobPlayResponse struct {
 type JobRetryResponse struct {
 	Errors []string
 }
+
+// PipelineCancelResponse is the result of a pipeline cancel mutation.
+type PipelineCancelResponse struct {
+	Errors []string
+}
+
+// JobCancelResponse is the result of a job cancel mutation.
+type JobCancelResponse struct {
+	Errors []string
+}

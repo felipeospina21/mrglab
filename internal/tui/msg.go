@@ -78,3 +78,15 @@ type JobRetryMsg struct {
 	Errors []string
 	Err    error
 }
+
+// PipelineCancelMsg is sent after a pipeline cancel mutation completes.
+type PipelineCancelMsg struct {
+	Errors []string
+	Err    error
+}
+
+// JobCancelMsg is sent after a job cancel mutation completes.
+type JobCancelMsg struct {
+	Errors []string
+	Err    error
+}

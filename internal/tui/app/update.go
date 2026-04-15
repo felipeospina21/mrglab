@@ -316,6 +316,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		}
 
+	case pipelines.CancelPipelineMsg:
+		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+		node := m.findPipelineByIID(iid)
+		if node != nil {
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelPipeline(node.ID)}
+			})
+		}
+
 	case tui.PipelineRetryMsg:
 		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
 		if msg.Err == nil {
@@ -329,6 +339,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 		}
+
+	case tui.PipelineCancelMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Pipeline canceled"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case details.CancelJobMsg:
+		cmds = append(cmds, func() tea.Msg {
+			return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelJob(msg.JobID)}
+		})
 
 	case details.PlayJobMsg:
 		if strings.ToLower(msg.Status) == "manual" {
@@ -364,6 +393,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				cmds = append(cmds,
 					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job retriggered"} },
+					m.fetchPipelinesList(),
+				)
+			}
+		}
+
+	case tui.JobCancelMsg:
+		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
+		if msg.Err == nil {
+			if len(msg.Errors) > 0 {
+				e := strings.Join(msg.Errors, ", ")
+				cmds = append(cmds, func() tea.Msg { return errors.New(e) })
+			} else {
+				cmds = append(cmds,
+					func() tea.Msg { return tuishell.SetStatusMsg{Content: "✓ Job canceled"} },
 					m.fetchPipelinesList(),
 				)
 			}
