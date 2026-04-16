@@ -88,7 +88,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Details.PipelineNode = node
 			m.Details.ActionableJobs = nil
 			m.Details.ActionableJobIdx = 0
-			for _, j := range node.Jobs.Nodes {
+			for i := len(node.Jobs.Nodes) - 1; i >= 0; i-- {
+				j := node.Jobs.Nodes[i]
 				if !j.Retried && strings.ToLower(j.Status) != "success" {
 					m.Details.ActionableJobs = append(m.Details.ActionableJobs, j)
 				}
@@ -305,6 +306,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		pp := pipelines.GetColIndex(pipelines.ColNames.Path)
 		url := m.Pipelines.Table.SelectedRow()[pp]
 		exec.Openbrowser(fmt.Sprintf("%s%s", config.GlobalConfig.BaseURL, url))
+
+	case pipelines.ReFetchPipelineListMsg:
+		m.Pipelines.Loading = true
+		cmds = append(cmds, m.fetchPipelinesList())
 
 	case pipelines.RetryPipelineMsg:
 		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)

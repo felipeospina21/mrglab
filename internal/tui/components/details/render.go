@@ -387,6 +387,8 @@ func renderPipelineInfo(pipeline gitlab.PipelineNode) string {
 
 // pipelineJobsToStages converts flat PipelineJobNodes into CiStageNodes for reuse with renderPipelines.
 func pipelineJobsToStages(jobs []gitlab.PipelineJobNode) []gitlab.CiStageNode {
+	jobs = slices.Clone(jobs)
+	slices.Reverse(jobs)
 	var stages []gitlab.CiStageNode
 	idx := map[string]int{}
 	for _, job := range jobs {
@@ -411,7 +413,7 @@ func pipelineJobsToStages(jobs []gitlab.PipelineJobNode) []gitlab.CiStageNode {
 
 // deriveStageStatus determines the overall stage status from jobs in a given stage.
 func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
-	hasRunning, hasFailed, hasPending := false, false, false
+	hasRunning, hasFailed, hasPending, hasManual := false, false, false, false
 	for _, j := range jobs {
 		if j.Stage.Name != stageName || j.Retried {
 			continue
@@ -423,6 +425,8 @@ func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
 			hasRunning = true
 		case "pending", "created":
 			hasPending = true
+		case "manual":
+			hasManual = true
 		}
 	}
 	switch {
@@ -432,6 +436,8 @@ func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
 		return "running"
 	case hasPending:
 		return "pending"
+	case hasManual:
+		return "manual"
 	default:
 		return "success"
 	}

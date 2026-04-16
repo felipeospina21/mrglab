@@ -8,11 +8,12 @@ import (
 )
 
 type (
-	CycleTabMsg        struct{}
-	OpenInBrowserMsg   struct{}
-	ViewDetailsMsg     struct{}
-	RetryPipelineMsg   struct{}
-	CancelPipelineMsg  struct{}
+	CycleTabMsg            struct{}
+	OpenInBrowserMsg       struct{}
+	ViewDetailsMsg         struct{}
+	RetryPipelineMsg       struct{}
+	CancelPipelineMsg      struct{}
+	ReFetchPipelineListMsg struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -39,6 +40,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		case match(Keybinds.CancelPipeline):
 			return m, func() tea.Msg { return CancelPipelineMsg{} }
+
+		case match(Keybinds.Refetch):
+			return m, func() tea.Msg { return ReFetchPipelineListMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width

@@ -56,7 +56,7 @@ func (c *Client) PlayJob(id string) (*JobPlayResponse, error) {
 
 	var mutation jobPlayMutation
 	variables := map[string]any{
-		"id": CiBuildID(id),
+		"id": CiProcessableID(id),
 	}
 
 	err := c.gql.Mutate(context.Background(), &mutation, variables)

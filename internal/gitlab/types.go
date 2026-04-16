@@ -253,6 +253,12 @@ type CiBuildID string
 // GetGraphQLType returns the GraphQL type name for CiBuildID.
 func (CiBuildID) GetGraphQLType() string { return "CiBuildID" }
 
+// CiProcessableID is a typed GraphQL ID for CI processable entities (used by jobPlay).
+type CiProcessableID string
+
+// GetGraphQLType returns the GraphQL type name for CiProcessableID.
+func (CiProcessableID) GetGraphQLType() string { return "CiProcessableID" }
+
 // JobPlayResponse is the result of a job play mutation.
 type JobPlayResponse struct {
 	Errors []string
