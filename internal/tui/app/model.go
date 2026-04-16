@@ -15,6 +15,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
+	"github.com/felipeospina21/tuishell"
 	"github.com/felipeospina21/tuishell/shell"
 	tsstyle "github.com/felipeospina21/tuishell/style"
 )
@@ -135,6 +136,44 @@ func (m Model) Init() tea.Cmd {
 
 func (m *Model) setHelpKeys(kb help.KeyMap) {
 	m.Shell.Statusline.Keybinds = kb
+}
+
+// mainPanelKeybinds returns the correct keybinds for the currently active main panel tab.
+func (m *Model) mainPanelKeybinds() help.KeyMap {
+	if m.ActiveTab == 1 {
+		return pipelines.Keybinds
+	}
+	return mergerequests.Keybinds
+}
+
+// detailsPanelKeybinds returns the correct keybinds for the details panel based on the active tab.
+func (m *Model) detailsPanelKeybinds() help.KeyMap {
+	if m.ActiveTab == 1 {
+		return details.PipelineKeybinds
+	}
+	return details.Keybinds
+}
+
+// focusMainPanel sets focus and keybinds for the currently active main panel tab.
+func (m *Model) focusMainPanel() {
+	if m.ActiveTab == 1 {
+		m.Pipelines.SetFocus()
+	} else {
+		m.MergeRequests.SetFocus()
+	}
+	m.setHelpKeys(m.mainPanelKeybinds())
+}
+
+// syncKeybinds updates the statusline keybinds to match the currently focused panel.
+func (m *Model) syncKeybinds() {
+	switch m.Shell.Ctx.FocusedPanel {
+	case tuishell.LeftPanel:
+		m.setHelpKeys(projects.Keybinds)
+	case tuishell.RightPanel:
+		m.setHelpKeys(m.detailsPanelKeybinds())
+	default:
+		m.setHelpKeys(m.mainPanelKeybinds())
+	}
 }
 
 // SelectMR stores the currently selected merge request's IID, SHA, and status in the app context.

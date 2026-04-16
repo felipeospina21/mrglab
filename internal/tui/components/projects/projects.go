@@ -11,6 +11,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/felipeospina21/tuishell"
+
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
@@ -46,6 +48,7 @@ func New(ctx *context.AppContext, client *gitlab.Client, projectList []config.Pr
 	l.Styles.Title = TitleStyle
 	// l.Styles.PaginationStyle = PaginationStyle
 	l.SetShowHelp(false)
+	tuishell.ConfigureList(&l)
 
 	return Model{
 		List:   l,

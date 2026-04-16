@@ -1,6 +1,6 @@
 # MR.G.Lab (mrglab)
 
-![screenshot](docs/assets/mrglab_social.png)
+![screenshot](docs/assets/new_mrglab_logo.png)
 
 [![Go Version](https://img.shields.io/github/go-mod/go-version/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab)
 [![License](https://img.shields.io/github/license/felipeospina21/mrglab)](https://github.com/felipeospina21/mrglab/blob/main/LICENSE)

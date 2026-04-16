@@ -77,7 +77,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, func() tea.Msg { return tuishell.OpenRightPanelMsg{} })
 		}
 		m.Details.SetFocus()
-		m.setHelpKeys(details.PipelineKeybinds)
+		m.setHelpKeys(m.detailsPanelKeybinds())
 
 		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
 		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
@@ -107,12 +107,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.CycleTabMsg, pipelines.CycleTabMsg:
 		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
 		if m.ActiveTab == 0 {
-			m.setHelpKeys(mergerequests.Keybinds)
 			m.Shell.Main = MergeRequestsPanel{Model: m.MergeRequests, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
 		} else {
-			m.setHelpKeys(pipelines.Keybinds)
 			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
 		}
+		m.setHelpKeys(m.mainPanelKeybinds())
 		l := m.Shell.Layout
 		m.Shell.Main, cmd = m.Shell.Main.Update(tea.WindowSizeMsg{Width: l.MainPanel.Width, Height: l.MainPanel.Height})
 		cmds = append(cmds, cmd)
@@ -145,8 +144,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case details.ClosePanelMsg:
-		m.MergeRequests.SetFocus()
-		m.setHelpKeys(mergerequests.Keybinds)
+		m.focusMainPanel()
 		cmds = append(cmds, func() tea.Msg { return tuishell.CloseRightPanelMsg{} })
 
 	case details.FullscreenMsg:
@@ -206,19 +204,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.formReady = false
 		if m.Shell.IsRightOpen() {
 			m.Details.SetFocus()
-			m.setHelpKeys(details.Keybinds)
+			m.setHelpKeys(m.detailsPanelKeybinds())
 		} else {
-			m.MergeRequests.SetFocus()
-			m.setHelpKeys(mergerequests.Keybinds)
+			m.focusMainPanel()
 		}
 
 	// Typed task result messages
 	case tui.MRListFetchedMsg:
 		m.MergeRequests.Loading = false
-		var kb help.KeyMap = mergerequests.Keybinds
-		if m.ActiveTab == 1 {
-			kb = pipelines.Keybinds
-		}
+		kb := m.mainPanelKeybinds()
 		m.setHelpKeys(kb)
 		cmds = append(cmds, finishTaskCmd(msg.Err, kb))
 		if msg.Err == nil {
@@ -455,6 +449,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Sync shell context back to mrglab context after shell update
 	m.ctx.AppContext = m.Shell.Ctx
+
+	m.syncKeybinds()
 
 	// Sync panel pointers after shell update
 	if p, ok := m.Shell.Left.(ProjectsPanel); ok {
