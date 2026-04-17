@@ -10,7 +10,6 @@ import (
 
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/exec"
-	execPkg "github.com/felipeospina21/mrglab/internal/exec"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui"
@@ -143,13 +142,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, m.createForm.Focus())
 		}
 
-	case details.ClosePanelMsg:
-		m.focusMainPanel()
-		cmds = append(cmds, func() tea.Msg { return tuishell.CloseRightPanelMsg{} })
-
-	case details.FullscreenMsg:
-		cmds = append(cmds, func() tea.Msg { return tuishell.ToggleFullscreenMsg{} })
-
 	case details.RespondCommentMsg:
 		m.pendingNote.DiscussionId = msg.DiscussionId
 		m.pendingNote.NoteableId = msg.NoteableId
@@ -176,9 +168,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return tuishell.SetStatusMsg{Content: ""}
 			})
 		}
-
-	case tuishell.CopyModalMsg:
-		execPkg.CopyToClipboard(m.Shell.Modal.Content)
 
 	case tuishell.SubmitModalMsg, tuishell.ShellSubmitMsg:
 		body := m.Input.Value()

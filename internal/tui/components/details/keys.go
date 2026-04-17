@@ -8,19 +8,17 @@ import (
 )
 
 type DetailsKeyMap struct {
-	ClosePanel     key.Binding
 	Merge          key.Binding
 	RespondComment key.Binding
 	NextDiscussion key.Binding
 	PrevDiscussion key.Binding
 	OpenInBrowser  key.Binding
-	Fullscreen     key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k DetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
+		[]key.Binding{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
 		tui.CommonKeys,
 	)
 }
@@ -28,14 +26,12 @@ func (k DetailsKeyMap) ShortHelp() []key.Binding {
 func (k DetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.ClosePanel, k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
+		{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
 	}
 }
 
 type PipelineDetailsKeyMap struct {
-	ClosePanel    key.Binding
 	OpenInBrowser key.Binding
-	Fullscreen    key.Binding
 	NextJob       key.Binding
 	PrevJob       key.Binding
 	PlayJob       key.Binding
@@ -45,7 +41,7 @@ type PipelineDetailsKeyMap struct {
 
 func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.ClosePanel, k.OpenInBrowser, k.Fullscreen, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
+		[]key.Binding{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
 		tui.CommonKeys,
 	)
 }
@@ -53,22 +49,14 @@ func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 func (k PipelineDetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.ClosePanel, k.OpenInBrowser, k.Fullscreen, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
+		{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
 	}
 }
 
 var PipelineKeybinds = PipelineDetailsKeyMap{
-	ClosePanel: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "close panel"),
-	),
 	OpenInBrowser: key.NewBinding(
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
-	),
-	Fullscreen: key.NewBinding(
-		key.WithKeys("f"),
-		key.WithHelp("f", "fullscreen"),
 	),
 	NextJob: key.NewBinding(
 		key.WithKeys("n"),
@@ -90,10 +78,6 @@ var PipelineKeybinds = PipelineDetailsKeyMap{
 }
 
 var Keybinds = DetailsKeyMap{
-	ClosePanel: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "close panel"),
-	),
 	Merge: key.NewBinding(
 		key.WithKeys("M"),
 		key.WithHelp("M", "merge mr"),
@@ -113,10 +97,6 @@ var Keybinds = DetailsKeyMap{
 	OpenInBrowser: key.NewBinding(
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
-	),
-	Fullscreen: key.NewBinding(
-		key.WithKeys("f"),
-		key.WithHelp("f", "fullscreen"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

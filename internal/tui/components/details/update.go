@@ -7,10 +7,8 @@ import (
 )
 
 type (
-	ClosePanelMsg    struct{}
 	MergeMRMsg       struct{}
 	OpenInBrowserMsg struct{}
-	FullscreenMsg    struct{}
 	PlayJobMsg struct {
 		JobID  string
 		Status string
@@ -36,12 +34,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyPressMsg:
 		match := tui.KeyMatcher(msg)
 		switch {
-		case match(Keybinds.ClosePanel):
-			return m, func() tea.Msg { return ClosePanelMsg{} }
 		case match(Keybinds.OpenInBrowser):
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
-		case match(Keybinds.Fullscreen):
-			return m, func() tea.Msg { return FullscreenMsg{} }
 		case m.PipelineNode != nil && match(PipelineKeybinds.NextJob):
 			m.nextJob()
 		case m.PipelineNode != nil && match(PipelineKeybinds.PrevJob):
