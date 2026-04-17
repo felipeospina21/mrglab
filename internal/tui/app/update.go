@@ -34,6 +34,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
+	// Route keys to confirm popover when open
+	if m.confirmPopover.IsOpen() {
+		if _, ok := msg.(tea.KeyPressMsg); ok {
+			var cmd tea.Cmd
+			m.confirmPopover, cmd = m.confirmPopover.Update(msg)
+			return m, cmd
+		}
+	}
+
 	switch msg := msg.(type) {
 
 	case error:
@@ -64,9 +73,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		})
 
 	case mergerequests.MergeMRMsg, details.MergeMRMsg:
-		cmds = append(cmds, func() tea.Msg {
-			return tuishell.StartTaskMsg{Cmd: m.acceptMergeRequest()}
-		})
+		m.pendingAction = msg
+		m.confirmPopover.Open("Merge MR", "Merge this merge request?", "Merge", "Cancel")
 
 	case mergerequests.OpenInBrowserMsg:
 		m.openInBrowser()
@@ -171,6 +179,52 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tuishell.CloseListPopoverMsg:
 		m.statusFilter.Close()
+
+	case tuishell.ConfirmPopoverYesMsg:
+		m.confirmPopover.Close()
+		switch pa := m.pendingAction.(type) {
+		case mergerequests.MergeMRMsg, details.MergeMRMsg:
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.acceptMergeRequest()}
+			})
+		case pipelines.RetryPipelineMsg:
+			iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+			iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+			node := m.findPipelineByIID(iid)
+			if node != nil {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryPipeline(node.ID)}
+				})
+			}
+		case pipelines.CancelPipelineMsg:
+			iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
+			iid := m.Pipelines.Table.SelectedRow()[iidIdx]
+			node := m.findPipelineByIID(iid)
+			if node != nil {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelPipeline(node.ID)}
+				})
+			}
+		case details.CancelJobMsg:
+			cmds = append(cmds, func() tea.Msg {
+				return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelJob(pa.JobID)}
+			})
+		case details.PlayJobMsg:
+			if strings.ToLower(pa.Status) == "manual" {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(pa.JobID)}
+				})
+			} else {
+				cmds = append(cmds, func() tea.Msg {
+					return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryJob(pa.JobID)}
+				})
+			}
+		}
+		m.pendingAction = nil
+
+	case tuishell.ConfirmPopoverNoMsg:
+		m.confirmPopover.Close()
+		m.pendingAction = nil
 
 	case tuishell.CloseModalMsg:
 		m.Input.Blur()
@@ -315,24 +369,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.statusFilter.Open("Filter by Status", pipelineStatusItems())
 
 	case pipelines.RetryPipelineMsg:
-		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
-		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
-		node := m.findPipelineByIID(iid)
-		if node != nil {
-			cmds = append(cmds, func() tea.Msg {
-				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryPipeline(node.ID)}
-			})
-		}
+		m.pendingAction = msg
+		m.confirmPopover.Open("Retry Pipeline", "Retry all failed jobs in this pipeline?", "Retry", "Cancel")
 
 	case pipelines.CancelPipelineMsg:
-		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)
-		iid := m.Pipelines.Table.SelectedRow()[iidIdx]
-		node := m.findPipelineByIID(iid)
-		if node != nil {
-			cmds = append(cmds, func() tea.Msg {
-				return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelPipeline(node.ID)}
-			})
-		}
+		m.pendingAction = msg
+		m.confirmPopover.Open("Cancel Pipeline", "Cancel this pipeline?", "Cancel Pipeline", "Go Back")
 
 	case tui.PipelineRetryMsg:
 		cmds = append(cmds, finishTaskCmd(msg.Err, pipelines.Keybinds))
@@ -363,20 +405,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case details.CancelJobMsg:
-		cmds = append(cmds, func() tea.Msg {
-			return tuishell.StartTaskMsg{Cmd: m.Pipelines.CancelJob(msg.JobID)}
-		})
+		m.pendingAction = msg
+		m.confirmPopover.Open("Cancel Job", "Cancel this job?", "Cancel Job", "Go Back")
 
 	case details.PlayJobMsg:
-		if strings.ToLower(msg.Status) == "manual" {
-			cmds = append(cmds, func() tea.Msg {
-				return tuishell.StartTaskMsg{Cmd: m.Pipelines.PlayJob(msg.JobID)}
-			})
-		} else {
-			cmds = append(cmds, func() tea.Msg {
-				return tuishell.StartTaskMsg{Cmd: m.Pipelines.RetryJob(msg.JobID)}
-			})
-		}
+		m.pendingAction = msg
+		m.confirmPopover.Open("Run Job", "Run this job?", "Run", "Cancel")
 
 	case tui.JobPlayMsg:
 		cmds = append(cmds, finishTaskCmd(msg.Err, details.PipelineKeybinds))
