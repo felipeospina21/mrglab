@@ -242,6 +242,12 @@ type CiPipelineID string
 // GetGraphQLType returns the GraphQL type name for CiPipelineID.
 func (CiPipelineID) GetGraphQLType() string { return "CiPipelineID" }
 
+// PipelineStatusEnum maps to GitLab's PipelineStatusEnum GraphQL type.
+type PipelineStatusEnum string
+
+// GetGraphQLType returns the GraphQL type name for PipelineStatusEnum.
+func (*PipelineStatusEnum) GetGraphQLType() string { return "PipelineStatusEnum" }
+
 // PipelineRetryResponse is the result of a pipeline retry mutation.
 type PipelineRetryResponse struct {
 	Errors []string

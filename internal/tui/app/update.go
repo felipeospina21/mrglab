@@ -25,6 +25,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	// Route keys to popover when open — prevent shell/panel routing
+	if m.statusFilter.IsOpen() {
+		if _, ok := msg.(tea.KeyPressMsg); ok {
+			var cmd tea.Cmd
+			m.statusFilter, cmd = m.statusFilter.Update(msg)
+			return m, cmd
+		}
+	}
+
 	switch msg := msg.(type) {
 
 	case error:
@@ -154,6 +163,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			},
 			m.Input.Focus(),
 		)
+
+	case tuishell.SelectListPopoverMsg:
+		m.statusFilter.Close()
+		m.Pipelines.Loading = true
+		cmds = append(cmds, m.fetchPipelinesWithStatus(msg.Value))
+
+	case tuishell.CloseListPopoverMsg:
+		m.statusFilter.Close()
 
 	case tuishell.CloseModalMsg:
 		m.Input.Blur()
@@ -293,6 +310,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case pipelines.ReFetchPipelineListMsg:
 		m.Pipelines.Loading = true
 		cmds = append(cmds, m.fetchPipelinesList())
+
+	case pipelines.FilterPipelinesMsg:
+		m.statusFilter.Open("Filter by Status", pipelineStatusItems())
 
 	case pipelines.RetryPipelineMsg:
 		iidIdx := pipelines.GetColIndex(pipelines.ColNames.IID)

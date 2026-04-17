@@ -16,6 +16,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 	"github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/tuishell"
+	"github.com/felipeospina21/tuishell/popover"
 	"github.com/felipeospina21/tuishell/shell"
 	tsstyle "github.com/felipeospina21/tuishell/style"
 )
@@ -33,9 +34,10 @@ type Model struct {
 		DiscussionId string
 		NoteableId   string
 	}
-	pendingCreateMR bool
-	pendingConfirm  bool
-	formReady       bool
+	pendingCreateMR    bool
+	pendingConfirm     bool
+	statusFilter       popover.ListModel
+	formReady          bool
 	createForm      createMRForm
 	ActiveTab       int
 	TabNames        []string
@@ -126,6 +128,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Input:         ti,
 		ctx:           ctx,
 		createForm:    newCreateMRForm(),
+		statusFilter:  popover.NewList(tsstyle.Theme(theme)),
 		TabNames:      tabNames,
 	}
 }

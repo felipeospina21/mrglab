@@ -5,5 +5,12 @@ import (
 )
 
 func (m Model) View() tea.View {
-	return m.Shell.RenderView()
+	v := m.Shell.RenderView()
+	if m.statusFilter.IsOpen() {
+		w := m.ctx.Window.Width
+		h := m.ctx.Window.Height
+		screen := m.statusFilter.View(v.Content, w, h)
+		return tea.View{Content: screen, AltScreen: v.AltScreen}
+	}
+	return v
 }
