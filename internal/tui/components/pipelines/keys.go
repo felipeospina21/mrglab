@@ -15,15 +15,16 @@ type PipelinesKeyMap struct {
 	Refetch        key.Binding
 	RetryPipeline  key.Binding
 	CancelPipeline key.Binding
+	FilterStatus   key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k PipelinesKeyMap) ShortHelp() []key.Binding {
-	return slices.Concat([]key.Binding{k.Details, k.CycleTab, k.OpenInBrowser, k.Refetch, k.RetryPipeline, k.CancelPipeline}, tui.CommonKeys)
+	return slices.Concat([]key.Binding{k.Details, k.CycleTab, k.OpenInBrowser, k.Refetch, k.RetryPipeline, k.CancelPipeline, k.FilterStatus}, tui.CommonKeys)
 }
 
 func (k PipelinesKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{tui.CommonKeys, {k.Details, k.CycleTab, k.OpenInBrowser, k.Refetch, k.RetryPipeline, k.CancelPipeline}}
+	return [][]key.Binding{tui.CommonKeys, {k.Details, k.CycleTab, k.OpenInBrowser, k.Refetch, k.RetryPipeline, k.CancelPipeline, k.FilterStatus}}
 }
 
 // Keybinds is the default keybinding set for the pipelines panel.
@@ -51,6 +52,10 @@ var Keybinds = PipelinesKeyMap{
 	CancelPipeline: key.NewBinding(
 		key.WithKeys("C"),
 		key.WithHelp("C", "cancel pipeline"),
+	),
+	FilterStatus: key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "filter by status"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

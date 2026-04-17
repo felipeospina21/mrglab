@@ -14,6 +14,7 @@ type (
 	RetryPipelineMsg       struct{}
 	CancelPipelineMsg      struct{}
 	ReFetchPipelineListMsg struct{}
+	FilterPipelinesMsg     struct{}
 )
 
 // Init returns nil (no initialization needed).
@@ -43,6 +44,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 		case match(Keybinds.Refetch):
 			return m, func() tea.Msg { return ReFetchPipelineListMsg{} }
+
+		case match(Keybinds.FilterStatus):
+			return m, func() tea.Msg { return FilterPipelinesMsg{} }
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -66,8 +70,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() tea.View {
 	if m.Loading {
 		content := lipgloss.NewStyle().
-			Width(m.Table.W).
-			Height(m.Table.H).
+			Width(m.width).
+			Height(m.height).
 			Align(lipgloss.Center, lipgloss.Center).
 			Render(m.SpinnerView + " Loading...")
 		return tea.NewView(content)

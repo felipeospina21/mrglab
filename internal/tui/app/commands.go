@@ -12,6 +12,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
 	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
+	"github.com/felipeospina21/tuishell"
 )
 
 func (m Model) getMergeRequestModel(msg tui.MRListFetchedMsg) func() table.Model {
@@ -138,7 +139,27 @@ func (m Model) getPipelineModel(msg tui.PipelineListFetchedMsg) func() table.Mod
 }
 
 func (m Model) fetchPipelinesList() tea.Cmd {
-	return m.Pipelines.FetchPipelines()
+	return m.Pipelines.FetchPipelines("")
+}
+
+func (m Model) fetchPipelinesWithStatus(status string) tea.Cmd {
+	return m.Pipelines.FetchPipelines(status)
+}
+
+var pipelineStatuses = []tuishell.ListPopoverItem{
+	{Label: "All", Value: ""},
+	{Label: "Success", Value: "SUCCESS"},
+	{Label: "Failed", Value: "FAILED"},
+	{Label: "Running", Value: "RUNNING"},
+	{Label: "Pending", Value: "PENDING"},
+	{Label: "Canceled", Value: "CANCELED"},
+	{Label: "Created", Value: "CREATED"},
+	{Label: "Manual", Value: "MANUAL"},
+	{Label: "Scheduled", Value: "SCHEDULED"},
+}
+
+func pipelineStatusItems() []tuishell.ListPopoverItem {
+	return pipelineStatuses
 }
 
 func (m *Model) findPipelineByIID(iid string) *gitlab.PipelineNode {

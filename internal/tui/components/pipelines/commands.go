@@ -7,9 +7,9 @@ import (
 )
 
 // FetchPipelines returns a command that fetches pipelines for the selected project.
-func (m *Model) FetchPipelines() tea.Cmd {
+func (m *Model) FetchPipelines(status string) tea.Cmd {
 	return func() tea.Msg {
-		pipelines, err := m.client.GetProjectPipelines(m.ctx.SelectedProject.ID, gitlab.PipelinesQueryVariables{})
+		pipelines, err := m.client.GetProjectPipelines(m.ctx.SelectedProject.ID, gitlab.PipelinesQueryVariables{Status: status})
 		return tui.PipelineListFetchedMsg{
 			Pipelines: pipelines,
 			Err:       err,
