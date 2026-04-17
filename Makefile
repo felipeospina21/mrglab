@@ -24,6 +24,7 @@ endif
 	git tag v$(v)
 	git push
 	git push origin v$(v)
+	gh release create v$(v) --generate-notes --latest
 	@echo "Done. v$(v) released."
 
 update-tuishell:
