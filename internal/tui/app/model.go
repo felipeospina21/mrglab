@@ -37,6 +37,8 @@ type Model struct {
 	pendingCreateMR    bool
 	pendingConfirm     bool
 	statusFilter       popover.ListModel
+	confirmPopover     popover.ConfirmModel
+	pendingAction      tea.Msg
 	formReady          bool
 	createForm      createMRForm
 	ActiveTab       int
@@ -128,7 +130,8 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Input:         ti,
 		ctx:           ctx,
 		createForm:    newCreateMRForm(),
-		statusFilter:  popover.NewList(tsstyle.Theme(theme)),
+		statusFilter:   popover.NewList(tsstyle.Theme(theme)),
+		confirmPopover: popover.NewConfirm(tsstyle.Theme(theme)),
 		TabNames:      tabNames,
 	}
 }

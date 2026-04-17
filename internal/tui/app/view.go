@@ -12,5 +12,11 @@ func (m Model) View() tea.View {
 		screen := m.statusFilter.View(v.Content, w, h)
 		return tea.View{Content: screen, AltScreen: v.AltScreen}
 	}
+	if m.confirmPopover.IsOpen() {
+		w := m.ctx.Window.Width
+		h := m.ctx.Window.Height
+		screen := m.confirmPopover.View(v.Content, w, h)
+		return tea.View{Content: screen, AltScreen: v.AltScreen}
+	}
 	return v
 }
