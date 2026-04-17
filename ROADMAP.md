@@ -32,7 +32,7 @@
 - [ ] View MR diff via external pager ([#71](https://github.com/felipeospina21/mrglab/issues/71))
 - [ ] Refetch MRs after merging ([#70](https://github.com/felipeospina21/mrglab/issues/70))
 - [ ] Filter merge requests ([#73](https://github.com/felipeospina21/mrglab/issues/73))
-- [ ] Filter pipelines and jobs ([#80](https://github.com/felipeospina21/mrglab/issues/80))
+- [x] Filter pipelines and jobs ([#80](https://github.com/felipeospina21/mrglab/issues/80))
 
 ### Medium
 
@@ -45,6 +45,7 @@
 - [ ] API response caching with configurable TTL ([#67](https://github.com/felipeospina21/mrglab/issues/67))
 - [ ] Custom theme colors via config ([#68](https://github.com/felipeospina21/mrglab/issues/68))
 - [ ] Pipelines pagination ([#56](https://github.com/felipeospina21/mrglab/issues/56))
+- [ ] Filter pipelines by username, branch, and source ([#83](https://github.com/felipeospina21/mrglab/issues/83))
 
 ### Low
 
