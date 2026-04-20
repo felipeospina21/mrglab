@@ -34,3 +34,6 @@ endif
 	GOWORK=off go get github.com/felipeospina21/tuishell@v$(v)
 	GOWORK=off go mod tidy
 	@echo "Updated tuishell to v$(v)"
+
+version:
+	@git describe --tags --abbrev=0 2>/dev/null || echo 'no tags'
