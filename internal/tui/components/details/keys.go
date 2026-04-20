@@ -13,12 +13,13 @@ type DetailsKeyMap struct {
 	NextDiscussion key.Binding
 	PrevDiscussion key.Binding
 	OpenInBrowser  key.Binding
+	Fullscreen     key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k DetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
+		[]key.Binding{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
 		tui.CommonKeys,
 	)
 }
@@ -26,7 +27,7 @@ func (k DetailsKeyMap) ShortHelp() []key.Binding {
 func (k DetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion},
+		{k.OpenInBrowser, k.Merge, k.RespondComment, k.NextDiscussion, k.PrevDiscussion, k.Fullscreen},
 	}
 }
 
@@ -36,12 +37,13 @@ type PipelineDetailsKeyMap struct {
 	PrevJob       key.Binding
 	PlayJob       key.Binding
 	CancelJob     key.Binding
+	Fullscreen    key.Binding
 	tui.GlobalKeyMap
 }
 
 func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 	return slices.Concat(
-		[]key.Binding{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
+		[]key.Binding{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob, k.Fullscreen},
 		tui.CommonKeys,
 	)
 }
@@ -49,7 +51,7 @@ func (k PipelineDetailsKeyMap) ShortHelp() []key.Binding {
 func (k PipelineDetailsKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		tui.CommonKeys,
-		{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob},
+		{k.OpenInBrowser, k.NextJob, k.PrevJob, k.PlayJob, k.CancelJob, k.Fullscreen},
 	}
 }
 
@@ -74,6 +76,10 @@ var PipelineKeybinds = PipelineDetailsKeyMap{
 		key.WithKeys("X"),
 		key.WithHelp("X", "cancel job"),
 	),
+	Fullscreen: key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "fullscreen"),
+	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }
 
@@ -97,6 +103,10 @@ var Keybinds = DetailsKeyMap{
 	OpenInBrowser: key.NewBinding(
 		key.WithKeys("x"),
 		key.WithHelp("x", "open in browser"),
+	),
+	Fullscreen: key.NewBinding(
+		key.WithKeys("f"),
+		key.WithHelp("f", "fullscreen"),
 	),
 	GlobalKeyMap: tui.GlobalKeys(false),
 }

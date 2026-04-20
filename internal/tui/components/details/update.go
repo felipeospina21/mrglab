@@ -4,6 +4,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
 	"github.com/felipeospina21/mrglab/internal/tui"
+	"github.com/felipeospina21/tuishell"
 )
 
 type (
@@ -36,6 +37,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case match(Keybinds.OpenInBrowser):
 			return m, func() tea.Msg { return OpenInBrowserMsg{} }
+		case match(Keybinds.Fullscreen):
+			return m, func() tea.Msg { return tuishell.ToggleFullscreenMsg{} }
 		case m.PipelineNode != nil && match(PipelineKeybinds.NextJob):
 			m.nextJob()
 		case m.PipelineNode != nil && match(PipelineKeybinds.PrevJob):
