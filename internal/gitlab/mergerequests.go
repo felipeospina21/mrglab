@@ -15,7 +15,7 @@ func (c *Client) GetProjectMergeRequests(
 	projectID string,
 	vars MergeRequestsQueryVariables,
 ) (MergeRequestConnection, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(1 * time.Second)
 		return mergeRequestConnectionMock, nil
 	}
@@ -37,7 +37,7 @@ func (c *Client) GetMergeRequest(
 	projectID string,
 	vars MergeRequestQueryVariables,
 ) (MergeRequestResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(800 * time.Millisecond)
 		return mergeRequestResponseMock, nil
 	}
@@ -62,7 +62,7 @@ type ProjectInfo struct {
 
 // GetProjectInfo fetches the project's default branch and MR description template.
 func (c *Client) GetProjectInfo(projectID string) (ProjectInfo, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(200 * time.Millisecond)
 		return ProjectInfo{DefaultBranch: "main", MergeRequestsTemplate: mrDescriptionTemplatesMock[0].Content}, nil
 	}
@@ -108,7 +108,7 @@ type MRDescriptionTemplate struct {
 // in parallel: project-level files, group-level templates (REST), and the project default
 // description setting. Results are merged and deduplicated by name (project files win).
 func (c *Client) GetMRDescriptionTemplates(projectID string) ([]MRDescriptionTemplate, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(300 * time.Millisecond)
 		return mrDescriptionTemplatesMock, nil
 	}
@@ -296,7 +296,7 @@ func (c *Client) AcceptMergeRequest(
 	projectID string,
 	input MergeRequestAcceptInput,
 ) (AcceptMergeRequestResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return AcceptMergeRequestResponse{}, nil
 	}

@@ -15,7 +15,7 @@ func TestModeBackground(t *testing.T) {
 		{"normal", ModesEnum.Normal, style.StatuslineModeNormal},
 		{"loading", ModesEnum.Loading, style.StatuslineModeLoading},
 		{"error", ModesEnum.Error, style.StatuslineModeError},
-		{"dev", ModesEnum.Dev, style.StatuslineModeDev},
+		{"demo", ModesEnum.Demo, style.StatuslineModeDev},
 		{"unknown falls back to normal", "UNKNOWN", style.StatuslineModeNormal},
 	}
 	for _, tt := range tests {

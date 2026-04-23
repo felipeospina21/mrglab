@@ -10,7 +10,7 @@ func (c *Client) CreateMergeRequest(
 	projectID string,
 	input CreateMergeRequestInput,
 ) (CreateMergeRequestResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return CreateMergeRequestResponse{}, nil
 	}

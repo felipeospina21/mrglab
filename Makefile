@@ -1,8 +1,8 @@
 start:
 	go run .
 
-dev:
-	go run . -dev
+demo:
+	go run . -demo
 
 build:
 	go build .

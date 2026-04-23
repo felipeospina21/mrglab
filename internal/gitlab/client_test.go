@@ -7,30 +7,30 @@ import (
 )
 
 func TestNewClientDevMode(t *testing.T) {
-	cfg := &config.Config{DevMode: true}
+	cfg := &config.Config{DemoMode: true}
 	c := NewClient(cfg)
 
-	if !c.devMode {
-		t.Error("NewClient with DevMode=true should set devMode=true")
+	if !c.demoMode {
+		t.Error("NewClient with DemoMode=true should set demoMode=true")
 	}
 	if c.gql != nil {
-		t.Error("NewClient with DevMode=true should not create graphql client")
+		t.Error("NewClient with DemoMode=true should not create graphql client")
 	}
 }
 
 func TestNewClientNonDevMode(t *testing.T) {
 	cfg := &config.Config{
-		DevMode:  false,
+		DemoMode: false,
 		BaseURL:  "https://gitlab.example.com",
 		APIToken: "test-token",
 	}
 	c := NewClient(cfg)
 
-	if c.devMode {
-		t.Error("NewClient with DevMode=false should set devMode=false")
+	if c.demoMode {
+		t.Error("NewClient with DemoMode=false should set demoMode=false")
 	}
 	if c.gql == nil {
-		t.Error("NewClient with DevMode=false should create graphql client")
+		t.Error("NewClient with DemoMode=false should create graphql client")
 	}
 }
 
@@ -52,7 +52,7 @@ func TestProjectFullPath(t *testing.T) {
 }
 
 func devClient() *Client {
-	c := NewClient(&config.Config{DevMode: true})
+	c := NewClient(&config.Config{DemoMode: true})
 	c.noSleep = true
 	return c
 }
