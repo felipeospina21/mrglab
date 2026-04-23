@@ -18,7 +18,7 @@ func applyOverride(target *color.Color, val *string) {
 func BuildTheme(overrides config.ThemeOverrides) style.Theme {
 	t := DefaultTheme()
 	if overrides.Preset != nil {
-		if preset, ok := presets[*overrides.Preset]; ok {
+		if preset, ok := style.Presets[*overrides.Preset]; ok {
 			t = preset
 		}
 	}
