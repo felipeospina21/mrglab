@@ -2,8 +2,27 @@ package details
 
 import (
 	"charm.land/lipgloss/v2"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
+	"github.com/felipeospina21/tuishell/style"
 )
+
+var pkgTheme style.Theme
+
+// SetTheme sets the theme used by the details package and refreshes derived styles.
+func SetTheme(t style.Theme) {
+	pkgTheme = t
+	refreshIcons(t)
+	PanelStyle = lipgloss.NewStyle().
+		MarginTop(1).
+		Border(lipgloss.NormalBorder(), true, false, true, true).
+		BorderForeground(t.Border)
+	sectionTextStyle = lipgloss.NewStyle().Foreground(t.Text).MarginLeft(1)
+	sectionTitleStyle = sectionTextStyle.Bold(true).MarginLeft(0)
+	sectionIndentedTextStyle = sectionTextStyle.MarginLeft(LeftMargin).Foreground(t.Border)
+	selectedDiscussionStyle = lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(t.PrimaryBright).
+		PaddingLeft(1)
+}
 
 var (
 	MdTitle = func() lipgloss.Style {
@@ -20,21 +39,19 @@ var (
 
 	PanelStyle = lipgloss.NewStyle().
 			MarginTop(1).
-			Border(lipgloss.NormalBorder(), true, false, true, true).
-			BorderForeground(lipgloss.Color(style.DarkGray))
+			Border(lipgloss.NormalBorder(), true, false, true, true)
 
-	iconStyle = func(color string) lipgloss.Style {
-		return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).MarginLeft(2)
+	iconStyle = func(c string) lipgloss.Style {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(c)).MarginLeft(2)
 	}
 
 	contentStyle = lipgloss.NewStyle().MarginLeft(LeftMargin)
 
-	sectionTextStyle         = lipgloss.NewStyle().Foreground(lipgloss.Color(style.White)).MarginLeft(1)
+	sectionTextStyle         = lipgloss.NewStyle().MarginLeft(1)
 	sectionTitleStyle        = sectionTextStyle.Bold(true).MarginLeft(0)
-	sectionIndentedTextStyle = sectionTextStyle.MarginLeft(LeftMargin).Foreground(lipgloss.Color(style.DarkGray))
+	sectionIndentedTextStyle = sectionTextStyle.MarginLeft(LeftMargin)
 
 	selectedDiscussionStyle = lipgloss.NewStyle().
 				Border(lipgloss.ThickBorder(), false, false, false, true).
-				BorderForeground(lipgloss.Color(style.Violet[400])).
 				PaddingLeft(1)
 )

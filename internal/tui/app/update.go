@@ -123,9 +123,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case mergerequests.CycleTabMsg, pipelines.CycleTabMsg:
 		m.ActiveTab = (m.ActiveTab + 1) % len(m.TabNames)
 		if m.ActiveTab == 0 {
-			m.Shell.Main = MergeRequestsPanel{Model: m.MergeRequests, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
+			m.Shell.Main = MergeRequestsPanel{Model: m.MergeRequests, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name, Theme: m.theme}
 		} else {
-			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name}
+			m.Shell.Main = PipelinesPanel{Model: m.Pipelines, ActiveTab: m.ActiveTab, TabNames: m.TabNames, ProjectName: m.ctx.SelectedProject.Name, Theme: m.theme}
 		}
 		m.setHelpKeys(m.mainPanelKeybinds())
 		l := m.Shell.Layout
@@ -503,12 +503,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.MergeRequests = mr.Model
 		mr.ActiveTab = m.ActiveTab
 		mr.ProjectName = m.ctx.SelectedProject.Name
+		mr.Theme = m.theme
 		m.Shell.Main = mr
 	}
 	if pip, ok := m.Shell.Main.(PipelinesPanel); ok {
 		m.Pipelines = pip.Model
 		pip.ActiveTab = m.ActiveTab
 		pip.ProjectName = m.ctx.SelectedProject.Name
+		pip.Theme = m.theme
 		m.Shell.Main = pip
 	}
 	if d, ok := m.Shell.Right.(DetailsPanel); ok {

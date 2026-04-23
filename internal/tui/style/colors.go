@@ -1,18 +1,34 @@
-// Package style provides color palettes and shared lipgloss styles for the TUI.
+// Package style provides backward-compatible color constants for tests.
+// Production code should use theme tokens from style.Theme instead.
 package style
 
-import "github.com/felipeospina21/tuishell/style"
+// ColorShades maps shade numbers (50–950) to hex color strings.
+type ColorShades = map[uint]string
 
-type colorShades = style.ColorShades
+// Palette maps kept for test backward compatibility.
+var Blue = ColorShades{
+	400: "#3ac4d9", 500: "#1ca7be",
+}
 
-var (
-	Blue   = style.Blue
-	Red    = style.Red
-	Green  = style.Green
-	Yellow = style.Yellow
-	Violet = style.Violet
-	Orange = style.Orange
-)
+var Red = ColorShades{
+	300: "#f9a8a8", 400: "#f47575",
+}
+
+var Green = ColorShades{
+	300: "#6beaaf", 400: "#3ad994",
+}
+
+var Yellow = ColorShades{
+	300: "#ffe043", 400: "#ffcc14",
+}
+
+var Violet = ColorShades{
+	50: "#f2f0ff", 300: "#b8a6ff", 400: "#9673ff", 600: "#6914ff", 800: "#4c01d6",
+}
+
+var Orange = ColorShades{
+	400: "#ff8237",
+}
 
 var (
 	DarkGray   = "#3f4145"

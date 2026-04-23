@@ -11,7 +11,6 @@ import (
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
 type styledIcon struct {
@@ -60,17 +59,17 @@ func (m Model) GetViewportContent(b string, mr MergeRequestDetails) string {
 
 func renderIndentedText(content *strings.Builder, i styledIcon, text string) {
 	indentStyle := sectionIndentedTextStyle.Render
-	iconStyle := iconStyle(i.color).MarginLeft(0).Render
+	iconS := iconStyle(i.color).MarginLeft(0).Render
 	content.WriteString(indentStyle("└ "))
-	content.WriteString(iconStyle(i.icon))
+	content.WriteString(iconS(i.icon))
 	content.WriteString(sectionTextStyle.Render(text))
 	content.WriteString("\n")
 }
 
 func renderStatus(status string) string {
 	s := contentStyle.
-		Background(lipgloss.Color(style.Green[400])).
-		Foreground(lipgloss.Color("#111")).
+		Background(lipgloss.Color(icons.SuccessBright)).
+		Foreground(lipgloss.Color(icons.TextInverse)).
 		Padding(0, 1).
 		Bold(true)
 
@@ -82,7 +81,7 @@ func renderStatus(status string) string {
 }
 
 func renderBranches(source, target string) string {
-	s := contentStyle.Foreground(lipgloss.Color(style.DarkGray))
+	s := contentStyle.Foreground(lipgloss.Color(icons.Border))
 	var content strings.Builder
 	content.WriteString(icon.Rebase)
 	content.WriteString(target)
@@ -93,6 +92,7 @@ func renderBranches(source, target string) string {
 }
 
 func renderApprovals(approvals []gitlab.ApprovalRule) string {
+	tc := icons
 	var content strings.Builder
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Approvals", icon.Approval)))
 	content.WriteString("\n\n")
@@ -104,9 +104,9 @@ func renderApprovals(approvals []gitlab.ApprovalRule) string {
 	}
 	for _, rule := range approvals {
 		if len(rule.ApprovedBy.Nodes) > 0 {
-			i := styledIcon{icon: icon.CircleCross, color: style.Red[400]}
+			i := styledIcon{icon: icon.CircleCross, color: tc.DangerBright}
 			if rule.Approved {
-				i = styledIcon{icon: icon.CircleCheck, color: style.Green[400]}
+				i = styledIcon{icon: icon.CircleCheck, color: tc.SuccessBright}
 			}
 			rendeRule(
 				&content,
@@ -116,14 +116,14 @@ func renderApprovals(approvals []gitlab.ApprovalRule) string {
 			for _, approver := range rule.ApprovedBy.Nodes {
 				renderIndentedText(
 					&content,
-					styledIcon{icon: icon.User, color: style.White},
+					styledIcon{icon: icon.User, color: tc.Text},
 					approver.Name,
 				)
 			}
 		} else {
 			rendeRule(
 				&content,
-				styledIcon{icon: icon.CircleCross, color: style.Red[400]},
+				styledIcon{icon: icon.CircleCross, color: tc.DangerBright},
 				rule.Name,
 			)
 		}
@@ -355,6 +355,7 @@ func RenderPipelineDetailsWithSelection(pipeline gitlab.PipelineNode, selectedJo
 }
 
 func renderPipelineInfo(pipeline gitlab.PipelineNode) string {
+	textHex := icons.Text
 	var content strings.Builder
 
 	statusIcon := getStageIconStatus(pipeline.Status)
@@ -362,22 +363,22 @@ func renderPipelineInfo(pipeline gitlab.PipelineNode) string {
 	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Status: %s", pipeline.Status)))
 	content.WriteString("\n")
 
-	content.WriteString(iconStyle(style.White).Render(icon.Start))
+	content.WriteString(iconStyle(textHex).Render(icon.Start))
 	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Source: %s", pipeline.Source)))
 	content.WriteString("\n")
 
-	content.WriteString(iconStyle(style.White).Render(icon.PR))
+	content.WriteString(iconStyle(textHex).Render(icon.PR))
 	content.WriteString(sectionTextStyle.Render(fmt.Sprintf("%s %s", pipeline.Commit.ShortId, pipeline.Commit.Title)))
 	content.WriteString("\n")
 
 	if pipeline.MergeRequest != nil {
-		content.WriteString(iconStyle(style.White).Render(icon.SourceBranch))
+		content.WriteString(iconStyle(textHex).Render(icon.SourceBranch))
 		content.WriteString(sectionTextStyle.Render(pipeline.MergeRequest.SourceBranch))
 		content.WriteString("\n")
 	}
 
 	if pipeline.Duration != nil {
-		content.WriteString(iconStyle(style.White).Render(icon.StopWatch))
+		content.WriteString(iconStyle(textHex).Render(icon.StopWatch))
 		content.WriteString(sectionTextStyle.Render(fmt.Sprintf("Duration: %ds", *pipeline.Duration)))
 		content.WriteString("\n")
 	}
@@ -444,21 +445,22 @@ func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
 }
 
 func getStageIconStatus(s string) styledIcon {
-	icons := map[string]styledIcon{
-		"running":              {icon: icon.CircleRunning, color: style.Blue[400]},
-		"preparing":            {icon: icon.CirclePause, color: style.Yellow[400]},
-		"success":              {icon: icon.CircleCheck, color: style.Green[400]},
-		"failed":               {icon: icon.CircleCross, color: style.Red[400]},
-		"skipped":              {icon: icon.CircleSkip, color: style.Orange[400]},
-		"manual":               {icon: icon.Gear, color: style.White},
-		"created":              {icon: icon.CircleDot, color: style.White},
-		"waiting_for_resource": {icon: icon.CircleQuestion, color: style.White},
-		"scheduled":            {icon: icon.Time, color: style.White},
-		"pending":              {icon: icon.CirclePause, color: style.White},
-		"canceled":             {icon: icon.CircleCancel, color: style.White},
+	tc := icons
+	statusMap := map[string]styledIcon{
+		"running":              {icon: icon.CircleRunning, color: tc.Info},
+		"preparing":            {icon: icon.CirclePause, color: tc.WarningBright},
+		"success":              {icon: icon.CircleCheck, color: tc.SuccessBright},
+		"failed":               {icon: icon.CircleCross, color: tc.DangerBright},
+		"skipped":              {icon: icon.CircleSkip, color: tc.Caution},
+		"manual":               {icon: icon.Gear, color: tc.Text},
+		"created":              {icon: icon.CircleDot, color: tc.Text},
+		"waiting_for_resource": {icon: icon.CircleQuestion, color: tc.Text},
+		"scheduled":            {icon: icon.Time, color: tc.Text},
+		"pending":              {icon: icon.CirclePause, color: tc.Text},
+		"canceled":             {icon: icon.CircleCancel, color: tc.Text},
 	}
 
-	v, ok := icons[strings.ToLower(s)]
+	v, ok := statusMap[strings.ToLower(s)]
 	if ok {
 		return v
 	}

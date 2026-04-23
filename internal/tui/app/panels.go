@@ -8,6 +8,7 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
 	"github.com/felipeospina21/mrglab/internal/tui/components/table"
+	"github.com/felipeospina21/tuishell/style"
 )
 
 // ProjectsPanel wraps projects.Model to implement tea.Model.
@@ -39,6 +40,7 @@ type MergeRequestsPanel struct {
 	ActiveTab   int
 	TabNames    []string
 	ProjectName string
+	Theme       style.Theme
 }
 
 func (p MergeRequestsPanel) Init() tea.Cmd { return p.Model.Init() }
@@ -55,7 +57,7 @@ func (p MergeRequestsPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (p MergeRequestsPanel) View() tea.View {
 	header := renderHeader(p.ProjectName)
-	tabBar := renderTabBar(p.ActiveTab, p.TabNames)
+	tabBar := renderTabBar(p.ActiveTab, p.TabNames, p.Theme)
 	return tea.NewView(lipgloss.JoinVertical(0, header, tabBar, p.Model.View().Content))
 }
 
@@ -65,6 +67,7 @@ type PipelinesPanel struct {
 	ActiveTab   int
 	TabNames    []string
 	ProjectName string
+	Theme       style.Theme
 }
 
 func (p PipelinesPanel) Init() tea.Cmd { return p.Model.Init() }
@@ -81,7 +84,7 @@ func (p PipelinesPanel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (p PipelinesPanel) View() tea.View {
 	header := renderHeader(p.ProjectName)
-	tabBar := renderTabBar(p.ActiveTab, p.TabNames)
+	tabBar := renderTabBar(p.ActiveTab, p.TabNames, p.Theme)
 	return tea.NewView(lipgloss.JoinVertical(0, header, tabBar, p.Model.View().Content))
 }
 
@@ -106,16 +109,16 @@ func renderHeader(projectName string) string {
 }
 
 // renderTabBar renders the tab bar above the main panel content.
-func renderTabBar(activeTab int, tabNames []string) string {
+func renderTabBar(activeTab int, tabNames []string, t style.Theme) string {
 	activeStyle := lipgloss.NewStyle().
 		Bold(true).
-		Foreground(theme.Primary).
+		Foreground(t.Primary).
 		Underline(true).
 		Padding(0, 1).
 		MarginTop(1)
 
 	inactiveStyle := lipgloss.NewStyle().
-		Foreground(theme.TextDimmed).
+		Foreground(t.TextDimmed).
 		Padding(0, 1).
 		MarginTop(1)
 
