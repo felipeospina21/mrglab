@@ -9,7 +9,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
+	"github.com/felipeospina21/tuishell/style"
 )
 
 const (
@@ -30,14 +30,28 @@ type createMRForm struct {
 	width       int
 }
 
+var formTheme style.Theme
+
+func setFormTheme(t style.Theme) {
+	formTheme = t
+	labelStyle = lipgloss.NewStyle().
+		Foreground(t.PrimaryBright).
+		Bold(true).
+		MarginTop(1)
+	arrowStyle = lipgloss.NewStyle().
+		Foreground(t.Muted).
+		Bold(true).
+		Padding(0, 0, 0, 4)
+}
+
 var (
 	labelStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(style.Violet[400])).
+			Foreground(lipgloss.Color("#9673ff")).
 			Bold(true).
 			MarginTop(1)
 
 	arrowStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(style.MediumGray)).
+			Foreground(lipgloss.Color("#999999")).
 			Bold(true).
 			Padding(0, 0, 0, 4)
 )
@@ -165,13 +179,22 @@ func (f *createMRForm) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (f *createMRForm) View() string {
+	t := formTheme
 	draftIcon := icon.Empty
 	if f.draft {
 		draftIcon = icon.Check
 	}
-	draftStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(style.MediumGray))
+	muted := t.Muted
+	if muted == nil {
+		muted = lipgloss.Color("#999999")
+	}
+	accent := t.PrimaryBright
+	if accent == nil {
+		accent = lipgloss.Color("#9673ff")
+	}
+	draftStyle := lipgloss.NewStyle().Foreground(muted)
 	if f.draft {
-		draftStyle = draftStyle.Foreground(lipgloss.Color(style.Violet[400]))
+		draftStyle = draftStyle.Foreground(accent)
 	}
 
 	return lipgloss.JoinVertical(0,

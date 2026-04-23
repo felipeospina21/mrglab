@@ -10,17 +10,16 @@ import (
 	tssl "github.com/felipeospina21/tuishell/statusline"
 	"github.com/felipeospina21/tuishell/style"
 	"github.com/felipeospina21/mrglab/internal/context"
-	mrgstyle "github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
 // pkgTheme is initialized with sensible defaults so that code (including tests)
 // that runs before SetTheme is called still gets non-nil color values.
 var pkgTheme = style.Theme{
-	StatusNormal:  lipgloss.Color(mrgstyle.StatuslineModeNormal),
-	StatusLoading: lipgloss.Color(mrgstyle.StatuslineModeLoading),
-	StatusError:   lipgloss.Color(mrgstyle.StatuslineModeError),
-	StatusDev:     lipgloss.Color(mrgstyle.StatuslineModeDev),
+	StatusNormal:  lipgloss.Color("#6914ff"),
+	StatusLoading: lipgloss.Color("#1A7A94"),
+	StatusError:   lipgloss.Color("#CE3060"),
+	StatusDev:     lipgloss.Color("#4E8212"),
 }
 
 // SetTheme sets the theme used by the statusline package and refreshes derived styles.
@@ -28,6 +27,7 @@ func SetTheme(t style.Theme) {
 	pkgTheme = t
 	StatusBarStyle = tssl.StatusBarStyle()
 	SpinnerStyle = tssl.SpinnerStyle(t)
+	refreshStatuslineStyles()
 }
 
 // Re-export from tuishell.

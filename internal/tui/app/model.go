@@ -90,6 +90,15 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	// Initialize loader package with theme
 	loader.SetTheme(theme)
 
+	// Initialize details package with theme
+	details.SetTheme(theme)
+
+	// Initialize projects package with theme
+	projects.SetTheme(theme)
+
+	// Initialize form with theme
+	setFormTheme(theme)
+
 	s := shell.New(shell.Config{
 		Theme:           theme,
 		LeftPanel:       ProjectsPanel{&proj},
