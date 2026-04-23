@@ -5,25 +5,12 @@ import (
 )
 
 var (
-	statusNugget = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Padding(0, 1)
-
-	statusStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FFFDF5")).
-			Padding(0, 1).
-			MarginRight(1)
-
-	encodingStyle = statusNugget.
-			Background(lipgloss.Color("#A550DF")).
-			Align(lipgloss.Right)
-
-	statusText = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFFDF5"))
-
-	helpText = lipgloss.NewStyle().
-			AlignHorizontal(lipgloss.Center)
-
-	projectStyle = statusNugget.Background(lipgloss.Color("#6124DF"))
+	statusNugget  = lipgloss.NewStyle()
+	statusStyle   = lipgloss.NewStyle()
+	encodingStyle = lipgloss.NewStyle()
+	statusText    = lipgloss.NewStyle()
+	helpText      = lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
+	projectStyle  = lipgloss.NewStyle()
 )
 
 func refreshStatuslineStyles() {

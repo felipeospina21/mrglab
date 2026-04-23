@@ -13,10 +13,9 @@ import (
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
 
-// pkgTheme is initialized with sensible defaults so that code (including tests)
-// that runs before SetTheme is called still gets non-nil color values.
+// pkgTheme defaults match DefaultTheme() so tests pass without SetTheme.
 var pkgTheme = style.Theme{
-	StatusNormal:  lipgloss.Color("#6914ff"),
+	StatusNormal:  lipgloss.Color("#5C2900"),
 	StatusLoading: lipgloss.Color("#1A7A94"),
 	StatusError:   lipgloss.Color("#CE3060"),
 	StatusDev:     lipgloss.Color("#4E8212"),

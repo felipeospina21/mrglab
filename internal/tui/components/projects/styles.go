@@ -26,77 +26,40 @@ func SetTheme(t style.Theme) {
 }
 
 var (
-	DocStyle = lipgloss.NewStyle().
-			PaddingRight(4).
-			MarginBottom(2).
-			Foreground(lipgloss.Color("#b8a6ff")).
-			Border(lipgloss.NormalBorder(), false, true, false, false).
-			BorderForeground(lipgloss.Color("#3f4145")).
-			Width(30)
-
-	TitleStyle = lipgloss.NewStyle().
-			MarginTop(0).
-			Foreground(lipgloss.Color("#3ac4d9"))
-	ItemStyle = lipgloss.NewStyle().
-			MarginTop(0).
-			Foreground(lipgloss.Color("#b8a6ff"))
+	DocStyle   = lipgloss.NewStyle()
+	TitleStyle = lipgloss.NewStyle()
+	ItemStyle  = lipgloss.NewStyle()
 )
 
 type DefaultItemStyles struct {
-	NormalTitle    lipgloss.Style
-	NormalDesc     lipgloss.Style
-	SelectedTitle  lipgloss.Style
-	SelectedDesc   lipgloss.Style
-	DimmedTitle    lipgloss.Style
-	DimmedDesc     lipgloss.Style
-	FilterMatch    lipgloss.Style
+	NormalTitle   lipgloss.Style
+	NormalDesc    lipgloss.Style
+	SelectedTitle lipgloss.Style
+	SelectedDesc  lipgloss.Style
+	DimmedTitle   lipgloss.Style
+	DimmedDesc    lipgloss.Style
+	FilterMatch   lipgloss.Style
 }
 
 func NewDefaultItemStyles() (s DefaultItemStyles) {
 	t := pkgTheme
-	hl := t.PrimaryBright
-	fg := t.PrimaryFg
-	if hl == nil {
-		hl = lipgloss.Color("#9673ff")
-	}
-	if fg == nil {
-		fg = lipgloss.Color("#f2f0ff")
-	}
-
 	s.NormalTitle = lipgloss.NewStyle().
-		Foreground(fg).
+		Foreground(t.PrimaryFg).
 		Padding(0, 0, 0, 2)
-
 	s.NormalDesc = s.NormalTitle.
-		Foreground(lipgloss.Color("#777777"))
-
-	selBorder := t.SelectionBorder
-	if selBorder == nil {
-		selBorder = lipgloss.Color("#AD58B4")
-	}
-
+		Foreground(t.TextDimmed)
 	s.SelectedTitle = lipgloss.NewStyle().
 		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(selBorder).
-		Foreground(hl).
+		BorderForeground(t.SelectionBorder).
+		Foreground(t.PrimaryBright).
 		Padding(0, 0, 0, 1)
-
 	s.SelectedDesc = s.SelectedTitle.
-		Foreground(hl)
-
-	dimmed := t.TextDimmed
-	if dimmed == nil {
-		dimmed = lipgloss.Color("#777777")
-	}
-
+		Foreground(t.PrimaryBright)
 	s.DimmedTitle = lipgloss.NewStyle().
-		Foreground(dimmed).
+		Foreground(t.TextDimmed).
 		Padding(0, 0, 0, 2)
-
 	s.DimmedDesc = s.DimmedTitle.
-		Foreground(lipgloss.Color("#4D4D4D"))
-
+		Foreground(t.Dim)
 	s.FilterMatch = lipgloss.NewStyle().Underline(true)
-
 	return s
 }

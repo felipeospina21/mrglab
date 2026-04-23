@@ -68,8 +68,8 @@ func renderIndentedText(content *strings.Builder, i styledIcon, text string) {
 
 func renderStatus(status string) string {
 	s := contentStyle.
-		Background(lipgloss.Color(themeColors.SuccessBright)).
-		Foreground(lipgloss.Color(themeColors.TextInverse)).
+		Background(lipgloss.Color(icons.SuccessBright)).
+		Foreground(lipgloss.Color(icons.TextInverse)).
 		Padding(0, 1).
 		Bold(true)
 
@@ -81,7 +81,7 @@ func renderStatus(status string) string {
 }
 
 func renderBranches(source, target string) string {
-	s := contentStyle.Foreground(lipgloss.Color(themeColors.Border))
+	s := contentStyle.Foreground(lipgloss.Color(icons.Border))
 	var content strings.Builder
 	content.WriteString(icon.Rebase)
 	content.WriteString(target)
@@ -92,7 +92,7 @@ func renderBranches(source, target string) string {
 }
 
 func renderApprovals(approvals []gitlab.ApprovalRule) string {
-	tc := themeColors
+	tc := icons
 	var content strings.Builder
 	content.WriteString(sectionTitleStyle.Render(fmt.Sprintf("%s Approvals", icon.Approval)))
 	content.WriteString("\n\n")
@@ -355,7 +355,7 @@ func RenderPipelineDetailsWithSelection(pipeline gitlab.PipelineNode, selectedJo
 }
 
 func renderPipelineInfo(pipeline gitlab.PipelineNode) string {
-	textHex := themeColors.Text
+	textHex := icons.Text
 	var content strings.Builder
 
 	statusIcon := getStageIconStatus(pipeline.Status)
@@ -445,8 +445,8 @@ func deriveStageStatus(jobs []gitlab.PipelineJobNode, stageName string) string {
 }
 
 func getStageIconStatus(s string) styledIcon {
-	tc := themeColors
-	icons := map[string]styledIcon{
+	tc := icons
+	statusMap := map[string]styledIcon{
 		"running":              {icon: icon.CircleRunning, color: tc.Info},
 		"preparing":            {icon: icon.CirclePause, color: tc.WarningBright},
 		"success":              {icon: icon.CircleCheck, color: tc.SuccessBright},
@@ -460,7 +460,7 @@ func getStageIconStatus(s string) styledIcon {
 		"canceled":             {icon: icon.CircleCancel, color: tc.Text},
 	}
 
-	v, ok := icons[strings.ToLower(s)]
+	v, ok := statusMap[strings.ToLower(s)]
 	if ok {
 		return v
 	}

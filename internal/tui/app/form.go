@@ -45,15 +45,8 @@ func setFormTheme(t style.Theme) {
 }
 
 var (
-	labelStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#9673ff")).
-			Bold(true).
-			MarginTop(1)
-
-	arrowStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#999999")).
-			Bold(true).
-			Padding(0, 0, 0, 4)
+	labelStyle = lipgloss.NewStyle()
+	arrowStyle = lipgloss.NewStyle()
 )
 
 func newCreateMRForm() createMRForm {
@@ -184,17 +177,9 @@ func (f *createMRForm) View() string {
 	if f.draft {
 		draftIcon = icon.Check
 	}
-	muted := t.Muted
-	if muted == nil {
-		muted = lipgloss.Color("#999999")
-	}
-	accent := t.PrimaryBright
-	if accent == nil {
-		accent = lipgloss.Color("#9673ff")
-	}
-	draftStyle := lipgloss.NewStyle().Foreground(muted)
+	draftStyle := lipgloss.NewStyle().Foreground(t.Muted)
 	if f.draft {
-		draftStyle = draftStyle.Foreground(accent)
+		draftStyle = draftStyle.Foreground(t.PrimaryBright)
 	}
 
 	return lipgloss.JoinVertical(0,
