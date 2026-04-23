@@ -6,17 +6,35 @@ import (
 	"image/color"
 
 	"charm.land/bubbles/v2/help"
+	"charm.land/lipgloss/v2"
 	tssl "github.com/felipeospina21/tuishell/statusline"
 	"github.com/felipeospina21/tuishell/style"
 	"github.com/felipeospina21/mrglab/internal/context"
+	mrgstyle "github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
 )
+
+// pkgTheme is initialized with sensible defaults so that code (including tests)
+// that runs before SetTheme is called still gets non-nil color values.
+var pkgTheme = style.Theme{
+	StatusNormal:  lipgloss.Color(mrgstyle.StatuslineModeNormal),
+	StatusLoading: lipgloss.Color(mrgstyle.StatuslineModeLoading),
+	StatusError:   lipgloss.Color(mrgstyle.StatuslineModeError),
+	StatusDev:     lipgloss.Color(mrgstyle.StatuslineModeDev),
+}
+
+// SetTheme sets the theme used by the statusline package and refreshes derived styles.
+func SetTheme(t style.Theme) {
+	pkgTheme = t
+	StatusBarStyle = tssl.StatusBarStyle()
+	SpinnerStyle = tssl.SpinnerStyle(t)
+}
 
 // Re-export from tuishell.
 var (
 	ModesEnum      = tssl.ModesEnum
 	StatusBarStyle = tssl.StatusBarStyle()
-	SpinnerStyle   = tssl.SpinnerStyle(style.DefaultTheme())
+	SpinnerStyle   = tssl.SpinnerStyle(pkgTheme)
 )
 
 // Model wraps the tuishell statusline with mrglab's context.
@@ -27,8 +45,7 @@ type Model struct {
 
 // New creates a new status bar model.
 func New(ctx *context.AppContext, keybinds help.KeyMap) Model {
-	theme := style.DefaultTheme()
-	m := tssl.New(theme, ctx.DevMode, keybinds)
+	m := tssl.New(pkgTheme, ctx.DevMode, keybinds)
 	return Model{Model: m, ctx: ctx}
 }
 
@@ -46,15 +63,14 @@ func GetFrameSize() (int, int) {
 // modeBackground returns the background color for a given status mode.
 // Kept for backward compatibility with tests.
 func modeBackground(status string) color.Color {
-	theme := style.DefaultTheme()
 	switch status {
 	case ModesEnum.Loading:
-		return theme.StatusLoading
+		return pkgTheme.StatusLoading
 	case ModesEnum.Error:
-		return theme.StatusError
+		return pkgTheme.StatusError
 	case ModesEnum.Dev:
-		return theme.StatusDev
+		return pkgTheme.StatusDev
 	default:
-		return theme.StatusNormal
+		return pkgTheme.StatusNormal
 	}
 }

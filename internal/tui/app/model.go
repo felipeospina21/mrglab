@@ -9,16 +9,20 @@ import (
 	"github.com/felipeospina21/mrglab/internal/config"
 	"github.com/felipeospina21/mrglab/internal/context"
 	"github.com/felipeospina21/mrglab/internal/gitlab"
+	"github.com/felipeospina21/mrglab/internal/tui"
 	"github.com/felipeospina21/mrglab/internal/tui/components/details"
+	"github.com/felipeospina21/mrglab/internal/tui/components/loader"
 	"github.com/felipeospina21/mrglab/internal/tui/components/mergerequests"
+	"github.com/felipeospina21/mrglab/internal/tui/components/modal"
 	"github.com/felipeospina21/mrglab/internal/tui/components/pipelines"
 	"github.com/felipeospina21/mrglab/internal/tui/components/projects"
+	"github.com/felipeospina21/mrglab/internal/tui/components/statusline"
+	"github.com/felipeospina21/mrglab/internal/tui/components/table"
 	"github.com/felipeospina21/mrglab/internal/tui/icon"
-	"github.com/felipeospina21/mrglab/internal/tui/style"
 	"github.com/felipeospina21/tuishell"
 	"github.com/felipeospina21/tuishell/popover"
 	"github.com/felipeospina21/tuishell/shell"
-	tsstyle "github.com/felipeospina21/tuishell/style"
+	"github.com/felipeospina21/tuishell/style"
 )
 
 // Model wraps shell.Model with mrglab-specific domain logic.
@@ -30,6 +34,7 @@ type Model struct {
 	Details       *details.Model
 	Input         textarea.Model
 	ctx           *context.AppContext
+	theme         style.Theme
 	pendingNote   struct {
 		DiscussionId string
 		NoteableId   string
@@ -45,54 +50,22 @@ type Model struct {
 	TabNames        []string
 }
 
-var theme = tsstyle.Theme{
-	Primary:         lipgloss.Color(style.Violet[300]),
-	PrimaryBright:   lipgloss.Color(style.Violet[400]),
-	PrimaryFg:       lipgloss.Color(style.Violet[50]),
-	PrimaryDim:      lipgloss.Color(style.Violet[800]),
-	Info:            lipgloss.Color(style.Blue[400]),
-	InfoBright:      lipgloss.Color(style.Blue[500]),
-	Success:         lipgloss.Color(style.Green[300]),
-	SuccessBright:   lipgloss.Color(style.Green[400]),
-	Danger:          lipgloss.Color(style.Red[300]),
-	DangerBright:    lipgloss.Color(style.Red[400]),
-	Warning:         lipgloss.Color(style.Yellow[300]),
-	WarningBright:   lipgloss.Color(style.Yellow[400]),
-	Caution:         lipgloss.Color(style.Orange[400]),
-	Text:            lipgloss.Color("#C4C4C4"),
-	TextInverse:     lipgloss.Color("#111"),
-	TextDimmed:      lipgloss.Color("#777777"),
-	Muted:           lipgloss.Color("#999999"),
-	Dim:             lipgloss.Color("#444444"),
-	Border:          lipgloss.Color("#3f4145"),
-	ModalBorder:     lipgloss.Color("#666666"),
-	SurfaceDim:      lipgloss.Color("#1e1e24"),
-	SelectionBorder: lipgloss.Color("#AD58B4"),
-	StatusText:      lipgloss.Color("#FFFDF5"),
-	StatusNormal:    lipgloss.Color(style.Violet[600]),
-	StatusLoading:   lipgloss.Color("#1A7A94"),
-	StatusError:     lipgloss.Color("#CE3060"),
-	StatusDev:       lipgloss.Color("#4E8212"),
-	StatusAccent1:   lipgloss.Color("#A550DF"),
-	StatusAccent2:   lipgloss.Color("#6124DF"),
-}
-
-var leftPanelStyle = lipgloss.NewStyle().
-	PaddingRight(4).
-	Foreground(theme.Primary).
-	Border(lipgloss.NormalBorder(), false, true, false, false).
-	BorderForeground(theme.Border).
-	Width(30)
-
-var rightPanelStyle = lipgloss.NewStyle().
-	Border(lipgloss.NormalBorder(), true, false, true, true).
-	BorderForeground(theme.Border)
-
-
-
 // InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
 	ctx.DevMode = cfg.DevMode
+
+	theme := tui.BuildTheme(cfg.Theme)
+
+	leftPanelStyle := lipgloss.NewStyle().
+		PaddingRight(4).
+		Foreground(theme.Primary).
+		Border(lipgloss.NormalBorder(), false, true, false, false).
+		BorderForeground(theme.Border).
+		Width(30)
+
+	rightPanelStyle := lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), true, false, true, true).
+		BorderForeground(theme.Border)
 
 	ti := textarea.New()
 	ti.Placeholder = "Write your reply..."
@@ -105,10 +78,22 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 
 	tabNames := []string{"Merge Requests", "Pipelines"}
 
+	// Initialize table package with theme
+	table.SetTheme(theme)
+
+	// Initialize modal package with theme
+	modal.SetTheme(theme)
+
+	// Initialize statusline package with theme
+	statusline.SetTheme(theme)
+
+	// Initialize loader package with theme
+	loader.SetTheme(theme)
+
 	s := shell.New(shell.Config{
 		Theme:           theme,
 		LeftPanel:       ProjectsPanel{&proj},
-		MainPanel:       MergeRequestsPanel{Model: &mrs, TabNames: tabNames, ProjectName: ""},
+		MainPanel:       MergeRequestsPanel{Model: &mrs, TabNames: tabNames, ProjectName: "", Theme: theme},
 		RightPanel:      DetailsPanel{&det},
 		AppIcon:         icon.Gitlab,
 		Keybinds:        projects.Keybinds,
@@ -129,9 +114,10 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		Details:       &det,
 		Input:         ti,
 		ctx:           ctx,
+		theme:         theme,
 		createForm:    newCreateMRForm(),
-		statusFilter:   popover.NewList(tsstyle.Theme(theme)),
-		confirmPopover: popover.NewConfirm(tsstyle.Theme(theme)),
+		statusFilter:   popover.NewList(theme),
+		confirmPopover: popover.NewConfirm(theme),
 		TabNames:      tabNames,
 	}
 }

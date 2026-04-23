@@ -4,19 +4,25 @@ import (
 	"charm.land/lipgloss/v2"
 	tstable "github.com/felipeospina21/tuishell/table"
 	"github.com/felipeospina21/tuishell/style"
-	mrgstyle "github.com/felipeospina21/mrglab/internal/tui/style"
 )
 
-var theme = mrgstyle.DefaultTheme()
+var pkgTheme style.Theme
+
+// SetTheme sets the theme used by the table package and refreshes derived styles.
+func SetTheme(t style.Theme) {
+	pkgTheme = t
+	TitleStyle = tstable.TitleStyle(t)
+	DocStyle = tstable.DocStyle(t)
+}
 
 var (
 	DefaultStyle = func() Styles {
-		return tstable.ThemedStyles(theme)
+		return tstable.ThemedStyles(pkgTheme)
 	}
 
-	TitleStyle = tstable.TitleStyle(theme)
+	TitleStyle = tstable.TitleStyle(pkgTheme)
 	EmptyMsg   = tstable.EmptyMsg
-	DocStyle   = tstable.DocStyle(theme)
+	DocStyle   = tstable.DocStyle(pkgTheme)
 )
 
 // ThemedDocStyle returns a DocStyle for a given theme.
@@ -26,5 +32,5 @@ func ThemedDocStyle(t style.Theme) lipgloss.Style {
 
 // RenderPanel renders a table panel with loading state and optional header.
 func RenderPanel(tbl *Model, loading bool, spinnerView, header string) string {
-	return tstable.RenderPanel(theme, tbl, loading, spinnerView, header)
+	return tstable.RenderPanel(pkgTheme, tbl, loading, spinnerView, header)
 }

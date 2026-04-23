@@ -22,11 +22,47 @@ type Project struct {
 type Filter struct {
 	Projects []Project `mapstructure:"projects"`
 }
+// ThemeOverrides holds optional color overrides for the theme.
+// Each field is a hex color string (e.g. "#FF5733"). Nil means use default.
+type ThemeOverrides struct {
+	Preset          *string `mapstructure:"preset"`
+	Primary         *string `mapstructure:"primary"`
+	PrimaryBright   *string `mapstructure:"primary_bright"`
+	PrimaryFg       *string `mapstructure:"primary_fg"`
+	PrimaryDim      *string `mapstructure:"primary_dim"`
+	Info            *string `mapstructure:"info"`
+	InfoBright      *string `mapstructure:"info_bright"`
+	Success         *string `mapstructure:"success"`
+	SuccessBright   *string `mapstructure:"success_bright"`
+	Danger          *string `mapstructure:"danger"`
+	DangerBright    *string `mapstructure:"danger_bright"`
+	Warning         *string `mapstructure:"warning"`
+	WarningBright   *string `mapstructure:"warning_bright"`
+	Caution         *string `mapstructure:"caution"`
+	Text            *string `mapstructure:"text"`
+	TextInverse     *string `mapstructure:"text_inverse"`
+	TextDimmed      *string `mapstructure:"text_dimmed"`
+	Muted           *string `mapstructure:"muted"`
+	Dim             *string `mapstructure:"dim"`
+	Border          *string `mapstructure:"border"`
+	ModalBorder     *string `mapstructure:"modal_border"`
+	SurfaceDim      *string `mapstructure:"surface_dim"`
+	SelectionBorder *string `mapstructure:"selection_border"`
+	StatusText      *string `mapstructure:"status_text"`
+	StatusNormal    *string `mapstructure:"status_normal"`
+	StatusLoading   *string `mapstructure:"status_loading"`
+	StatusError     *string `mapstructure:"status_error"`
+	StatusDev       *string `mapstructure:"status_dev"`
+	StatusAccent1   *string `mapstructure:"status_accent1"`
+	StatusAccent2   *string `mapstructure:"status_accent2"`
+}
+
 // Config holds the application configuration loaded from the TOML file and environment.
 type Config struct {
-	BaseURL  string `mapstructure:"base_url"`
-	APIToken string `mapstructure:"token"`
-	Filters  Filter `mapstructure:"filters"`
+	BaseURL  string         `mapstructure:"base_url"`
+	APIToken string         `mapstructure:"token"`
+	Filters  Filter         `mapstructure:"filters"`
+	Theme    ThemeOverrides `mapstructure:"theme"`
 	DevMode  bool
 }
 

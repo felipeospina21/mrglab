@@ -9,6 +9,11 @@ import (
 	"github.com/felipeospina21/mrglab/internal/context"
 )
 
+var pkgTheme style.Theme
+
+// SetTheme sets the theme used by the modal package.
+func SetTheme(t style.Theme) { pkgTheme = t }
+
 // Re-export message types.
 type (
 	CloseModalMsg     = tsmodal.CloseModalMsg
@@ -27,8 +32,7 @@ type Model struct {
 
 // New creates a new modal model using mrglab's AppContext.
 func New(ctx *context.AppContext) Model {
-	theme := style.DefaultTheme()
-	return Model{Model: tsmodal.New(&ctx.AppContext, theme)}
+	return Model{Model: tsmodal.New(&ctx.AppContext, pkgTheme)}
 }
 
 // Update wraps the inner Update to return the mrglab modal.Model type.
@@ -45,10 +49,10 @@ func (m Model) RenderHelp(km help.KeyMap) string {
 
 // ContentWidth returns the usable content width inside the modal.
 func ContentWidth(windowW int) int {
-	return tsmodal.ContentWidth(style.DefaultTheme(), windowW)
+	return tsmodal.ContentWidth(pkgTheme, windowW)
 }
 
 // ContentHeight returns the usable content height inside the modal.
 func ContentHeight(windowH int) int {
-	return tsmodal.ContentHeight(style.DefaultTheme(), windowH)
+	return tsmodal.ContentHeight(pkgTheme, windowH)
 }
