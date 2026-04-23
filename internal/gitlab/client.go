@@ -14,7 +14,7 @@ import (
 type Client struct {
 	gql      *graphql.Client
 	cfg      *config.Config
-	devMode  bool
+	demoMode bool
 	noSleep  bool // skip time.Sleep in dev mode (for tests)
 }
 
@@ -26,8 +26,8 @@ func (c *Client) sleep(d time.Duration) {
 
 // NewClient creates a new GitLab GraphQL client from the given config.
 func NewClient(cfg *config.Config) *Client {
-	if cfg.DevMode {
-		return &Client{cfg: cfg, devMode: true}
+	if cfg.DemoMode {
+		return &Client{cfg: cfg, demoMode: true}
 	}
 
 	httpClient := http.DefaultClient
@@ -40,7 +40,7 @@ func NewClient(cfg *config.Config) *Client {
 	return &Client{
 		gql:     graphql.NewClient(url, httpClient),
 		cfg:     cfg,
-		devMode: false,
+		demoMode: false,
 	}
 }
 

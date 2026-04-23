@@ -13,7 +13,7 @@ type GlobalKeyMap = tuishell.GlobalKeyMap
 var CommonKeys = tuishell.CommonKeys
 
 // GlobalKeys returns the global keybindings, optionally including dev-mode keys.
-func GlobalKeys(devMode bool) GlobalKeyMap { return tuishell.GlobalKeys(devMode) }
+func GlobalKeys(demoMode bool) GlobalKeyMap { return tuishell.GlobalKeys(demoMode) }
 
 // KeyMatcher returns a predicate that checks if a tea.KeyPressMsg matches a key.Binding.
 func KeyMatcher(msg tea.KeyPressMsg) func(key.Binding) bool { return tuishell.KeyMatcher(msg) }

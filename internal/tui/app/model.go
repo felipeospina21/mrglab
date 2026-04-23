@@ -52,7 +52,7 @@ type Model struct {
 
 // InitMainModel creates and returns the initial application model.
 func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.Client) Model {
-	ctx.DevMode = cfg.DevMode
+	ctx.DemoMode = cfg.DemoMode
 
 	theme := tui.BuildTheme(cfg.Theme)
 
@@ -106,7 +106,7 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 		RightPanel:      DetailsPanel{&det},
 		AppIcon:         icon.Gitlab,
 		Keybinds:        projects.Keybinds,
-		DevMode:         cfg.DevMode,
+		DemoMode:         cfg.DemoMode,
 		LeftPanelWidth:  30,
 		LeftPanelStyle:  leftPanelStyle,
 		RightPanelStyle: rightPanelStyle,

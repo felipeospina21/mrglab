@@ -18,7 +18,7 @@ var pkgTheme = style.Theme{
 	StatusNormal:  lipgloss.Color("#6914ff"),
 	StatusLoading: lipgloss.Color("#1A7A94"),
 	StatusError:   lipgloss.Color("#CE3060"),
-	StatusDev:     lipgloss.Color("#4E8212"),
+	StatusDemo:     lipgloss.Color("#4E8212"),
 }
 
 // SetTheme sets the theme used by the statusline package and refreshes derived styles.
@@ -44,7 +44,7 @@ type Model struct {
 
 // New creates a new status bar model.
 func New(ctx *context.AppContext, keybinds help.KeyMap) Model {
-	m := tssl.New(pkgTheme, ctx.DevMode, keybinds)
+	m := tssl.New(pkgTheme, ctx.DemoMode, keybinds)
 	return Model{Model: m, ctx: ctx}
 }
 
@@ -67,8 +67,8 @@ func modeBackground(status string) color.Color {
 		return pkgTheme.StatusLoading
 	case ModesEnum.Error:
 		return pkgTheme.StatusError
-	case ModesEnum.Dev:
-		return pkgTheme.StatusDev
+	case ModesEnum.Demo:
+		return pkgTheme.StatusDemo
 	default:
 		return pkgTheme.StatusNormal
 	}

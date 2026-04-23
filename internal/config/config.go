@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/felipeospina21/mrglab/internal/logger"
 	"github.com/fsnotify/fsnotify"
@@ -52,7 +53,7 @@ type ThemeOverrides struct {
 	StatusNormal    *string `mapstructure:"status_normal"`
 	StatusLoading   *string `mapstructure:"status_loading"`
 	StatusError     *string `mapstructure:"status_error"`
-	StatusDev       *string `mapstructure:"status_dev"`
+	StatusDemo      *string `mapstructure:"status_demo"`
 	StatusAccent1   *string `mapstructure:"status_accent1"`
 	StatusAccent2   *string `mapstructure:"status_accent2"`
 }
@@ -63,7 +64,7 @@ type Config struct {
 	APIToken string         `mapstructure:"token"`
 	Filters  Filter         `mapstructure:"filters"`
 	Theme    ThemeOverrides `mapstructure:"theme"`
-	DevMode  bool
+	DemoMode bool
 }
 
 // GlobalConfig is the singleton config instance used throughout the application.
@@ -75,7 +76,7 @@ var (
 // Load reads the config file, unmarshals it, and loads environment variables.
 // In dev mode, missing config file and token are tolerated and mock projects are used as fallback.
 func Load(config *Config) error {
-	config.DevMode = isDevMode()
+	config.DemoMode = isDemoMode()
 
 	l, f := logger.New(logger.NewLogger{})
 	defer f.Close()
@@ -89,7 +90,7 @@ func Load(config *Config) error {
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		if config.DevMode {
+		if config.DemoMode {
 			config.BaseURL = "https://gitlab.com"
 			config.Filters.Projects = mockProjects
 			return nil
@@ -106,7 +107,7 @@ func Load(config *Config) error {
 		config.BaseURL = "https://gitlab.com"
 	}
 
-	if config.DevMode {
+	if config.DemoMode {
 		config.Filters.Projects = mockProjects
 	}
 
@@ -117,7 +118,7 @@ func Load(config *Config) error {
 
 	// Env vars
 	err = loadEnvVars(config)
-	if err != nil && !config.DevMode {
+	if err != nil && !config.DemoMode {
 		return err
 	}
 	return nil
@@ -145,13 +146,14 @@ func loadEnvVars(config *Config) error {
 	return nil
 }
 
-var devFlag = flag.Bool("dev", false, "activates dev mode to use mocked data instead of calling api")
+var flags = flag.NewFlagSet("mrglab", flag.ExitOnError)
+var demoFlag = flags.Bool("demo", false, "use mocked data instead of calling api")
 
-func isDevMode() bool {
-	if !flag.Parsed() {
-		flag.Parse()
+func isDemoMode() bool {
+	if !flags.Parsed() {
+		flags.Parse(os.Args[1:])
 	}
-	return *devFlag
+	return *demoFlag
 }
 
 var mockProjects = []Project{

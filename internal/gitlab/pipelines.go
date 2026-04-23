@@ -10,7 +10,7 @@ func (c *Client) GetProjectPipelines(
 	projectID string,
 	vars PipelinesQueryVariables,
 ) (PipelineConnection, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(1 * time.Second)
 		return pipelineConnectionMock, nil
 	}
@@ -29,7 +29,7 @@ func (c *Client) GetProjectPipelines(
 
 // RetryPipeline retries all failed jobs in a pipeline.
 func (c *Client) RetryPipeline(id string) (PipelineRetryResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return PipelineRetryResponse{}, nil
 	}
@@ -49,7 +49,7 @@ func (c *Client) RetryPipeline(id string) (PipelineRetryResponse, error) {
 
 // PlayJob triggers a manual CI job.
 func (c *Client) PlayJob(id string) (*JobPlayResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return &JobPlayResponse{}, nil
 	}
@@ -69,7 +69,7 @@ func (c *Client) PlayJob(id string) (*JobPlayResponse, error) {
 
 // RetryJob retries a CI job.
 func (c *Client) RetryJob(id string) (*JobRetryResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return &JobRetryResponse{}, nil
 	}
@@ -89,7 +89,7 @@ func (c *Client) RetryJob(id string) (*JobRetryResponse, error) {
 
 // CancelPipeline cancels a running pipeline.
 func (c *Client) CancelPipeline(id string) (PipelineCancelResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return PipelineCancelResponse{}, nil
 	}
@@ -109,7 +109,7 @@ func (c *Client) CancelPipeline(id string) (PipelineCancelResponse, error) {
 
 // CancelJob cancels a running CI job.
 func (c *Client) CancelJob(id string) (*JobCancelResponse, error) {
-	if c.devMode {
+	if c.demoMode {
 		c.sleep(500 * time.Millisecond)
 		return &JobCancelResponse{}, nil
 	}
