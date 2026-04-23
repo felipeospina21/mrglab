@@ -15,7 +15,7 @@ import (
 
 // pkgTheme defaults match DefaultTheme() so tests pass without SetTheme.
 var pkgTheme = style.Theme{
-	StatusNormal:  lipgloss.Color("#5C2900"),
+	StatusNormal:  lipgloss.Color("#6914ff"),
 	StatusLoading: lipgloss.Color("#1A7A94"),
 	StatusError:   lipgloss.Color("#CE3060"),
 	StatusDev:     lipgloss.Color("#4E8212"),

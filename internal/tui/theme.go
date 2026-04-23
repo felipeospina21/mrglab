@@ -54,16 +54,16 @@ func BuildTheme(overrides config.ThemeOverrides) style.Theme {
 	return t
 }
 
-// DefaultTheme returns a GitLab-inspired orange/tangerine theme.
+// DefaultTheme returns the default violet/purple mrglab theme.
 func DefaultTheme() style.Theme {
 	return style.Theme{
-		Primary:       lipgloss.Color("#FC6D26"),
-		PrimaryBright: lipgloss.Color("#E24329"),
-		PrimaryFg:     lipgloss.Color("#FFF4ED"),
-		PrimaryDim:    lipgloss.Color("#5C2900"),
+		Primary:       lipgloss.Color("#b8a6ff"),
+		PrimaryBright: lipgloss.Color("#9673ff"),
+		PrimaryFg:     lipgloss.Color("#f2f0ff"),
+		PrimaryDim:    lipgloss.Color("#4c01d6"),
 
-		Info:          lipgloss.Color("#428FDC"),
-		InfoBright:    lipgloss.Color("#6B4FBB"),
+		Info:          lipgloss.Color("#3ac4d9"),
+		InfoBright:    lipgloss.Color("#1ca7be"),
 		Success:       lipgloss.Color("#6beaaf"),
 		SuccessBright: lipgloss.Color("#3ad994"),
 		Danger:        lipgloss.Color("#f9a8a8"),
@@ -79,15 +79,15 @@ func DefaultTheme() style.Theme {
 		Dim:             lipgloss.Color("#444444"),
 		Border:          lipgloss.Color("#3f4145"),
 		ModalBorder:     lipgloss.Color("#666666"),
-		SurfaceDim:      lipgloss.Color("#1A1A2E"),
-		SelectionBorder: lipgloss.Color("#FC6D26"),
+		SurfaceDim:      lipgloss.Color("#1e1e24"),
+		SelectionBorder: lipgloss.Color("#AD58B4"),
 
 		StatusText:    lipgloss.Color("#FFFDF5"),
-		StatusNormal:  lipgloss.Color("#5C2900"),
+		StatusNormal:  lipgloss.Color("#6914ff"),
 		StatusLoading: lipgloss.Color("#1A7A94"),
 		StatusError:   lipgloss.Color("#CE3060"),
 		StatusDev:     lipgloss.Color("#4E8212"),
-		StatusAccent1: lipgloss.Color("#FC6D26"),
-		StatusAccent2: lipgloss.Color("#E24329"),
+		StatusAccent1: lipgloss.Color("#A550DF"),
+		StatusAccent2: lipgloss.Color("#6124DF"),
 	}
 }
