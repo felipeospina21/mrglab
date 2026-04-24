@@ -4,7 +4,7 @@
 
 ### Critical
 
-- [ ] Details panel loader/spinner not showing during fetch ([#90](https://github.com/felipeospina21/mrglab/issues/90))
+_(none)_
 
 ### High
 
@@ -36,7 +36,6 @@
 - [ ] View MR diff via external pager ([#71](https://github.com/felipeospina21/mrglab/issues/71))
 - [ ] Refetch MRs after merging ([#70](https://github.com/felipeospina21/mrglab/issues/70))
 - [ ] Filter merge requests ([#73](https://github.com/felipeospina21/mrglab/issues/73))
-- [x] Filter pipelines and jobs ([#80](https://github.com/felipeospina21/mrglab/issues/80))
 
 ### Medium
 
