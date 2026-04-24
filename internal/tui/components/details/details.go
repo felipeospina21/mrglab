@@ -109,13 +109,8 @@ func (m *Model) SetViewportViewSize(msg tea.WindowSizeMsg) tea.Cmd {
 	footerHeight := lipgloss.Height(m.FooterView())
 	verticalMarginHeight := headerHeight + footerHeight
 
-	if !m.Ready {
-		m.Viewport = viewport.New(viewport.WithWidth(w), viewport.WithHeight(msg.Height-verticalMarginHeight))
-		m.Ready = true
-	} else {
-		m.Viewport.SetWidth(w)
-		m.Viewport.SetHeight(msg.Height - verticalMarginHeight)
-	}
+	m.Viewport.SetWidth(w)
+	m.Viewport.SetHeight(msg.Height - verticalMarginHeight)
 
 	return nil
 }
