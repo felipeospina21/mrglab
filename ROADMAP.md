@@ -2,6 +2,10 @@
 
 ## Issues
 
+### Critical
+
+- [ ] Details panel loader/spinner not showing during fetch ([#90](https://github.com/felipeospina21/mrglab/issues/90))
+
 ### High
 
 - [ ] Add coverage threshold to CI ([#32](https://github.com/felipeospina21/mrglab/issues/32))

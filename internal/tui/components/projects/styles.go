@@ -44,7 +44,7 @@ type DefaultItemStyles struct {
 func NewDefaultItemStyles() (s DefaultItemStyles) {
 	t := pkgTheme
 	s.NormalTitle = lipgloss.NewStyle().
-		Foreground(t.PrimaryFg).
+		Foreground(t.Text).
 		Padding(0, 0, 0, 2)
 	s.NormalDesc = s.NormalTitle.
 		Foreground(t.TextDimmed)

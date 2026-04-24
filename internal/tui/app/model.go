@@ -71,33 +71,21 @@ func InitMainModel(ctx *context.AppContext, cfg *config.Config, client *gitlab.C
 	ti.Placeholder = "Write your reply..."
 	ti.CharLimit = 0
 
+	// Initialize package themes before creating components
+	table.SetTheme(theme)
+	modal.SetTheme(theme)
+	statusline.SetTheme(theme)
+	loader.SetTheme(theme)
+	details.SetTheme(theme)
+	projects.SetTheme(theme)
+	setFormTheme(theme)
+
 	proj := projects.New(ctx, client, cfg.Filters.Projects)
 	mrs := mergerequests.New(ctx, client)
 	det := details.New(ctx)
 	pip := pipelines.New(ctx, client)
 
 	tabNames := []string{"Merge Requests", "Pipelines"}
-
-	// Initialize table package with theme
-	table.SetTheme(theme)
-
-	// Initialize modal package with theme
-	modal.SetTheme(theme)
-
-	// Initialize statusline package with theme
-	statusline.SetTheme(theme)
-
-	// Initialize loader package with theme
-	loader.SetTheme(theme)
-
-	// Initialize details package with theme
-	details.SetTheme(theme)
-
-	// Initialize projects package with theme
-	projects.SetTheme(theme)
-
-	// Initialize form with theme
-	setFormTheme(theme)
 
 	s := shell.New(shell.Config{
 		Theme:           theme,
