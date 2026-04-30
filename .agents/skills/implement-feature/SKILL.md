@@ -1,6 +1,6 @@
 ---
-name: implement feature from ROADMAP.md
-description: When implementing a new feature from the ROADMAP.md list, follow this workflow.
+name: implement feature
+description: When implementing a new feature from a GitHub issue, follow this workflow.
 ---
 
 ## 1. Understand the codebase structure
@@ -73,6 +73,5 @@ mrglab -dev  # test with mock data first
 
 ## 5. Update docs
 
-- Mark the feature as done in `ROADMAP.md`: `- [x] Feature name`
 - Add feature description to README.md **Features** list
 - Add new keybindings to the relevant README.md **Keybindings** table

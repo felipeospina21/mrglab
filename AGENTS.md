@@ -8,10 +8,10 @@ Use Go idioms, follow existing patterns in the codebase.
 Detailed instructions are in `.agents/skills/` — load the relevant skill for the task:
 
 - **project-architecture** — Project structure, patterns, and conventions
-- **implement-feature** — Step-by-step workflow for implementing features from ROADMAP.md
+- **implement-feature** — Step-by-step workflow for implementing features from GitHub issues
 - **review-guidelines** — Code review checklist for feature branches
 
 ## Agent Roles
 
-- **planner** — Plans features from ROADMAP.md into concrete tasks with file paths
+- **planner** — Plans features from GitHub issues into concrete tasks with file paths
 - **reviewer** — Reviews current branch changes for best practices, conventions, and security
