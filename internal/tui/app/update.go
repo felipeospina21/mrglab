@@ -252,8 +252,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		}
 		if m.pendingCreateMR {
+			createCmd := m.createMergeRequest()
 			cmds = append(cmds, func() tea.Msg {
-				return tuishell.StartTaskMsg{Cmd: m.createMergeRequest()}
+				return tuishell.StartTaskMsg{Cmd: createCmd}
 			})
 			m.pendingCreateMR = false
 		}
